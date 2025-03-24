@@ -3,7 +3,7 @@
 - 定义一些要用到的变量、类型
 - struct point 坐标的x,y值
 - struct point_value 一个有值的点
-- KeyMap 键盘映射(上下左右、撤回、推出、提交、更换指针)
+- KeyMap 键盘映射(上下左右、撤回、退出、提交、更换指针)
 
 # utility.inl
 - 包含各种内联函数工具的文件

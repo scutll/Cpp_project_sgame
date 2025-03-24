@@ -13,6 +13,8 @@ C++大作业，活字飞花
    │--command.cpp    //命令类，绑定scece对象来实现操作方盘
    │--command.h     
    │--common.h       //游戏里会用到的一些变量/常量
+   │--language.cpp
+   │--language.h
    │--input.cpp      //接收输入
    │--input.h   
    │--main.cpp       
