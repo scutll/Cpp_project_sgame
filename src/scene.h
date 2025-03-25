@@ -5,16 +5,16 @@
 #include <vector>
 #include "common.h"
 #include "block.h"
-
-// ------------------>x  
-// │0  1  2  3  4  5 
-// │6  7  8  9  10 11
-// │12 13 14 15 16 17        坐标x,y对应x+y*6
-// │18 19 20 21 22 23
-// │24 25 26 27 28 29
-// │30 31 32 33 34 35
-// v
-// y
+//    0  1  2  3  4  5   
+//   ------------------>x  
+// 0 │0  1  2  3  4  5 
+// 1 │6  7  8  9  10 11
+// 2 │12 13 14 15 16 17        坐标x,y对应x+y*6
+// 3 │18 19 20 21 22 23
+// 4 │24 25 26 27 28 29
+// 5 │30 31 32 33 34 35
+//   v
+//   y
 class Scene{
 public:
     Scene();
@@ -23,8 +23,10 @@ public:
     void Switch_Column();
     void Switch_Row();
     void Switch_Cross(bool up_down = true); //只有在同一行或同一列且两个标记点相隔两个格子才能交换十字
+    void swap_point(point_ p1, point_ p2);
     void execute(); //判断并执行操作
-
+    void Switch_point(); //切换当前要移动的光标
+    void Move(direction dirt); //cur_point_ 向指定方向移动一格
 
     void generate(); //生成图形
 
@@ -47,6 +49,7 @@ private:
     point_value_ map[36];
     point_ cur_point_1;
     point_ cur_point_2;
+    point_* cur_point_;  //目前在控制的标记
     int max_col;
     KeyMap *Keymap{};
     
@@ -55,14 +58,5 @@ private:
     //创建Command类后创建vector命令历史
 };
 
-//三种操作
-enum class ops : int
-{
-    SWITCH_COL,
-    SWITCH_ROW,
-    SWITCH_CROSS_LR,
-    SWITCH_CROSS_UD,
-    MAX
-};
 
 #endif

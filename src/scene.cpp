@@ -10,6 +10,15 @@ const int max_count = 36;
 Scene::Scene():max_col(6){
     cur_point_1 = point_(0,0);
     cur_point_2 = point_(0,0);
+    cur_point_ = &cur_point_1;
+}
+
+
+void Scene::Switch_point(){
+    if (cur_point_ == &cur_point_1)
+        cur_point_ = &cur_point_2;
+    else
+        cur_point_ = &cur_point_1;
 }
 
 void Scene::generate(){
@@ -116,6 +125,7 @@ void Scene::Switch_Column(){
     }
 }
 
+
 void Scene::Switch_Row(){
     int y1 = cur_point_1.y;
     int y2 = cur_point_2.y;
@@ -127,4 +137,40 @@ void Scene::Switch_Row(){
         _row_block[y1].setNum(i, _row_block[y2].getNum(i));
         _row_block[y2].setNum(i, tmp);
     }
+}
+
+void Scene::Switch_Cross(bool up_down = true){
+    Cross cross1 = Cross(cur_point_1);
+    Cross cross2 = Cross(cur_point_2);
+
+    Cross small_ = cross1 > cross2 ? cross2 : cross1;
+    Cross big_ = cross1 > cross2 ? cross1 : cross2;
+
+
+    switch(up_down){
+        case true:
+            if(small_.up != nullptr)
+                swap_point(*(small_.up), *(big_.down));
+            if(small_.down != nullptr)
+                swap_point(*(small_.down), *(big_.up));
+            if(small_.left != nullptr)
+                swap_point(*(small_.left), *(big_.left));
+            if(small_.right != nullptr)
+                swap_point(*(small_.right), *(big_.right));
+        case false:
+            if(small_.up != nullptr)
+                swap_point(*(small_.up), *(big_.up));
+            if(small_.down != nullptr)
+                swap_point(*(small_.down), *(big_.down));
+            if(small_.left != nullptr)
+                swap_point(*(small_.left), *(big_.right));
+            if(small_.right != nullptr)
+                swap_point(*(small_.right), *(big_.left));
+    }
+}
+
+void Scene::swap_point(point_ p1,point_ p2){
+    int tmp = map[p1.x + p1.y * 6].value;
+    map[p1.x + p1.y * 6].value = map[p2.x + p2.y].value;
+    map[p2.x + p2.y * 6].value = tmp;
 }

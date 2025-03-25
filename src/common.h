@@ -86,4 +86,84 @@ struct NORMAL:KeyMap{
     }
 };
 
+
+//三种操作
+enum class ops : int
+{
+    SWITCH_COL,
+    SWITCH_ROW,
+    SWITCH_CROSS_LR,
+    SWITCH_CROSS_UD,
+    MAX
+};
+
+//标记移动三种方向
+enum class direction : int
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+
+//十字，用于寻找自己周围的十字
+class Cross{
+public:
+    Cross(const point_ point) : center_point(point),p_num(1),up(nullptr),down(nullptr),left(nullptr),right(nullptr){
+        Form_Cross();
+    }
+    Cross(int x, int y) : center_point(point_(x,y)),p_num(1),up(nullptr),down(nullptr),left(nullptr),right(nullptr){}
+    ~Cross(){
+        delete up;
+        delete down;
+        delete left;
+        delete right;
+    }
+    void Form_Cross(){
+
+        int x_ = center_point.x;
+        int y_ = center_point.y;
+
+        if(y_>0){
+            up = new point_(x_, y_ - 6);
+            p_num++;
+            }
+        if(y_<5){
+            down = new point_(x_, y_ + 6);
+            p_num++;
+        }
+        if(x_>0){
+            left = new point_(x_-1,y_);
+            p_num++;
+        }
+        if(x_<5){
+            right = new point_(x_+1,y_);
+            p_num++;
+        }
+    }
+
+    int Cross_num(){
+        assert(p_num <= 5 && p_num >= 3);
+        return p_num;
+    }
+
+    bool operator>(Cross& oth) const{
+        return this->p_num > oth.p_num;
+    }
+
+    bool operator<(Cross& oth) const{
+        return !(this->operator>(oth) && this->p_num != oth.p_num);
+    }
+
+    point_* up;
+    point_* down;
+    point_* left;
+    point_* right;
+
+
+private:
+    point_ center_point;
+    int p_num;
+};
+
 #endif
