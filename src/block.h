@@ -12,9 +12,11 @@ protected:
 
 public:
     Block():count(0){}
+    int getNum(int index);
     bool isFull() const;
     virtual bool isValid() const;
     virtual void print() const;
+    int Block::setNum(int index, int num);
     void push_back(point_value_ *point);
 };
 
@@ -30,5 +32,6 @@ public:
     Block_Column() { Block(); }
     virtual bool isValid() const;
 };
+
 
 #endif

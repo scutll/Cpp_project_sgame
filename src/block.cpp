@@ -51,3 +51,21 @@ void Block::push_back(point_value_* point){
 void Block_Row::print() const{
     //未实现
 }
+
+int Block::getNum(int index){
+    if(numbers[index] == nullptr)
+        return 0;
+    else
+        return numbers[index]->value;
+}
+
+int Block::setNum(int index,int num){
+    if(numbers[index] == nullptr)
+    {
+        point_value_ point(num);
+        numbers[index] = &point;
+    }
+    else
+        numbers[index]->value = num;
+    numbers[index]->status = Status::filled;
+}

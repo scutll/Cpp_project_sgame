@@ -6,6 +6,15 @@
 #include "common.h"
 #include "block.h"
 
+// ------------------>x  
+// │0  1  2  3  4  5 
+// │6  7  8  9  10 11
+// │12 13 14 15 16 17        坐标x,y对应x+y*6
+// │18 19 20 21 22 23
+// │24 25 26 27 28 29
+// │30 31 32 33 34 35
+// v
+// y
 class Scene{
 public:
     Scene();
@@ -13,8 +22,10 @@ public:
     //交换相邻两行/列
     void Switch_Column();
     void Switch_Row();
-    void Switch_Cross(); //只有在同一行或同一列且两个标记点相隔两个格子才能交换十字
-    
+    void Switch_Cross(bool up_down = true); //只有在同一行或同一列且两个标记点相隔两个格子才能交换十字
+    void execute(); //判断并执行操作
+
+
     void generate(); //生成图形
 
     void show() const; //打印图形
@@ -49,7 +60,8 @@ enum class ops : int
 {
     SWITCH_COL,
     SWITCH_ROW,
-    SWITCH_CROSS,
+    SWITCH_CROSS_LR,
+    SWITCH_CROSS_UD,
     MAX
 };
 

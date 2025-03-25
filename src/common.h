@@ -1,5 +1,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
+
+#include <cassert>
 //初始化时判断数字是否已经全部填上到格子里
 enum class Status
 {
@@ -11,12 +13,31 @@ enum class Status
 using point_ = struct point_{
     int x;
     int y;
+
+    point_() : x(0), y(0) {}
+
+    point_(int x,int y){
+        this->x = x;
+        this->y = y;
+    }
 };
 
 //某坐标存储该结构，存放值
 using point_value_ = struct point_value_{
     int value;
     Status status;
+
+    point_value_(){
+        this->value = 0;
+        this->status = Status::unfilled;
+    }
+
+    point_value_(int num){
+        assert(num <= 36 && num >= 1);
+
+        this->status = Status::filled;
+        this->value = num;
+    }
 
     bool operator==(point_value_& oth){
         return oth.status == this->status&&oth.value == this->value;
