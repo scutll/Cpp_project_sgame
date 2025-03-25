@@ -1,8 +1,10 @@
 #include "scene.h"
 #include "common.h"
+#include "display_symbol.h"
 #include "utility.inl"
 #include <vector>
 #include <cassert>
+#include <iostream>
 #include <cmath>
 
 const int max_count = 36;
@@ -19,6 +21,7 @@ void Scene::Switch_point(){
         cur_point_ = &cur_point_2;
     else
         cur_point_ = &cur_point_1;
+    Command_History.push_back(ops::SWITCH_POINT);
 }
 
 void Scene::generate(){
@@ -94,21 +97,22 @@ ops Scene::Dete_OPMode() const{
 
 void Scene::execute(){
     //判断当前两个标记位置所代表的操作
+    //还要将操作历史存入数组
     ops op = Dete_OPMode();
 
     switch(op){
         //交换两列
         case ops::SWITCH_COL:
-            break;
+            Switch_Column();
         // 交换两行
         case ops::SWITCH_ROW:
-            break;
+            Switch_Row();
         // 上下交换十字
         case ops::SWITCH_CROSS_UD:
-            break;
+            Switch_Cross(true);
         // 左右交换十字
         case ops::SWITCH_CROSS_LR:
-            break;
+            Switch_Cross(false);
     }
 }
 
@@ -123,6 +127,8 @@ void Scene::Switch_Column(){
         _col_block[x1].setNum(i,_col_block[x2].getNum(i));
         _col_block[x2].setNum(i, tmp);
     }
+
+    Command_History.push_back(ops::SWITCH_COL);
 }
 
 
@@ -137,6 +143,8 @@ void Scene::Switch_Row(){
         _row_block[y1].setNum(i, _row_block[y2].getNum(i));
         _row_block[y2].setNum(i, tmp);
     }
+
+    Command_History.push_back(ops::SWITCH_ROW);
 }
 
 void Scene::Switch_Cross(bool up_down = true){
@@ -157,6 +165,8 @@ void Scene::Switch_Cross(bool up_down = true){
                 swap_point(*(small_.left), *(big_.left));
             if(small_.right != nullptr)
                 swap_point(*(small_.right), *(big_.right));
+            Command_History.push_back(ops::SWITCH_CROSS_UD);
+            break;
         case false:
             if(small_.up != nullptr)
                 swap_point(*(small_.up), *(big_.up));
@@ -166,6 +176,7 @@ void Scene::Switch_Cross(bool up_down = true){
                 swap_point(*(small_.left), *(big_.right));
             if(small_.right != nullptr)
                 swap_point(*(small_.right), *(big_.left));
+            Command_History.push_back(ops::SWITCH_CROSS_LR);
     }
 }
 
@@ -173,4 +184,60 @@ void Scene::swap_point(point_ p1,point_ p2){
     int tmp = map[p1.x + p1.y * 6].value;
     map[p1.x + p1.y * 6].value = map[p2.x + p2.y].value;
     map[p2.x + p2.y * 6].value = tmp;
+}
+
+
+void Scene::Move(direction dirt){
+    switch(dirt){
+        case direction::UP:
+            if(cur_point_->y > 0){
+                cur_point_->y++;
+                Command_History.push_back(ops::MOVE_UP);
+                }
+            break;
+        case direction::DOWN:
+            if(cur_point_->y < 5){
+                cur_point_->y--;
+                Command_History.push_back(ops::MOVE_DOWN);
+            }
+            break;
+        case direction::LEFT:
+            if(cur_point_->x > 0){
+                cur_point_->x--;
+                Command_History.push_back(ops::MOVE_LEFT);
+            }
+            break;
+        case direction::RIGHT:
+            if(cur_point_->x > 0){
+                Command_History.push_back(ops::MOVE_RIGHT);
+                cur_point_->x++;
+            }
+    }
+}
+
+void Scene::show() const{
+    // printUnderline();
+    for (int j = 0; j < max_col; j++)
+        std::cout << "   ";
+    std::cout << std::endl;
+
+    for (int i = 0; i < max_col; i++)
+    {
+        for (int j = 0; j < max_col; j++)
+        {
+            std::cout << " " << map[i * 6 + j].value << " ";
+        }
+        std::cout << std::endl;
+        // printUnderline();
+        for (int j = 0; j < max_col; j++)
+        {
+            if ((!(cur_point_1.y == i && cur_point_1.x == j)) && (!(cur_point_2.y == i && cur_point_2.x == j)))
+                continue;
+            else if (cur_point_1.y == i && cur_point_1.x == j)
+                std::cout << " " << ARROW1 << " ";
+            else if (cur_point_2.y == i && cur_point_2.x == j)
+                std::cout << " " << ARROW2 << " ";
+        }
+        std::cout << std::endl;
+        }
 }

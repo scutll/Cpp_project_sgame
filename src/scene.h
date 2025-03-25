@@ -52,8 +52,7 @@ private:
     point_* cur_point_;  //目前在控制的标记
     int max_col;
     KeyMap *Keymap{};
-    
-    
+    std::vector<ops> Command_History;
 
     //创建Command类后创建vector命令历史
 };

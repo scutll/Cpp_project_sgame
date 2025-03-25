@@ -20,6 +20,10 @@ using point_ = struct point_{
         this->x = x;
         this->y = y;
     }
+
+    bool operator==(point_& p)const{
+        return (p.x == this->x) && (p.y == this->y);
+    }
 };
 
 //某坐标存储该结构，存放值
@@ -87,13 +91,18 @@ struct NORMAL:KeyMap{
 };
 
 
-//三种操作
+//操作
 enum class ops : int
 {
     SWITCH_COL,
     SWITCH_ROW,
     SWITCH_CROSS_LR,
     SWITCH_CROSS_UD,
+    SWITCH_POINT,
+    MOVE_UP,
+    MOVE_DOWN,
+    MOVE_LEFT,
+    MOVE_RIGHT,
     MAX
 };
 
