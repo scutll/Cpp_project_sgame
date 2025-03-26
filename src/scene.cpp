@@ -367,6 +367,21 @@ void Scene::play(){
             undo();
         else if(key == Keymap->FINISH_CHECK){
             //检查是否完成 完成则祝贺任意键退出否则继续
+            if(isComplete()){
+                send_msg(I18n::Instance().getKey(I18n::Key::CONGRATULATION));
+                getchar();
+                exit(0);
+            }
+            else{
+                send_msg(I18n::Instance().getKey(I18n::Key::NOT_COMPLETED));
+            }
         }
+        else if(key == Keymap->ESC){
+            send_msg(I18n::Instance().getKey(I18n::Key::ASK_QUIT));
+            char q = getchar();
+            if(q == 'y' || q == 'Y')
+                exit(0);
+        }
+        show();
     }
 }

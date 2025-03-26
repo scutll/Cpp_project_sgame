@@ -2,7 +2,7 @@
 #include "language.h"
 
 I18n::Dict chinese = {
-    {I18n::Key::ASK_KEY_MAP,"选择按键模式,默认WASD"},
+    {I18n::Key::ASK_KEY_MAP,"选择按键模式,默认1->WASD"},
     {I18n::Key::INPUT_ERROR,"输入错误！"},
     {I18n::Key::LOAD_ARCHIVE_FAIL,"导入存档错误"},
     {I18n::Key::ASK_QUIT,"要退出吗 [Y/N]"},
