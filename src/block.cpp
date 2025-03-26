@@ -3,8 +3,6 @@
 #include <cassert>
 #include "display_symbol.h"
 
-Block::Block():count(0){}
-
 //判断是否有相同数字
 bool Block_Row::isValid() const{
     assert(MAX_COUNT == count); //false 则返回错误
@@ -59,7 +57,7 @@ int Block::getNum(int index){
         return numbers[index]->value;
 }
 
-int Block::setNum(int index,int num){
+void Block::setNum(int index,int num){
     if(numbers[index] == nullptr)
     {
         point_value_ point(num);

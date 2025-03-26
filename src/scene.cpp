@@ -1,9 +1,11 @@
 #include "scene.h"
 #include "common.h"
+#include "color.h"
 #include "display_symbol.h"
 #include "language.h"
 #include "utility.inl"
 #include <vector>
+#include <iomanip>
 #include <cassert>
 #include <iostream>
 #include <cmath>
@@ -12,7 +14,7 @@ const int max_count = 36;
 
 Scene::Scene():max_col(6){
     cur_point_1 = point_(0,0);
-    cur_point_2 = point_(0,0);
+    cur_point_2 = point_(1,0);
     cur_point_ = &cur_point_1;
 }
 
@@ -178,7 +180,7 @@ void Scene::Switch_Row(){
     Command_History.push_back(ops::SWITCH_ROW);
 }
 
-void Scene::Switch_Cross(bool up_down = true){
+void Scene::Switch_Cross(bool up_down){
     Cross cross1 = Cross(cur_point_1);
     Cross cross2 = Cross(cur_point_2);
 
@@ -277,14 +279,14 @@ void Scene::show() const{
 
     // printUnderline();
     for (int j = 0; j < max_col; j++)
-        std::cout << "   ";
+        std::cout << "     ";
     std::cout << std::endl;
 
     for (int i = 0; i < max_col; i++)
     {
         for (int j = 0; j < max_col; j++)
         {
-            std::cout << " " << map[i * 6 + j].value << " ";
+            std::cout << "  " <<std::setw(2)<< map[i * 6 + j].value << " ";
         }
         std::cout << std::endl;
         // printUnderline();
@@ -292,10 +294,18 @@ void Scene::show() const{
         {
             if ((!(cur_point_1.y == i && cur_point_1.x == j)) && (!(cur_point_2.y == i && cur_point_2.x == j)))
                 continue;
-            else if (cur_point_1.y == i && cur_point_1.x == j)
-                std::cout << " " << ARROW1 << " ";
-            else if (cur_point_2.y == i && cur_point_2.x == j)
-                std::cout << " " << ARROW2 << " ";
+            else if (cur_point_1.y == i && cur_point_1.x == j){
+                if(cur_point_ == &cur_point_1)
+                    std::cout <<Color::Modifier(Color::RESET,Color::BG_BLUE,Color::FG_BLUE)<< "  " << ARROW1 << "  "<<Color::Modifier();
+                else
+                    std::cout << "  " << ARROW2 << "  ";
+            }
+            else if (cur_point_2.y == i && cur_point_2.x == j){
+                if(cur_point_ == &cur_point_2)
+                    std::cout <<Color::Modifier(Color::RESET,Color::BG_BLUE,Color::FG_BLUE)<< "  "  << ARROW2 << "  "<<Color::Modifier();
+                else
+                    std::cout << "  " << ARROW2 << "  ";
+            }
         }
         std::cout << std::endl;
         }
@@ -350,38 +360,65 @@ void Scene::play(){
         key = _getch();
 
         if(key == Keymap->UP)
-            Move(direction::UP);
+            {
+                Move(direction::UP);
+                cls();
+                show();
+            }
         else if(key == Keymap->DOWN)
-            Move(direction::DOWN); 
-        else if(key == Keymap->LEFT)
+            {
+                Move(direction::DOWN);
+                cls();
+                show();
+            }
+        else if(key == Keymap->LEFT){
             Move(direction::LEFT);
-        else if(key == Keymap->RIGHT)
+            cls();
+            show();
+            }       
+        else if(key == Keymap->RIGHT){
             Move(direction::RIGHT);
+            cls();
+            show();
+            }
 
-
-        else if(key == Keymap->SWITCH)
+        else if(key == Keymap->SWITCH){
             Switch_point();
-        else if(key == Keymap->EXECUTE)
+            cls();
+            show();
+            }
+        else if(key == Keymap->EXECUTE){
             execute();
-        else if(key == Keymap->UNDO)
+            cls();
+            show();
+            }
+        else if(key == Keymap->UNDO){
             undo();
+            cls();
+            show();
+            }
         else if(key == Keymap->FINISH_CHECK){
             //检查是否完成 完成则祝贺任意键退出否则继续
             if(isComplete()){
+                cls();
+                show();
                 send_msg(I18n::Instance().getKey(I18n::Key::CONGRATULATION));
                 getchar();
                 exit(0);
             }
             else{
+                cls();
+                show();
                 send_msg(I18n::Instance().getKey(I18n::Key::NOT_COMPLETED));
             }
         }
         else if(key == Keymap->ESC){
             send_msg(I18n::Instance().getKey(I18n::Key::ASK_QUIT));
             char q = getchar();
-            if(q == 'y' || q == 'Y')
+            if(q == 'y' || q == 'Y'){
+                cls();
                 exit(0);
+            }
         }
-        show();
     }
 }

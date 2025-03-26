@@ -15,7 +15,7 @@ I18n::Dict chinese = {
 };
 
 I18n::Dict english = {
-    {I18n::Key::ASK_KEY_MAP,"Choose key mode, default is WASD"},
+    {I18n::Key::ASK_KEY_MAP,"Choose key mode, default->WASD"},
     {I18n::Key::INPUT_ERROR,"Input error!"},
     {I18n::Key::LOAD_ARCHIVE_FAIL,"Failed to load archive"},
     {I18n::Key::ASK_QUIT,"Do you want to quit [Y/N]"},

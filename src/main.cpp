@@ -4,7 +4,6 @@
 #include "utility.inl"
 #include "language.h"
 
-I18n i18n;
 
 int main(){
     Scene game;
@@ -12,11 +11,11 @@ int main(){
 
     std::cout << "1 English, 2 简体中文" << std::endl;
     c = _getch();
-    if(c == 1){
-        i18n.setLanguage(Language::ENGLISH);
+    if(c == '1'){
+        I18n::Instance().setLanguage(Language::ENGLISH);
     }
     else
-        i18n.setLanguage(Language::CHINESE);
+        I18n::Instance().setLanguage(Language::CHINESE);
 
     send_msg(I18n::Instance().getKey(I18n::Key::ASK_KEY_MAP));
     c = _getch();

@@ -83,10 +83,10 @@ struct KeyMap
 
 struct NORMAL:KeyMap{
     NORMAL(){
-    UP = 0x77; 
-    LEFT = 0x61;
-    DOWN = 0x73;
-    RIGHT = 0x64;
+        UP = 0x77; 
+        LEFT = 0x61;
+        DOWN = 0x73;
+        RIGHT = 0x64;
     }
 };
 
@@ -94,7 +94,7 @@ struct NORMAL:KeyMap{
 //操作
 enum class ops : int
 {
-    SWITCH_COL = 1,
+     SWITCH_COL = 1,
      SWITCH_ROW = 2,
      SWITCH_CROSS_LR = 4,
      SWITCH_CROSS_UD = 8,
@@ -108,11 +108,11 @@ enum class ops : int
     
     };
     
-    ops operator|(ops a, ops b){
+    inline ops operator|(ops a, ops b){
         return static_cast<ops>(static_cast<int>(a) | static_cast<int>(b));
     }
 
-    ops operator&(ops a, ops b){
+    inline ops operator&(ops a, ops b){
         return static_cast<ops>(static_cast<int>(a) & static_cast<int>(b));
     }
 
