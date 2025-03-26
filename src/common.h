@@ -94,17 +94,28 @@ struct NORMAL:KeyMap{
 //操作
 enum class ops : int
 {
-    SWITCH_COL,
-    SWITCH_ROW,
-    SWITCH_CROSS_LR,
-    SWITCH_CROSS_UD,
-    SWITCH_POINT,
-    MOVE_UP,
-    MOVE_DOWN,
-    MOVE_LEFT,
-    MOVE_RIGHT,
-    MAX
-};
+    SWITCH_COL = 1,
+     SWITCH_ROW = 2,
+     SWITCH_CROSS_LR = 4,
+     SWITCH_CROSS_UD = 8,
+     SWITCH_POINT = 16,
+     MOVE_UP = 32,
+     MOVE_DOWN = 64,
+     MOVE_LEFT = 128,
+     MOVE_RIGHT = 256,
+     MAX
+
+    
+    };
+    
+    ops operator|(ops a, ops b){
+        return static_cast<ops>(static_cast<int>(a) | static_cast<int>(b));
+    }
+
+    ops operator&(ops a, ops b){
+        return static_cast<ops>(static_cast<int>(a) & static_cast<int>(b));
+    }
+
 
 //标记移动三种方向
 enum class direction : int

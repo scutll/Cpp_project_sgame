@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "common.h"
 #include "display_symbol.h"
+#include "language.h"
 #include "utility.inl"
 #include <vector>
 #include <cassert>
@@ -95,6 +96,31 @@ ops Scene::Dete_OPMode() const{
     }
 }
 
+void Scene::undo_(ops op){
+    switch(op){
+        //交换两列
+        case ops::SWITCH_COL:
+            Switch_Column();
+            break;
+        // 交换两行
+        case ops::SWITCH_ROW:
+            Switch_Row();
+            break;
+        // 上下交换十字
+        case ops::SWITCH_CROSS_UD:
+            Switch_Cross(true);
+            break;
+        // 左右交换十字
+        case ops::SWITCH_CROSS_LR:
+            Switch_Cross(false);
+            break;
+        case ops::SWITCH_POINT:
+            Switch_point();
+        default:
+            break;
+    }
+}
+
 void Scene::execute(){
     //判断当前两个标记位置所代表的操作
     //还要将操作历史存入数组
@@ -104,15 +130,20 @@ void Scene::execute(){
         //交换两列
         case ops::SWITCH_COL:
             Switch_Column();
+            break;
         // 交换两行
         case ops::SWITCH_ROW:
             Switch_Row();
+            break;
         // 上下交换十字
         case ops::SWITCH_CROSS_UD:
             Switch_Cross(true);
-        // 左右交换十字
+            break;
+            // 左右交换十字
         case ops::SWITCH_CROSS_LR:
             Switch_Cross(false);
+        default:
+            break;
     }
 }
 
@@ -215,7 +246,35 @@ void Scene::Move(direction dirt){
     }
 }
 
+
+void Scene::Move(ops op){
+    assert(static_cast<int>(op & (ops::MOVE_DOWN | ops::MOVE_LEFT | ops::MOVE_RIGHT | ops::MOVE_UP)) != 0);
+
+    direction dir;
+    switch (op)
+    {
+    case ops::MOVE_DOWN:
+        dir = direction::DOWN;
+        break;
+    case ops::MOVE_UP:
+        dir = direction::UP;
+        break;
+    case ops::MOVE_LEFT:
+        dir = direction::LEFT;
+        break;
+    case ops::MOVE_RIGHT:
+        dir = direction::RIGHT;
+    default:
+        break;
+    }
+
+    Move(dir);
+}
+
 void Scene::show() const{
+
+    //当前在操作的光标要打印成红色
+
     // printUnderline();
     for (int j = 0; j < max_col; j++)
         std::cout << "   ";
@@ -240,4 +299,74 @@ void Scene::show() const{
         }
         std::cout << std::endl;
         }
+}
+
+
+void Scene::SetMode(KeyMode mode){
+    switch(mode){
+        case  KeyMode::NORMAL:
+            Keymap = new NORMAL;
+            break;
+        default:
+            break;
+    }
+}
+
+
+void Scene::undo(){
+    if(!Command_History.size()){
+        send_msg(I18n::Instance().getKey(I18n::Key::UNDOERROR));
+    }
+    ops undo = Command_History.back();
+    Command_History.pop_back();
+
+    if (undo == ops::MOVE_DOWN)
+        undo = ops::MOVE_UP;
+    else if (undo == ops::MOVE_UP)
+        undo = ops::MOVE_DOWN;
+    else if (undo == ops::MOVE_LEFT)
+        undo = ops::MOVE_RIGHT;
+    else if (undo == ops::MOVE_RIGHT)
+        undo = ops::MOVE_LEFT;
+    
+    if(static_cast<int>(undo & (ops::MOVE_DOWN|ops::MOVE_LEFT|ops::MOVE_RIGHT|ops::MOVE_UP)) != 0)
+        Move(undo);
+    else if(static_cast<int>(undo &(ops::SWITCH_ROW|ops::SWITCH_COL|ops::SWITCH_CROSS_LR|ops::SWITCH_CROSS_UD|ops::SWITCH_POINT)) != 0)
+        undo_(undo);
+    else
+        {
+            send_msg(I18n::Instance().getKey(I18n::Key::UNDOERROR));
+            std::cout << "fail to undo!";
+        }
+}
+
+
+void Scene::play(){
+    show();
+
+    char key = '\0';
+    
+    while(true){
+        key = _getch();
+
+        if(key == Keymap->UP)
+            Move(direction::UP);
+        else if(key == Keymap->DOWN)
+            Move(direction::DOWN); 
+        else if(key == Keymap->LEFT)
+            Move(direction::LEFT);
+        else if(key == Keymap->RIGHT)
+            Move(direction::RIGHT);
+
+
+        else if(key == Keymap->SWITCH)
+            Switch_point();
+        else if(key == Keymap->EXECUTE)
+            execute();
+        else if(key == Keymap->UNDO)
+            undo();
+        else if(key == Keymap->FINISH_CHECK){
+            //检查是否完成 完成则祝贺任意键退出否则继续
+        }
+    }
 }
