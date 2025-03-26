@@ -19,7 +19,7 @@ int main(){
 
     send_msg(I18n::Instance().getKey(I18n::Key::ASK_KEY_MAP));
     c = _getch();
-    if(c == 1){
+    if(c == '1'){
         game.SetMode(KeyMode::NORMAL);
     }
 

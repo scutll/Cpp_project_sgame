@@ -75,7 +75,7 @@ struct KeyMap
     char DOWN;
     char RIGHT;
     const char SWITCH = 0x6A; // 切换光标 j
-    const char EXECUTE = 0x20; // 执行行列变换操作 space
+    const char EXECUTE = 0x20; // 执行变换操作 space
     const char FINISH_CHECK = 0x0D; // 完成游戏判断是否成功 enter
     const char UNDO = 0x75;  //u
     const char ESC = 0x1B; //esc
@@ -179,10 +179,10 @@ public:
     point_* down;
     point_* left;
     point_* right;
+    point_ center_point;
 
 
 private:
-    point_ center_point;
     int p_num;
 };
 

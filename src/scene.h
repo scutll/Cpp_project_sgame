@@ -28,7 +28,7 @@ public:
     void Switch_point(); //切换当前要移动的光标
     void Move(direction dirt); //cur_point_ 向指定方向移动一格
     void Move(ops op);
-    void undo();
+    bool undo();
     void undo_(ops op);
 
     void generate(); //生成图形

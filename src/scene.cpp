@@ -84,12 +84,12 @@ ops Scene::Dete_OPMode() const{
         return ops::SWITCH_COL;
     }
     //上下十字
-    else if(p1.x == p2.x && abs(p1.y - p2.y) == 2)
+    else if(p1.x == p2.x && abs(p1.y - p2.y) == 3)
     {
         return ops::SWITCH_CROSS_UD;
     }
     //左右十字
-    else if(p1.y == p2.y && abs(p1.x - p2.x) == 2)
+    else if(p1.y == p2.y && abs(p1.x - p2.x) == 3)
     {
         return ops::SWITCH_CROSS_LR;
     }
@@ -181,56 +181,63 @@ void Scene::Switch_Row(){
 }
 
 void Scene::Switch_Cross(bool up_down){
-    Cross cross1 = Cross(cur_point_1);
-    Cross cross2 = Cross(cur_point_2);
+    Cross cross1 = Cross(cur_point_1.x,cur_point_1.y);
+    Cross cross2 = Cross(cur_point_2.x,cur_point_2.y);
 
-    Cross small_ = cross1 > cross2 ? cross2 : cross1;
-    Cross big_ = cross1 > cross2 ? cross1 : cross2;
+    cross1.Form_Cross();
+    cross2.Form_Cross();
+
+    Cross* small_ = cross1 > cross2 ? &cross2 : &cross1;
+    Cross* big_ = cross1 > cross2 ? &cross1 : &cross2;
 
 
     switch(up_down){
         case true:
-            if(small_.up != nullptr)
-                swap_point(*(small_.up), *(big_.down));
-            if(small_.down != nullptr)
-                swap_point(*(small_.down), *(big_.up));
-            if(small_.left != nullptr)
-                swap_point(*(small_.left), *(big_.left));
-            if(small_.right != nullptr)
-                swap_point(*(small_.right), *(big_.right));
+            if(small_->up != nullptr)
+                swap_point(*(small_->up), *(big_->down));
+            if(small_->down != nullptr)
+                swap_point(*(small_->down), *(big_->up));
+            if(small_->left != nullptr)
+                swap_point(*(small_->left), *(big_->left));
+            if(small_->right != nullptr)
+                swap_point(*(small_->right), *(big_->right));
+            swap_point((small_->center_point), (big_->center_point));
             Command_History.push_back(ops::SWITCH_CROSS_UD);
             break;
         case false:
-            if(small_.up != nullptr)
-                swap_point(*(small_.up), *(big_.up));
-            if(small_.down != nullptr)
-                swap_point(*(small_.down), *(big_.down));
-            if(small_.left != nullptr)
-                swap_point(*(small_.left), *(big_.right));
-            if(small_.right != nullptr)
-                swap_point(*(small_.right), *(big_.left));
+            if(small_->up != nullptr)
+                swap_point(*(small_->up), *(big_->up));
+            if(small_->down != nullptr)
+                swap_point(*(small_->down), *(big_->down));
+            if(small_->left != nullptr)
+                swap_point(*(small_->left), *(big_->right));
+            if(small_->right != nullptr)
+                swap_point(*(small_->right), *(big_->left));
             Command_History.push_back(ops::SWITCH_CROSS_LR);
+        default:
+            swap_point((small_->center_point), (big_->center_point));
     }
 }
 
 void Scene::swap_point(point_ p1,point_ p2){
     int tmp = map[p1.x + p1.y * 6].value;
-    map[p1.x + p1.y * 6].value = map[p2.x + p2.y].value;
+    map[p1.x + p1.y * 6].value = map[p2.x + p2.y*6].value;
     map[p2.x + p2.y * 6].value = tmp;
 }
 
 
 void Scene::Move(direction dirt){
+    std::cout << "move" << std::endl;
     switch(dirt){
         case direction::UP:
             if(cur_point_->y > 0){
-                cur_point_->y++;
+                cur_point_->y--;
                 Command_History.push_back(ops::MOVE_UP);
                 }
             break;
         case direction::DOWN:
             if(cur_point_->y < 5){
-                cur_point_->y--;
+                cur_point_->y++;
                 Command_History.push_back(ops::MOVE_DOWN);
             }
             break;
@@ -241,11 +248,13 @@ void Scene::Move(direction dirt){
             }
             break;
         case direction::RIGHT:
-            if(cur_point_->x > 0){
+            if(cur_point_->x < 5){
                 Command_History.push_back(ops::MOVE_RIGHT);
                 cur_point_->x++;
             }
     }
+
+    assert((cur_point_->x >= 0 && cur_point_->x <= 5) || (cur_point_->y >= 0 || cur_point_->y <= 5));
 }
 
 
@@ -276,7 +285,7 @@ void Scene::Move(ops op){
 void Scene::show() const{
 
     //当前在操作的光标要打印成红色
-
+    cls();
     // printUnderline();
     for (int j = 0; j < max_col; j++)
         std::cout << "     ";
@@ -289,11 +298,13 @@ void Scene::show() const{
             std::cout << "  " <<std::setw(2)<< map[i * 6 + j].value << " ";
         }
         std::cout << std::endl;
+        
         // printUnderline();
+
         for (int j = 0; j < max_col; j++)
         {
             if ((!(cur_point_1.y == i && cur_point_1.x == j)) && (!(cur_point_2.y == i && cur_point_2.x == j)))
-                continue;
+                std::cout << "     ";
             else if (cur_point_1.y == i && cur_point_1.x == j){
                 if(cur_point_ == &cur_point_1)
                     std::cout <<Color::Modifier(Color::RESET,Color::BG_BLUE,Color::FG_BLUE)<< "  " << ARROW1 << "  "<<Color::Modifier();
@@ -308,13 +319,17 @@ void Scene::show() const{
             }
         }
         std::cout << std::endl;
-        }
+
+    }
+    std::cout << "p1:" << "( " << cur_point_1.x << " , " << cur_point_1.y << " )" << std::endl;
+    std::cout << "p2:" << "( " << cur_point_2.x << " , " << cur_point_2.y << " )" << std::endl;
 }
 
 
 void Scene::SetMode(KeyMode mode){
     switch(mode){
         case  KeyMode::NORMAL:
+            std::cout << "NORMAL" << std::endl;
             Keymap = new NORMAL;
             break;
         default:
@@ -323,9 +338,10 @@ void Scene::SetMode(KeyMode mode){
 }
 
 
-void Scene::undo(){
+bool Scene::undo(){
     if(!Command_History.size()){
         send_msg(I18n::Instance().getKey(I18n::Key::UNDOERROR));
+        return false;
     }
     ops undo = Command_History.back();
     Command_History.pop_back();
@@ -343,11 +359,13 @@ void Scene::undo(){
         Move(undo);
     else if(static_cast<int>(undo &(ops::SWITCH_ROW|ops::SWITCH_COL|ops::SWITCH_CROSS_LR|ops::SWITCH_CROSS_UD|ops::SWITCH_POINT)) != 0)
         undo_(undo);
-    else
-        {
+    else{
             send_msg(I18n::Instance().getKey(I18n::Key::UNDOERROR));
             std::cout << "fail to undo!";
-        }
+            return false;
+    }
+
+    return true;
 }
 
 
@@ -358,57 +376,46 @@ void Scene::play(){
     
     while(true){
         key = _getch();
+        std::cout << key << std::endl;
 
-        if(key == Keymap->UP)
-            {
-                Move(direction::UP);
-                cls();
-                show();
-            }
-        else if(key == Keymap->DOWN)
-            {
-                Move(direction::DOWN);
-                cls();
-                show();
-            }
+
+        if(key == Keymap->UP){
+            Move(direction::UP);
+            show();
+        }
+        else if(key == Keymap->DOWN){
+            Move(direction::DOWN);
+            show();
+        }
         else if(key == Keymap->LEFT){
             Move(direction::LEFT);
-            cls();
             show();
-            }       
+        }       
         else if(key == Keymap->RIGHT){
+            std::cout << "right" << std::endl;
             Move(direction::RIGHT);
-            cls();
             show();
-            }
-
+        }
         else if(key == Keymap->SWITCH){
             Switch_point();
-            cls();
             show();
-            }
+        }
         else if(key == Keymap->EXECUTE){
             execute();
-            cls();
             show();
-            }
+        }
         else if(key == Keymap->UNDO){
-            undo();
-            cls();
-            show();
-            }
+            if(undo())
+                show();
+        }
         else if(key == Keymap->FINISH_CHECK){
             //检查是否完成 完成则祝贺任意键退出否则继续
             if(isComplete()){
-                cls();
-                show();
                 send_msg(I18n::Instance().getKey(I18n::Key::CONGRATULATION));
                 getchar();
                 exit(0);
             }
             else{
-                cls();
-                show();
                 send_msg(I18n::Instance().getKey(I18n::Key::NOT_COMPLETED));
             }
         }
@@ -419,6 +426,9 @@ void Scene::play(){
                 cls();
                 exit(0);
             }
+        }
+        else{
+            send_msg(I18n::Instance().getKey(I18n::Key::INPUT_ERROR));
         }
     }
 }
