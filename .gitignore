@@ -1,3 +1,8 @@
 /game_structure/.obsidian\
-/bin
-/build
+# CMake
+build
+bin
+# IDE
+.vscode
+# clang
+.cache
