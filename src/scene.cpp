@@ -225,6 +225,13 @@ void Scene::swap_point(point_ p1,point_ p2){
     map[p2.x + p2.y * 6].value = tmp;
 }
 
+void Scene::setPoint(int x,int y){
+    assert((x >= 0 && x <= 5) && (y >= 0 && y <= 5));
+
+    cur_point_->x = x;
+    cur_point_->y = y;
+}
+
 
 void Scene::Move(direction dirt){
     std::cout << "move" << std::endl;

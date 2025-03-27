@@ -145,11 +145,11 @@ public:
         int y_ = center_point.y;
 
         if(y_>0){
-            up = new point_(x_, y_ - 6);
+            up = new point_(x_, y_ - 1);
             p_num++;
             }
         if(y_<5){
-            down = new point_(x_, y_ + 6);
+            down = new point_(x_, y_ + 1);
             p_num++;
         }
         if(x_>0){

@@ -24,6 +24,8 @@ public:
     void Switch_Row();
     void Switch_Cross(bool up_down = true); //只有在同一行或同一列且两个标记点相隔两个格子才能交换十字
     void swap_point(point_ p1, point_ p2);
+
+    void setPoint(int x, int y); // 设置cur_point 的坐标
     void execute(); //判断并执行操作
     void Switch_point(); //切换当前要移动的光标
     void Move(direction dirt); //cur_point_ 向指定方向移动一格
