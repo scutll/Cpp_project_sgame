@@ -16,7 +16,7 @@ public:
     bool isFull() const;
     virtual bool isValid() const { return false; }
     // virtual void print() const;
-    void Block::setNum(int index, int num);
+    void setNum(int index, int num);
     void push_back(point_value_ *point);
 };
 

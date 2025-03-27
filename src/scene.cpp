@@ -5,6 +5,7 @@
 #include "language.h"
 #include "utility.inl"
 #include <vector>
+#include <fstream>
 #include <iomanip>
 #include <cassert>
 #include <iostream>
@@ -74,12 +75,12 @@ ops Scene::Dete_OPMode() const{
     point_ p2 = cur_point_2;
 
     //相邻行交换
-    if(p1.x == p2.x && abs(p1.y - p2.y) == 1)
+    if(abs(p1.y - p2.y) == 1)
     {
         return ops::SWITCH_ROW;
     }
     //相邻列
-    else if(p1.y == p2.y && abs(p1.x - p2.x) == 1 )
+    else if(abs(p1.x - p2.x) == 1 )
     {
         return ops::SWITCH_COL;
     }
@@ -377,13 +378,21 @@ bool Scene::undo(){
 
 
 void Scene::play(){
+    send_msg(I18n::Instance().getKey(I18n::Key::ASK_LOAD));
+    char c;
+    c = getchar();
+
+    if(c == 'y' || c == 'Y')
+        load();
+
+    std::cin.get();
     show();
 
     char key = '\0';
     
     while(true){
         key = _getch();
-        std::cout << key << std::endl;
+        // std::cout << key << std::endl;
 
 
         if(key == Keymap->UP){
@@ -424,18 +433,84 @@ void Scene::play(){
             }
             else{
                 send_msg(I18n::Instance().getKey(I18n::Key::NOT_COMPLETED));
+                show();
             }
         }
         else if(key == Keymap->ESC){
             send_msg(I18n::Instance().getKey(I18n::Key::ASK_QUIT));
-            char q = getchar();
+            char q = std::cin.get();
             if(q == 'y' || q == 'Y'){
-                cls();
-                exit(0);
+
+                send_msg(I18n::Instance().getKey(I18n::Key::ASK_SAVE));
+                std::cin.get();
+                q = std::cin.get();
+                if(q == 'y'||q == 'Y'){
+                    save();
+                    std::cin.get();
+                    std::cin.get();
+                    cls();
+                    exit(0);
+                }
+                else{
+                    cls();
+                    exit(0);
+                }
             }
         }
         else{
             send_msg(I18n::Instance().getKey(I18n::Key::INPUT_ERROR));
+            show();
         }
     }
+}
+
+void Scene::save(){
+    send_msg(I18n::Instance().getKey(I18n::Key::ASK_SAVEPATH));
+
+    char path[100];
+    std::cin >> path;
+
+    std::ofstream fout(path, std::ios::binary);
+    if(!fout){
+        send_msg(I18n::Instance().getKey(I18n::Key::SAVE_ARCHIVE_FAIL));
+        exit(0);
+    }
+
+    fout.seekp(std::ios::beg);
+    for (int i = 0; i < max_col*max_col;i++){
+        fout.write(reinterpret_cast<char *>(&map[i]), sizeof(point_value_));
+    }
+
+    send_msg(I18n::Instance().getKey(I18n::Key::SAVE_ARCHIVE_SUCCEED));
+
+    fout.close();
+
+    return;
+}
+
+
+void Scene::load(){
+
+    send_msg(I18n::Instance().getKey(I18n::Key::ASK_LOADPATH));
+
+    char path[100];
+    std::cin >> path;
+
+    std::ifstream fin(path, std::ios::binary|std::ios::in);
+
+    if(!fin){
+        send_msg(I18n::Instance().getKey(I18n::Key::LOAD_ARCHIVE_FAIL));
+        std::cin.get();
+    }
+
+    for (int i = 0; i < max_col*max_col;i++){
+        fin.read(reinterpret_cast<char*>(&map[i]),sizeof(point_value_));
+    }
+
+    fin.close();
+
+
+
+
+    return;
 }

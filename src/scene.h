@@ -39,8 +39,8 @@ public:
 
     bool isComplete() const;
     void play();
-    bool save(const char *filename);
-    bool load(const char *filename);
+    void save();
+    void load();
 
     void SetMode(KeyMode keymode);
 

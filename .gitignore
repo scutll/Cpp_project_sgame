@@ -6,3 +6,8 @@ bin
 .vscode
 # clang
 .cache
+*.game
+
+# test 
+test.cpp
+test.exe
