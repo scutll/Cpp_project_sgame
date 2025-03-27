@@ -20,3 +20,18 @@ C++大作业，活字飞花
    │--player.cpp    //用户联机用
    └--utility.inl   //一些数学函数等小工具
 ```
+
+### 构建方式
+```bash
+   build.bat
+```
+
+or 
+
+
+'''cmd
+md build
+cd ./build
+cmake ..
+cmake --build .
+'''
