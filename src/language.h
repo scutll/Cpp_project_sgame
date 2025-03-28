@@ -15,6 +15,8 @@ class I18n{
 public:
     //语言键
     enum class Key{
+        WELCOME_PLAYER,
+        SAVE_TIME,
         ASK_KEY_MAP,
         INPUT_ERROR,
         LOAD_ARCHIVE_FAIL,
@@ -24,6 +26,7 @@ public:
         ASK_SAVE,
         ASK_LOAD,
         ASK_SAVEPATH,
+        ASK_SAVENAME,
         ASK_LOADPATH,
         UNDOERROR,
         NOT_COMPLETED,

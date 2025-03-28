@@ -2,6 +2,8 @@
 #include "language.h"
 
 I18n::Dict chinese = {
+    {I18n::Key::WELCOME_PLAYER,"欢迎! 玩家: "},
+    {I18n::Key::SAVE_TIME,"保存时间: "},
     {I18n::Key::ASK_KEY_MAP,"选择按键模式,默认1->WASD"},
     {I18n::Key::INPUT_ERROR,"输入错误！"},
     {I18n::Key::LOAD_ARCHIVE_FAIL,"导入存档错误"},
@@ -11,6 +13,7 @@ I18n::Dict chinese = {
     {I18n::Key::ASK_SAVE,"是否保存存档 [Y/N]"},
     {I18n::Key::ASK_LOAD,"是否载入存档 [Y/N]"},
     {I18n::Key::ASK_SAVEPATH,"保存路径: "},
+    {I18n::Key::ASK_SAVENAME,"输入你的用户名: "},
     {I18n::Key::ASK_LOADPATH,"导入路径: "},
     {I18n::Key::UNDOERROR,"无法撤回"},
     {I18n::Key::NOT_COMPLETED,"还未完成"},
@@ -19,7 +22,9 @@ I18n::Dict chinese = {
 };
 
 I18n::Dict english = {
-    {I18n::Key::ASK_KEY_MAP,"Choose key mode, default->WASD"},
+    {I18n::Key::WELCOME_PLAYER,"Welcome! player: "},
+    {I18n::Key::SAVE_TIME,"Save time: "},
+    {I18n::Key::ASK_KEY_MAP,"Choose key mode, default1->WASD"},
     {I18n::Key::INPUT_ERROR,"Input error!"},
     {I18n::Key::LOAD_ARCHIVE_FAIL,"Failed to load archive"},
     {I18n::Key::SAVE_ARCHIVE_FAIL,"Failed to save archive"},
@@ -28,6 +33,7 @@ I18n::Dict english = {
     {I18n::Key::ASK_SAVE,"Do you want to save your archive [Y/N]"},
     {I18n::Key::ASK_LOAD,"Do you want to load your archive [Y/N]"},
     {I18n::Key::ASK_SAVEPATH,"Save path: "},
+    {I18n::Key::ASK_SAVENAME,"Input your player name: "},
     {I18n::Key::ASK_LOADPATH,"Load path: "},
     {I18n::Key::UNDOERROR,"Cannot undo"},
     {I18n::Key::NOT_COMPLETED,"Not completed yet"},

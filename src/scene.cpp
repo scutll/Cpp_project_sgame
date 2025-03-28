@@ -10,6 +10,10 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
+#include <chrono>
+#include "save_package.h"
+#include <ctime>
+#include <cstring>
 
 const int max_count = 36;
 
@@ -446,8 +450,8 @@ void Scene::play(){
                 q = std::cin.get();
                 if(q == 'y'||q == 'Y'){
                     save();
-                    std::cin.get();
-                    std::cin.get();
+                    // std::cin.get();
+                    // std::cin.get();
                     cls();
                     exit(0);
                 }
@@ -477,13 +481,34 @@ void Scene::save(){
     }
 
     fout.seekp(std::ios::beg);
-    for (int i = 0; i < max_col*max_col;i++){
-        fout.write(reinterpret_cast<char *>(&map[i]), sizeof(point_value_));
-    }
+    struct package bag;
+    
+    //询问用户名
+    send_msg(I18n::Instance().getKey(I18n::Key::ASK_SAVENAME));
+    std::cin.get();
+    std::cin.getline(bag.player_name, 20);
+
+
+    //获取当前时间
+    auto now = std::chrono::system_clock::now();
+
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm local_now = *std::localtime(&now_time);
+    bag.date = local_now;
+
+    //复制地图
+    for (int i = 0; i < max_col*max_col;i++)
+        bag.map[i] = map[i];
+
+
+    fout.write(reinterpret_cast<char *>(&bag), sizeof(package));
+
 
     send_msg(I18n::Instance().getKey(I18n::Key::SAVE_ARCHIVE_SUCCEED));
-
     fout.close();
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    // std::cin.get();
 
     return;
 }
@@ -503,10 +528,25 @@ void Scene::load(){
         std::cin.get();
     }
 
-    for (int i = 0; i < max_col*max_col;i++){
-        fin.read(reinterpret_cast<char*>(&map[i]),sizeof(point_value_));
+    package archive;
+    fin.read(reinterpret_cast<char*>(&archive),sizeof(package));
+
+    std::tm save_time = archive.date;
+    char player_[20];
+    strcpy(player_, archive.player_name);
+
+    for (int i = 0; i < max_col * max_col;i++){
+        map[i] = archive.map[i];
     }
 
+    cls();
+    send_msg(I18n::Instance().getKey(I18n::Key::WELCOME_PLAYER),false);
+    send_msg(player_);
+    send_msg(I18n::Instance().getKey(I18n::Key::SAVE_TIME),false);
+    std::cout << std::put_time(&save_time, "%Y-%m-%d %H:%M:%S")
+              << std::endl;
+
+    std::cin.get();
     fin.close();
 
 

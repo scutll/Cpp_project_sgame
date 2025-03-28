@@ -5,7 +5,7 @@ PROJECT(FloralType)    # 工程名 FloralType
 set(CMAKE_CXX_STANDARD 17) # C++17标准
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-SET(CMAKE_BUILD_TYPE "Debug")  # Debug模式 选项: Release Debug MinSizeRel RelWithDebInfo
+SET(CMAKE_BUILD_TYPE "Release")  # Debug模式 选项: Release Debug MinSizeRel RelWithDebInfo
 # 针对不同模式设置编译选项
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-O0 -Wall -g2)
