@@ -5,6 +5,7 @@
 #include <vector>
 #include "common.h"
 #include "block.h"
+#include "save_package.h"
 //    0  1  2  3  4  5   
 //   ------------------>x  
 // 0 │0  1  2  3  4  5 
@@ -30,6 +31,7 @@ public:
     void Switch_point(); //切换当前要移动的光标
     void Move(direction dirt); //cur_point_ 向指定方向移动一格
     void Move(ops op);
+    //problem: 只能存上一次的，原因是undo的时候把undo的操作也加入队列了
     bool undo();
     void undo_(ops op);
 
@@ -41,6 +43,8 @@ public:
     void play();
     void save();
     void load();
+    void load(const package pkg);
+    package package_(const char *name = "match_success");
 
     void SetMode(KeyMode keymode);
 

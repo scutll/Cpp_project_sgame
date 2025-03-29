@@ -18,6 +18,7 @@ I18n::Dict chinese = {
     {I18n::Key::UNDOERROR,"无法撤回"},
     {I18n::Key::NOT_COMPLETED,"还未完成"},
     {I18n::Key::CONGRATULATION,"祝贺你! 成功了"},
+    {I18n::Key::GET_INTO_MATCH,"请按s进入匹配"},
 
 };
 
@@ -38,6 +39,7 @@ I18n::Dict english = {
     {I18n::Key::UNDOERROR,"Cannot undo"},
     {I18n::Key::NOT_COMPLETED,"Not completed yet"},
     {I18n::Key::CONGRATULATION,"Congratulations! You made it"},
+    {I18n::Key::GET_INTO_MATCH,"Press \'s\' to get into Match" },
 };
 
 I18n::I18n() : dict_(&english){}

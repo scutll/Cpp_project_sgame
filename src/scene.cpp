@@ -126,6 +126,8 @@ void Scene::undo_(ops op){
         default:
             break;
     }
+
+    Command_History.pop_back();
 }
 
 void Scene::execute(){
@@ -237,7 +239,7 @@ void Scene::setPoint(int x,int y){
     cur_point_->y = y;
 }
 
-
+//若要undo应该将Command_History pop一次(不加入历史)
 void Scene::Move(direction dirt){
     std::cout << "move" << std::endl;
     switch(dirt){
@@ -267,6 +269,7 @@ void Scene::Move(direction dirt){
     }
 
     assert((cur_point_->x >= 0 && cur_point_->x <= 5) || (cur_point_->y >= 0 || cur_point_->y <= 5));
+
 }
 
 
@@ -291,7 +294,6 @@ void Scene::Move(ops op){
         break;
     }
 
-    Move(dir);
 }
 
 void Scene::show() const{
@@ -367,10 +369,14 @@ bool Scene::undo(){
     else if (undo == ops::MOVE_RIGHT)
         undo = ops::MOVE_LEFT;
     
-    if(static_cast<int>(undo & (ops::MOVE_DOWN|ops::MOVE_LEFT|ops::MOVE_RIGHT|ops::MOVE_UP)) != 0)
+    if(static_cast<int>(undo & (ops::MOVE_DOWN|ops::MOVE_LEFT|ops::MOVE_RIGHT|ops::MOVE_UP)) != 0){
+        Command_History.pop_back();
         Move(undo);
-    else if(static_cast<int>(undo &(ops::SWITCH_ROW|ops::SWITCH_COL|ops::SWITCH_CROSS_LR|ops::SWITCH_CROSS_UD|ops::SWITCH_POINT)) != 0)
-        undo_(undo);
+    }
+    else if(static_cast<int>(undo &(ops::SWITCH_ROW|ops::SWITCH_COL|ops::SWITCH_CROSS_LR|ops::SWITCH_CROSS_UD|ops::SWITCH_POINT)) != 0){
+            undo_(undo);
+            Command_History.pop_back();
+    }
     else{
             send_msg(I18n::Instance().getKey(I18n::Key::UNDOERROR));
             std::cout << "fail to undo!";
@@ -433,7 +439,7 @@ void Scene::play(){
             if(isComplete()){
                 send_msg(I18n::Instance().getKey(I18n::Key::CONGRATULATION));
                 getchar();
-                exit(0);
+                return;
             }
             else{
                 send_msg(I18n::Instance().getKey(I18n::Key::NOT_COMPLETED));
@@ -453,11 +459,11 @@ void Scene::play(){
                     // std::cin.get();
                     // std::cin.get();
                     cls();
-                    exit(0);
+                    return;
                 }
                 else{
                     cls();
-                    exit(0);
+                    return;
                 }
             }
         }
@@ -553,4 +559,31 @@ void Scene::load(){
 
 
     return;
+}
+
+
+package Scene::package_(const char* name){
+    package _package;
+    memcpy(_package.player_name, name, 20);
+
+
+    //当前时间
+    auto now = std::chrono::system_clock::now();
+
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm local_now = *std::localtime(&now_time);
+    _package.date = local_now;
+
+
+    //载入地图
+    for (int i = 0; i < max_col * max_col;i++)
+        _package.map[i] = map[i];
+
+    return _package;
+}
+
+void Scene::load(const package pkg){
+    for (int i = 0; i < max_col * max_col;i++){
+        map[i] = pkg.map[i];
+    }
 }

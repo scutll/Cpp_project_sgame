@@ -31,6 +31,7 @@ public:
         UNDOERROR,
         NOT_COMPLETED,
         CONGRATULATION,
+        GET_INTO_MATCH,
     };
 
     using Dict = std::map<Key, std::string>; //映射

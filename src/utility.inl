@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <chrono>
+#include <ctime>
 #include <iostream>
 //获取随机数
 inline unsigned int random(int begin, int end)
@@ -54,6 +56,16 @@ inline void cls(){
     #else
         system("clear");
     #endif
+}
+
+
+inline std::tm now_time(){
+    auto now = std::chrono::system_clock::now();
+
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm local_now = *std::localtime(&now_time);
+
+    return local_now;
 }
 
 #endif
