@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12) # cmake最低版本要求
 
-PROJECT(FloralType)    # 工程名 FloralType
+PROJECT(FloralType_server)    # 工程名 FloralType
+# PROJECT(FloralType_player)    # 工程名 FloralType
 
 set(CMAKE_CXX_STANDARD 17) # C++17标准
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,6 +25,7 @@ add_definitions(-DDEBUG) # 相当于代码中 #define DEBUG
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin") # 可执行文件输出目录
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include") # 头文件包含目录
+INCLUDE_DIRECTORIES("E:/mingw64/include") # 头文件包含目录
 
 # 这段代码可以区分操作系统
 MESSAGE("Identifying the OS...")
@@ -45,6 +47,12 @@ endif()
 
 AUX_SOURCE_DIRECTORY(src DIR_SRCS) # 添加源代码文件夹, 自动扫描所有文件
 
-add_executable(FloralType  # 输出名为FloralType的可执行文件
-   ${DIR_SRCS}
+add_executable(FloralType_server  
+    ${DIR_SRCS}
+    main/server.cpp
+)
+
+add_executable(FloralType_player  
+    ${DIR_SRCS}
+    main/player.cpp
 )

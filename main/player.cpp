@@ -1,10 +1,10 @@
 #include <iostream>
 #include <vector>
-#include "common.h"
+#include "../src/common.h"
 #include <boost/asio.hpp>
-#include "scene.h"
-#include "utility.inl"
-#include "language.h"
+#include "../src/scene.h"
+#include "../src/utility.inl"
+#include "../src/language.h"
 
 
 Scene mygame;
@@ -26,7 +26,7 @@ void send_game_completed(tcp::socket& socket) {
 int main(){
     mygame.generate();
     std::string server_ip = "127.0.0.1";
-    unsigned short server_port = 666;
+    unsigned short server_port = 114514;
 
     char c = '\0';
 
@@ -46,7 +46,9 @@ int main(){
 
     send_msg(I18n::Instance().getKey(I18n::Key::GET_INTO_MATCH));
 
- 
+    c = _getch();
+    if(c != 's' && c != 'S')
+        return 0;
     //接收地图信息
 
     try{
@@ -55,9 +57,11 @@ int main(){
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address(server_ip), server_port);
 
         //连接到服务器
+        //若当前没有开服务器就会连接失败，有没有什么办法能一直等待直到成功
         socket.connect(endpoint);
 
         send_match_request(socket);
+        std::cout << "waiting for another player to match: " << std::endl;
 
         //接收数据
         package pack_;

@@ -2,6 +2,9 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip> // std::put_time
+#ifndef PACKAGE_H_
+#define PACKAGE_H_
+
 // 构建一个保存包类
 
 /*
@@ -16,3 +19,5 @@ struct package{
     point_value_ map[36];
 };
 
+
+#endif

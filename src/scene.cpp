@@ -388,14 +388,7 @@ bool Scene::undo(){
 
 
 void Scene::play(){
-    send_msg(I18n::Instance().getKey(I18n::Key::ASK_LOAD));
-    char c;
-    c = getchar();
 
-    if(c == 'y' || c == 'Y')
-        load();
-
-    std::cin.get();
     show();
 
     char key = '\0';
@@ -487,7 +480,8 @@ void Scene::save(){
     }
 
     fout.seekp(std::ios::beg);
-    struct package bag;
+
+    package bag;
     
     //询问用户名
     send_msg(I18n::Instance().getKey(I18n::Key::ASK_SAVENAME));

@@ -24,5 +24,18 @@ int main(){
     }
 
     game.generate();
+
+    //加载存档
+    send_msg(I18n::Instance().getKey(I18n::Key::ASK_LOAD));
+    char c;
+    c = getchar();
+
+    if(c == 'y' || c == 'Y')
+        game.load();
+
+    std::cin.get();
+
+
+
     game.play();
 }

@@ -4,9 +4,9 @@
 #include <thread>
 #include <mutex>
 #include <boost/asio.hpp>
-#include "common.h"
-#include "save_package.h"
-#include "scene.h"
+#include "../src/common.h"
+#include "../src/save_package.h"
+#include "../src/scene.h"
 
 
 //包的序列化，将package转化成字节形式
@@ -29,7 +29,11 @@ using boost::asio::ip::tcp;
 std::queue<tcp::socket *> match_queue;
 std::mutex queue_mutex;
 
+void handle_battle(tcp::socket *player1, tcp::socket *player2);
+
 void handle_client(tcp::socket* socket){
+    std::cout << "1 player connected to the server! " << std::endl;
+
     try{
 
         //处理匹配请求
@@ -63,8 +67,8 @@ void handle_client(tcp::socket* socket){
             //序列化地图
             std::vector<char> buffer = serialize_package(_pack);
             //发送地图到玩家端
-            boost::asio::write(*player1, boost::asio::buffer(buffer));
-            boost::asio::write(*player2, boost::asio::buffer(buffer));
+            boost::asio::write(*player1, boost::asio::buffer(&_pack,sizeof(package)));
+            boost::asio::write(*player2, boost::asio::buffer(&_pack,sizeof(package)));
 
             //加入线程开始对战
             std::thread battle_therad(handle_battle,player1,player2);
@@ -117,7 +121,7 @@ void handle_battle(tcp::socket* player1,tcp::socket* player2){
 int main(){
     try{
         boost::asio::io_context io_context;
-        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 666));
+        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 114514));
 
         while (true)
         {
