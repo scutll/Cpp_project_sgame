@@ -121,7 +121,7 @@ void handle_battle(tcp::socket* player1,tcp::socket* player2){
 int main(){
     try{
         boost::asio::io_context io_context;
-        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 114514));
+        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 125521));
 
         while (true)
         {

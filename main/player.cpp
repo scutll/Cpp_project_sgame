@@ -7,6 +7,8 @@
 #include "../src/language.h"
 
 
+std::string server_ip = "127.0.0.1";
+unsigned short server_port = 125521;
 Scene mygame;
 
 using boost::asio::ip::tcp;
@@ -25,8 +27,6 @@ void send_game_completed(tcp::socket& socket) {
 
 int main(){
     mygame.generate();
-    std::string server_ip = "127.0.0.1";
-    unsigned short server_port = 114514;
 
     char c = '\0';
 
