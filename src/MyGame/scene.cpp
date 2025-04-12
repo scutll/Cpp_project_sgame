@@ -1,9 +1,10 @@
-#include "../../src/scene.h"
+#include "scene.h"
 #include "../../src/common.h"
 #include "../../src/color.h"
 #include "../../src/display_symbol.h"
 #include "../../src/language.h"
 #include "../../src/utility.inl"
+#include "mainwindow.h"
 #include <vector>
 #include <fstream>
 #include <iomanip>
@@ -163,9 +164,10 @@ void Scene::Switch_Column(){
     assert(x1 * x2 >= 0);
 
     for (int i = 0; i < max_col;i++){
-        int tmp = _col_block[x1].getNum(i);
-        _col_block[x1].setNum(i,_col_block[x2].getNum(i));
-        _col_block[x2].setNum(i, tmp);
+        // int tmp = _col_block[x1].getNum(i);
+        // _col_block[x1].setNum(i,_col_block[x2].getNum(i));
+        // _col_block[x2].setNum(i, tmp);
+        swap_point(point_(x1,i),point_(x2,i));
     }
 
     Command_History.push_back(ops::SWITCH_COL);
@@ -179,9 +181,10 @@ void Scene::Switch_Row(){
     assert(y1 * y2 >= 0);
 
     for (int i = 0; i < max_col;i++){
-        int tmp = _row_block[y1].getNum(i);
-        _row_block[y1].setNum(i, _row_block[y2].getNum(i));
-        _row_block[y2].setNum(i, tmp);
+        // int tmp = _row_block[y1].getNum(i);
+        // _row_block[y1].setNum(i, _row_block[y2].getNum(i));
+        // _row_block[y2].setNum(i, tmp);
+        swap_point(point_(i,y1),point_(i,y2));
     }
 
     Command_History.push_back(ops::SWITCH_ROW);
@@ -230,7 +233,10 @@ void Scene::swap_point(point_ p1,point_ p2){
     int tmp = map[p1.x + p1.y * 6].value;
     map[p1.x + p1.y * 6].value = map[p2.x + p2.y*6].value;
     map[p2.x + p2.y * 6].value = tmp;
+
+    w->swap_point(p1,p2);
 }
+
 
 void Scene::setPoint(int x,int y){
     assert((x >= 0 && x <= 5) && (y >= 0 && y <= 5));
@@ -580,4 +586,13 @@ void Scene::load(const package pkg){
     for (int i = 0; i < max_col * max_col;i++){
         map[i] = pkg.map[i];
     }
+}
+
+void Scene::bind_Window(MainWindow* window){
+    if(window != nullptr)
+        w = window;
+}
+
+MainWindow* Scene::window() const {
+    return w;
 }

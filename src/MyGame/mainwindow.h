@@ -1,7 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include <QPushButton>
 #include <QMainWindow>
+#include "../../src/common.h"
+
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,11 +21,17 @@ public:
     ~MainWindow();
     void init();
     void generate_map();
+    void swap_point(point_ p1,point_ p2);
+
+
+
 
 private slots:
-    void on_b1_clicked();
+    void setPoint(QPushButton* btn);
 
 private:
+    void swap_point(QPushButton* btn1,QPushButton* btn2);
+
 
     Ui::MainWindow *ui;
 };

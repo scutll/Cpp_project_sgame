@@ -26,6 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         scene.cpp
         block.cpp
         language.cpp
+        scene.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET MyGame APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
