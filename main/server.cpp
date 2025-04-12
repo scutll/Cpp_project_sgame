@@ -49,7 +49,7 @@ void handle_client(tcp::socket* socket){
             std::lock_guard<std::mutex> lock(queue_mutex);
             //锁定使得只有当前线程可以访问match_queue
             match_queue.push(socket);
-        }
+        }   
 
         if(match_queue.size() >= 2){
             //匹配玩家

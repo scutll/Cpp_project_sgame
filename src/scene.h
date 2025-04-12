@@ -45,6 +45,7 @@ public:
     void load();
     void load(const package pkg);
     package package_(const char *name = "match_success");
+    point_value_ map[36];
 
     void SetMode(KeyMode keymode);
 
@@ -55,7 +56,6 @@ private:
     //要调用类构造函数，就得将构造函数设置为public
     Block_Row _row_block[6];
     Block_Column _col_block[6];
-    point_value_ map[36];
     point_ cur_point_1;
     point_ cur_point_2;
     point_* cur_point_;  //目前在控制的标记
