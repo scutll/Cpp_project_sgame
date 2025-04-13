@@ -23,15 +23,24 @@ public:
     void generate_map();
     void swap_point(point_ p1,point_ p2);
 
+    bool save();
+    bool saveAs();
+    bool saveFile(const QString &filename);
+    bool loadFile(const QString &filename);
 
 
 
 private slots:
     void setPoint(QPushButton* btn);
 
+    void on_save_game_triggered();
+
+    void on_load_game_triggered();
+
 private:
     void swap_point(QPushButton* btn1,QPushButton* btn2);
-
+    bool isUntitled;
+    QString curFile;
 
     Ui::MainWindow *ui;
 };

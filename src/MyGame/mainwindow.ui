@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1133</width>
-    <height>855</height>
+    <width>1098</width>
+    <height>875</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -698,18 +698,84 @@
      <string>32</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>130</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>活字飞花</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>70</y>
+      <width>241</width>
+      <height>301</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>可以进行十字/行列交换数字
+，将数字按照从上到下从左到右
+1-36的顺序排列完成就成功！</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>720</x>
+      <y>780</y>
+      <width>401</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Github: https://github.com/scutll/Cpp_project_sgame</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1133</width>
+     <width>1098</width>
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>保存/载入</string>
+    </property>
+    <addaction name="save_game"/>
+    <addaction name="load_game"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="save_game">
+   <property name="text">
+    <string>保存游戏</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="load_game">
+   <property name="text">
+    <string>载入游戏</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -3,10 +3,16 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <fstream>
+#include <QString>
 #include "../../src/common.h"
 #include "scene.h"
 #include "../../src/language.h"
-// #include "../../src/block.h"
+#include <chrono>
+#include "../../src/save_package.h"
+#include <ctime>
 
 Scene game;
 //使用两个map。一个map_索引对应按钮，即坐标->按钮。另一个_map按钮对应索引，即btn->text().toInt() -> 坐标
@@ -20,7 +26,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    isUntitled = true;
     ui->setupUi(this);
+    setWindowTitle(curFile);
 }
 
 MainWindow::~MainWindow()
@@ -32,6 +40,10 @@ MainWindow::~MainWindow()
 void MainWindow::init()
 {
     game.generate();
+
+
+    I18n::Instance().setLanguage(Language::ENGLISH);
+    game.SetMode(KeyMode::NORMAL);
 
     game.bind_Window(this);
     //将Button作为块存入到blocks
@@ -53,12 +65,8 @@ void MainWindow::init()
 
 void MainWindow::generate_map(){
 
-    I18n::Instance().setLanguage(Language::ENGLISH);
-    game.SetMode(KeyMode::NORMAL);
-
-
     bool safe_block = true;
-
+    //检查
     for(int i=0;i<36;i++){
         if(blocks[i]==nullptr)
             safe_block = false;
@@ -110,7 +118,7 @@ int counter = 0;
 void MainWindow::setPoint(QPushButton* btn){
     point_ point = _map[btn->text().toInt()];
     game.setPoint(point.x,point.y);
-    std::cout<<point.x<<" "<<point.y<<"            "<<game.curPoint()->x<<" "<<game.curPoint()->y<<std::endl;
+    // std::cout<<point.x<<" "<<point.y<<"            "<<game.curPoint()->x<<" "<<game.curPoint()->y<<std::endl;
     btn->setStyleSheet("color: red");
     game.Switch_point();
     counter++;
@@ -124,4 +132,112 @@ void MainWindow::setPoint(QPushButton* btn){
 
         counter = 0;
     }
+}
+
+void save_game(QString path,const char* name);
+
+bool MainWindow::save(){
+    if(isUntitled)
+        return saveAs();
+    else
+        return saveFile(curFile);
+}
+
+bool MainWindow::saveAs(){
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("另存为"),"newgame.game");
+    if(fileName.isEmpty()) return false;
+    return saveFile(fileName);
+}
+bool MainWindow::saveFile(const QString &filename){
+    const char* name = "mxl";  //以后可以设置一个弹窗询问存档名
+
+    //鼠标指针变成等待状态
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    save_game(filename,name);   //保存
+    //鼠标指针恢复
+    QApplication::restoreOverrideCursor();
+    isUntitled = false;
+    //获得文件标准路径
+    curFile = QFileInfo(filename).canonicalFilePath();
+    setWindowTitle(curFile);
+    return true;
+}
+
+package load_game(QString path);
+
+bool MainWindow::loadFile(const QString &filename){
+    package archive = load_game(filename);
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    //载入
+    for(int i = 0; i < 36; i++){
+        game.map[i] = archive.map[i];
+    }
+    //可以设置弹窗表示保存时间等
+    QApplication::restoreOverrideCursor();
+
+    curFile = QFileInfo(filename).canonicalFilePath();
+    setWindowTitle(curFile);
+    return true;
+}
+
+
+void MainWindow::on_save_game_triggered(){
+    save();
+}
+
+
+void MainWindow::on_load_game_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("载入"),curFile);
+    if(fileName.isEmpty()){
+        QMessageBox::warning(nullptr,nullptr,"warning","文件无效");
+    }
+
+    loadFile(fileName);
+    generate_map();
+}
+
+void save_game(QString path,const char* name){
+    package pkg;
+
+    //存档名
+    strcpy(pkg.player_name,name);
+
+    //获取保存时间
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm local_now = *std::localtime(&now_time);
+    pkg.date = local_now;
+
+    for(int i = 0;i < 36; i ++){
+        pkg.map[i] = game.map[i];
+    }
+
+    std::ofstream fout(path.toStdString(),std::ios::binary);
+    if(!fout.is_open()){
+        QMessageBox::warning(nullptr,nullptr,("warning"),("保存失败! 无法打开文件"));
+    }
+    fout.seekp(std::ios::beg);
+
+    fout.write(reinterpret_cast<char*>(&pkg),sizeof(package));
+    fout.close();
+}
+
+package load_game(QString path){
+    package pkg;
+
+    std::fstream fin(path.toStdString(),std::ios::binary | std::ios::in);
+    if(!fin.is_open()){
+        QMessageBox::warning(nullptr,nullptr,"warning","无法打开文件!");
+    }
+
+    fin.seekg(std::ios::beg);
+
+    fin.read(reinterpret_cast<char*>(&pkg),sizeof(package));
+
+    fin.close();
+    return pkg;
 }
