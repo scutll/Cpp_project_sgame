@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "start_window.h"
 #include <QApplication>
+#include "archives.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,5 +10,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     Start.show();
 
+    Archives arc;
+    arc.show();
     return a.exec();
 }
