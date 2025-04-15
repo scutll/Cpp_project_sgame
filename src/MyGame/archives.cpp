@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <ctime>
+#include <iostream>
 #include "../../src/save_package.h"
 #include <QDebug>
 Archives::Archives(QWidget *parent)
@@ -36,7 +37,8 @@ void Archives::init(){
 
     archives_cnt = 0;
     //绝对地址，以后改成相对的吧
-    QDir dir("../../archives");
+    QString path = "../../archives/";
+    QDir dir(path);
     if (!dir.exists())
     {
         qDebug() << "文件夹不存在：" << dir.absolutePath();
@@ -46,20 +48,22 @@ void Archives::init(){
     qDebug()<<"文件夹已打开";
     for(int i = 0; i < files.size(); i++){
         QString filename = files.at(i);
-        package pkg;
-        std::fstream fout(filename.toStdString(),std::ios::out | std::ios::binary);
-        fout.read(reinterpret_cast<char*>(&pkg),sizeof(package));
-        if(!fout.is_open()){
+        filename = (path + filename);
+        std::ifstream fin(filename.toStdString(),std::ios::in | std::ios::binary);
+        if(!fin.is_open()){
             qDebug()<<"无法读取文件"<<filename;
             continue;
         }
+
+        package archive;
+        fin.read(reinterpret_cast<char*>(&archive),sizeof(package));
         archives_cnt++;
 
         //处理存档名和时间
-        qDebug()<<pkg.player_name;
-        QString arc_name(pkg.player_name);
+        qDebug()<<archive.player_name;
+        QString arc_name(archive.player_name);
         char buffer[80];
-        std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S",&pkg.date);
+        std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S",&archive.date);
         QString arc_time = QString::fromUtf8(buffer);
 
         //设置文本

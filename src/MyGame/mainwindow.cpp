@@ -204,7 +204,7 @@ void save_game(QString path,const char* name){
     package pkg;
 
     //存档名
-    strcpy(pkg.player_name,name);
+    memcpy(pkg.player_name,name,sizeof(pkg.player_name));
 
     //获取保存时间
     auto now = std::chrono::system_clock::now();
