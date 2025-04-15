@@ -1,7 +1,6 @@
 #include "../../src/block.h"
 #include "../../src/common.h"
 #include <cassert>
-#include "../../src/display_symbol.h"
 
 //判断是否有相同数字
 bool Block_Row::isValid() const{

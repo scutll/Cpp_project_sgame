@@ -36,8 +36,7 @@ void Archives::init(){
     //遍历文件夹，将文件填入button和label(文件数小于等于8)
 
     archives_cnt = 0;
-    //绝对地址，以后改成相对的吧
-    QString path = "../../archives/";
+
     QDir dir(path);
     if (!dir.exists())
     {
@@ -70,6 +69,13 @@ void Archives::init(){
         archives[archives_cnt-1] -> setText(arc_name);
         time_labels[archives_cnt-1] -> setText(arc_time);
 
+    }
+
+    QString empty_game = "空存档";
+    QString empty_time = "--------------------";
+    for(int i = archives_cnt;i < 8; i++){
+        archives[i] -> setText(empty_game);
+        time_labels[i] -> setText(empty_time);
     }
 
 }

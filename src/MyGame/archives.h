@@ -31,6 +31,9 @@ private:
 
     bool to_save;       //标记该窗口是用于保存游戏还是载入游戏，点击按钮时候要判断
     int archives_cnt;
+
+    //存档保存地址
+    QString path = "../../archives/";
 };
 
 #endif // ARCHIVES_H
