@@ -20,6 +20,12 @@ Archives::~Archives()
     delete ui;
 }
 
+void Archives::flash(){
+    archives.clear();
+    time_labels.clear();
+    init();
+}
+
 void Archives::init(){
 
     //将button和label存入
@@ -78,4 +84,11 @@ void Archives::init(){
         time_labels[i] -> setText(empty_time);
     }
 
+    for(int i = 0; i < 8; i++){
+        QPushButton* btn = archives[i];
+        QLabel* label = time_labels[i];
+        connect(btn,&QPushButton::clicked,btn,[this,btn,label]{Archives_name_clicked(btn,label);});
+    }
+
+    qDebug()<<"init finished";
 }

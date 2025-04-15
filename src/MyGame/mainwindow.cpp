@@ -13,6 +13,10 @@
 #include <chrono>
 #include "../../src/save_package.h"
 #include <ctime>
+#include <QString>
+#include "archives.h"
+#include <QInputDialog>
+#include <QApplication>
 
 Scene game;
 //使用两个map。一个map_索引对应按钮，即坐标->按钮。另一个_map按钮对应索引，即btn->text().toInt() -> 坐标
@@ -61,6 +65,10 @@ void MainWindow::init()
         QPushButton* btn = blocks[i];
         connect(btn,&QPushButton::clicked,btn,[this,btn]{setPoint(btn);});
     }
+
+
+    //一个总是存在的存档窗口
+    this->arc = new Archives;
 }
 
 void MainWindow::generate_map(){
@@ -134,71 +142,160 @@ void MainWindow::setPoint(QPushButton* btn){
     }
 }
 
-void save_game(QString path,const char* name);
+// void save_game(QString path,const char* name);
 
-bool MainWindow::save(){
-    if(isUntitled)
-        return saveAs();
-    else
-        return saveFile(curFile);
-}
+// bool MainWindow::save(){
+//     if(isUntitled)
+//         return saveAs();
+//     else
+//         return saveFile(curFile);       //存档已经有保存记录，直接覆盖保存即可
+// }
 
-bool MainWindow::saveAs(){
-    QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("另存为"),"newgame.game");
-    if(fileName.isEmpty()) return false;
-    return saveFile(fileName);
-}
-bool MainWindow::saveFile(const QString &filename){
-    const char* name = "mxl";  //以后可以设置一个弹窗询问存档名
+// bool MainWindow::saveAs(){
+//     QString fileName = QFileDialog::getSaveFileName(this,
+//                                                     tr("另存为"),"newgame.game");
+//     if(fileName.isEmpty()) return false;
+//     return saveFile(fileName);
+// }
+// bool MainWindow::saveFile(const QString &filename){
+//     const char* name = "mxl";  //以后可以设置一个弹窗询问存档名
 
-    //鼠标指针变成等待状态
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    save_game(filename,name);   //保存
-    //鼠标指针恢复
-    QApplication::restoreOverrideCursor();
-    isUntitled = false;
-    //获得文件标准路径
-    curFile = QFileInfo(filename).canonicalFilePath();
-    setWindowTitle(curFile);
-    return true;
-}
+//     //鼠标指针变成等待状态
+//     QApplication::setOverrideCursor(Qt::WaitCursor);
+//     save_game(filename,name);   //保存
+//     //鼠标指针恢复
+//     QApplication::restoreOverrideCursor();
+//     isUntitled = false;
+//     //获得文件标准路径
+//     curFile = QFileInfo(filename).canonicalFilePath();
+//     setWindowTitle(curFile);
+//     return true;
+// }
 
-package load_game(QString path);
+// package load_game(QString path);
 
-bool MainWindow::loadFile(const QString &filename){
-    package archive = load_game(filename);
+// bool MainWindow::loadFile(const QString &filename){
+//     package archive = load_game(filename);
 
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    //载入
-    for(int i = 0; i < 36; i++){
-        game.map[i] = archive.map[i];
-    }
-    //可以设置弹窗表示保存时间等
-    QApplication::restoreOverrideCursor();
+//     QApplication::setOverrideCursor(Qt::WaitCursor);
+//     //载入
+//     for(int i = 0; i < 36; i++){
+//         game.map[i] = archive.map[i];
+//     }
+//     //可以设置弹窗表示保存时间等
+//     QApplication::restoreOverrideCursor();
 
-    curFile = QFileInfo(filename).canonicalFilePath();
-    setWindowTitle(curFile);
-    return true;
-}
+//     curFile = QFileInfo(filename).canonicalFilePath();
+//     setWindowTitle(curFile);
+//     return true;
+// }
 
 
 void MainWindow::on_save_game_triggered(){
-    save();
+    // save();
+
+    //存档界面
+    arc->toSave();
+    arc->flash();
+    arc->show();
 }
 
 
 void MainWindow::on_load_game_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                                    tr("载入"),curFile);
-    if(fileName.isEmpty()){
-        QMessageBox::warning(nullptr,nullptr,"warning","文件无效");
+    // QString fileName = QFileDialog::getOpenFileName(this,
+    //                                                 tr("载入"),curFile);
+    // if(fileName.isEmpty()){
+    //     QMessageBox::warning(nullptr,nullptr,"warning","文件无效");
+    // }
+
+    // loadFile(fileName);
+    // generate_map();
+
+    //存档界面
+
+    arc->toLoad();
+    arc->flash();
+    arc->show();
+
+
+    qDebug()<<"now can generate";
+    generate_map();
+
+
+
+}
+
+
+
+void save_game(QString path,const char* name);
+package load_game(QString path);
+
+
+void Archives::Archives_name_clicked(QPushButton* btn,QLabel* time_label){
+    // qDebug()<<btn->text()<<time_label->text();
+
+
+    QString file;
+    if(btn->text() == "空存档"){
+        file = QString("newgame");
+    }
+    else{
+        file = btn->text();
+    }
+    QString filename = path + file + QString(".game");   //path
+
+    //窗口用于保存的情况
+    if(this->to_save){
+        qDebug()<<"Saveing: "<<filename;
+
+        //点击已经存在的存档，覆盖
+        bool replace = false;
+        if(btn->text() == QString("空存档")){
+            replace = true;
+            qDebug()<<"replace";
+        }
+
+        //覆盖还是空存档都询问存档名
+        bool ok;
+        QString archive_name;
+        archive_name = QInputDialog::getText(nullptr,QObject::tr("请输入存档名"),
+                                     QObject::tr("你的存档名"),QLineEdit::Normal,QObject::tr("newgame"),&ok);
+        if(ok && !archive_name.isEmpty()){
+            qDebug()<<"输出存档名";
+        }
+        else{
+            if(!replace) archive_name = QString("newgame");
+            else archive_name = btn->text();
+        }
+        save_game(filename,archive_name.toStdString().c_str());
+        if(!replace) archives_cnt++;
+
+        //更新存档名和时间
+        btn->setText(archive_name);
+        char buffer[80];
+        std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S",&pkg_forload.date);
+        QString arc_time = QString::fromUtf8(buffer);
+        time_label->setText(arc_time);
+
+
+        qDebug()<<"saved";
     }
 
-    loadFile(fileName);
-    generate_map();
+    //窗口用于载入的情况
+    else if(!this->to_save){
+        qDebug()<<"Loading: "<<filename;
+        pkg_forload = load_game(filename);
+
+        for(int i=0;i<36;i++){
+            game.map[i] = pkg_forload.map[i];
+        }
+        qDebug()<<"load success";
+    }
 }
+
+
+
 
 void save_game(QString path,const char* name){
     package pkg;
@@ -227,6 +324,7 @@ void save_game(QString path,const char* name){
 }
 
 package load_game(QString path){
+
     package pkg;
 
     std::fstream fin(path.toStdString(),std::ios::binary | std::ios::in);

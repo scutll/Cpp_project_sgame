@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QMainWindow>
 #include "../../src/common.h"
+#include "archives.h"
 
 
 
@@ -23,10 +24,10 @@ public:
     void generate_map();
     void swap_point(point_ p1,point_ p2);
 
-    bool save();
-    bool saveAs();
-    bool saveFile(const QString &filename);
-    bool loadFile(const QString &filename);
+    // bool save();
+    // bool saveAs();
+    // bool saveFile(const QString &filename);
+    // bool loadFile(const QString &filename);
 
 
 
@@ -41,6 +42,7 @@ private:
     void swap_point(QPushButton* btn1,QPushButton* btn2);
     bool isUntitled;
     QString curFile;
+    Archives* arc;
 
     Ui::MainWindow *ui;
 };
