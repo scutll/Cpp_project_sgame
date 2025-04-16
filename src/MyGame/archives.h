@@ -22,6 +22,9 @@ public:
     void toSave(){to_save = true;}
     void toLoad(){to_save = false;}
 
+signals:
+    void loadFinished();    //设置载入文件完成后的信号
+
 private:
     void init();
     Ui::Archives *ui;
@@ -40,5 +43,6 @@ private:
     //存档保存地址
     QString path = "../../archives/";
 };
+
 
 #endif // ARCHIVES_H

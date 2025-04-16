@@ -10,6 +10,7 @@ start_window::start_window(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowTitle(tr("活字飞花"));
+    w = new MainWindow;
 }
 
 start_window::~start_window()

@@ -17,11 +17,15 @@
 #include "archives.h"
 #include <QInputDialog>
 #include <QApplication>
+#include "../../src/utility.inl"
+#include "start_window.h"
 
 Scene game;
 //使用两个map。一个map_索引对应按钮，即坐标->按钮。另一个_map按钮对应索引，即btn->text().toInt() -> 坐标
 std::vector<point_> _map(37);   // 数字所在的位置，点到按钮时用于查询改按钮的位置
 std::vector<QPushButton*> map_(36);  //Button的地图
+
+//这俩在游戏中不用更新，是固定的
 std::vector<QPushButton*> blocks(36);
 std::vector<point_> blocks_pos(36);
 
@@ -85,6 +89,7 @@ void MainWindow::generate_map(){
         for(int i=0;i<36;i++){
             int num = game.map[i].value - 1;
             QPoint point = QPoint(blocks_pos[i].x,blocks_pos[i].y);
+            //更新_map和map_
             blocks[num]->move(point);
             map_[i] = blocks[num];
             _map[num+1] = point_(i%6,i/6);
@@ -219,8 +224,8 @@ void MainWindow::on_load_game_triggered()
     arc->show();
 
 
+    connect(arc,&Archives::loadFinished,this,&MainWindow::on_loadFinished);
     qDebug()<<"now can generate";
-    generate_map();
 
 
 
@@ -236,46 +241,57 @@ void Archives::Archives_name_clicked(QPushButton* btn,QLabel* time_label){
     // qDebug()<<btn->text()<<time_label->text();
 
 
-    QString file;
-    if(btn->text() == "空存档"){
-        file = QString("newgame");
-    }
-    else{
-        file = btn->text();
-    }
-    QString filename = path + file + QString(".game");   //path
+    // QString file;
+    // if(btn->text() == "空存档"){
+    //     file = QString("newgame");
+    // }
+    // else{
+    //     file = btn->text();
+    // }
+
 
     //窗口用于保存的情况
     if(this->to_save){
-        qDebug()<<"Saveing: "<<filename;
 
         //点击已经存在的存档，覆盖
         bool replace = false;
-        if(btn->text() == QString("空存档")){
+        if(btn->text() != QString("空存档")){
             replace = true;
             qDebug()<<"replace";
         }
 
-        //覆盖还是空存档都询问存档名
-        bool ok;
         QString archive_name;
-        archive_name = QInputDialog::getText(nullptr,QObject::tr("请输入存档名"),
-                                     QObject::tr("你的存档名"),QLineEdit::Normal,QObject::tr("newgame"),&ok);
-        if(ok && !archive_name.isEmpty()){
-            qDebug()<<"输出存档名";
+        //空存档询问存档名
+        if(!replace){
+            bool* ok = new bool;
+            archive_name = QInputDialog::getText(this,QObject::tr("请输入存档名"),
+                                                 QObject::tr("你的存档名"),QLineEdit::Normal,QObject::tr("newgame"),ok);
+            qDebug()<<"inputing";
+            if((*ok) && !archive_name.isEmpty()){
+                qDebug()<<"输入存档名: "<<archive_name;
+            }
+            else{
+                archive_name = QString("newgame");
+            }
         }
-        else{
-            if(!replace) archive_name = QString("newgame");
-            else archive_name = btn->text();
+        else if(replace){
+            archive_name = btn->text();
         }
+
+        QString filename = path + archive_name + QString(".game");   //path
+        qDebug()<<"Saveing: "<<filename;
+
         save_game(filename,archive_name.toStdString().c_str());
         if(!replace) archives_cnt++;
 
+
         //更新存档名和时间
         btn->setText(archive_name);
+        std::tm time = now_time();
         char buffer[80];
-        std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S",&pkg_forload.date);
+        std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S",&time);
         QString arc_time = QString::fromUtf8(buffer);
+        qDebug()<<arc_time<<" time";
         time_label->setText(arc_time);
 
 
@@ -284,6 +300,8 @@ void Archives::Archives_name_clicked(QPushButton* btn,QLabel* time_label){
 
     //窗口用于载入的情况
     else if(!this->to_save){
+        QString filename = path + btn->text() + QString(".game");
+
         qDebug()<<"Loading: "<<filename;
         pkg_forload = load_game(filename);
 
@@ -291,9 +309,22 @@ void Archives::Archives_name_clicked(QPushButton* btn,QLabel* time_label){
             game.map[i] = pkg_forload.map[i];
         }
         qDebug()<<"load success";
+
+        emit loadFinished();
+
+        for(int i =0;i<6;i++)
+        {
+            for(int j = 0;j<6;j++)
+                std::cout<<game.map[i*6+j].value<<" ";
+            std::cout<<std::endl;
+        }
     }
 }
 
+
+void MainWindow::on_loadFinished(){
+    generate_map();
+}
 
 
 

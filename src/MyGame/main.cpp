@@ -7,7 +7,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     start_window Start;
-    MainWindow w;
+    MainWindow* game_window = Start.GameWindow();
+
     Start.show();
 
     // Archives arc;

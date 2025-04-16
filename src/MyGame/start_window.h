@@ -2,6 +2,7 @@
 #define START_WINDOW_H
 
 #include <QDialog>
+#include "mainwindow.h"
 
 namespace Ui {
 class start_window;
@@ -15,6 +16,11 @@ public:
     explicit start_window(QWidget *parent = nullptr);
     ~start_window();
 
+public:
+    MainWindow* GameWindow(){
+        return w;
+    }
+
 private slots:
     void on_offline_game_clicked();
 
@@ -22,6 +28,7 @@ private slots:
 
 private:
     Ui::start_window *ui;
+    MainWindow* w;
 };
 
 #endif // START_WINDOW_H
