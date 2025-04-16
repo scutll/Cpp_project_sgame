@@ -11,3 +11,8 @@ bin
 # test 
 test.cpp
 test.exe
+
+src/block.cpp
+src/scene.cpp
+src/language.cpp
+src/scene.h

@@ -1,8 +1,8 @@
-#include "scene.h"
+#include "../src/scene.h"
 #include <iostream>
-#include "common.h"
-#include "utility.inl"
-#include "language.h"
+#include "../src/common.h"
+#include "../src/utility.inl"
+#include "../src/language.h"
 
 
 int main(){
@@ -27,7 +27,7 @@ int main(){
 
     //加载存档
     send_msg(I18n::Instance().getKey(I18n::Key::ASK_LOAD));
-    char c;
+    c;
     c = getchar();
 
     if(c == 'y' || c == 'Y')

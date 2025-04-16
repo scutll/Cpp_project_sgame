@@ -56,3 +56,8 @@ add_executable(FloralType_player
     ${DIR_SRCS}
     main/player.cpp
 )
+
+add_executable(FloralType_main  
+    ${DIR_SRCS}
+    main/main.cpp
+)

@@ -6,33 +6,33 @@
 #include "../src/utility.inl"
 #include "../src/language.h"
 
-
 std::string server_ip = "127.0.0.1";
 unsigned short server_port = 125521;
 Scene mygame;
 
 using boost::asio::ip::tcp;
-void send_match_request(tcp::socket& socket){
+void send_match_request(tcp::socket &socket)
+{
     std::string request = "match_request\n";
     boost::asio::write(socket, boost::asio::buffer(request));
 }
 
-void send_game_completed(tcp::socket& socket) {
+void send_game_completed(tcp::socket &socket)
+{
     std::string message = "game_completed\n";
     boost::asio::write(socket, boost::asio::buffer(message));
 }
 
-
-
-
-int main(){
+int main()
+{
     mygame.generate();
 
     char c = '\0';
 
     std::cout << "1 English, 2 简体中文" << std::endl;
     c = _getch();
-    if(c == '1'){
+    if (c == '1')
+    {
         I18n::Instance().setLanguage(Language::ENGLISH);
     }
     else
@@ -40,43 +40,45 @@ int main(){
 
     send_msg(I18n::Instance().getKey(I18n::Key::ASK_KEY_MAP));
     c = _getch();
-    if(c == '1'){
+    if (c == '1')
+    {
         mygame.SetMode(KeyMode::NORMAL);
     }
 
     send_msg(I18n::Instance().getKey(I18n::Key::GET_INTO_MATCH));
 
     c = _getch();
-    if(c != 's' && c != 'S')
+    if (c != 's' && c != 'S')
         return 0;
-    //接收地图信息
+    // 接收地图信息
 
-    try{
+    try
+    {
         boost::asio::io_context io_context;
         boost::asio::ip::tcp::socket socket(io_context);
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address(server_ip), server_port);
 
-        //连接到服务器
-        //若当前没有开服务器就会连接失败，有没有什么办法能一直等待直到成功
+        // 连接到服务器
+        // 若当前没有开服务器就会连接失败，有没有什么办法能一直等待直到成功
         socket.connect(endpoint);
 
         send_match_request(socket);
         std::cout << "waiting for another player to match: " << std::endl;
 
-        //接收数据
+        // 接收数据
         package pack_;
-        boost::asio::read(socket,boost::asio::buffer(&pack_,sizeof(package)));
+        boost::asio::read(socket, boost::asio::buffer(&pack_, sizeof(package)));
 
         mygame.load(pack_);
-        std::cout << "player name: " << pack_.player_name << std::endl;
-
+        std::cout << "player name: " << pack_.archive_name << std::endl;
 
         mygame.play();
-        if(mygame.isComplete()){
+        if (mygame.isComplete())
+        {
             send_game_completed(socket);
         }
 
-        //获取结果
+        // 获取结果
         boost::asio::streambuf result;
         boost::asio::read_until(socket, result, '\n');
 
@@ -85,8 +87,9 @@ int main(){
         std::getline(is, msg);
 
         std::cout << msg << std::endl;
-        }
-    catch(std::exception& e){
+    }
+    catch (std::exception &e)
+    {
         std::cerr << "Exception in receive_package: " << e.what() << std::endl;
     }
 

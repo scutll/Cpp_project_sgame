@@ -9,15 +9,15 @@
 
 /*
 info
-    player_name
-    date      保存时间 
+    archive_name
+    date      保存时间
     map[36]
 */
-struct package{
-    char player_name[20];
+struct package
+{
+    char archive_name[20];
     std::tm date;
     point_value_ map[36];
 };
-
 
 #endif
