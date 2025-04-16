@@ -23,6 +23,7 @@ public:
     void init();
     void generate_map();
     void swap_point(point_ p1,point_ p2);
+    void on_loadFinished();
 
     // bool save();
     // bool saveAs();
@@ -38,7 +39,6 @@ private slots:
 
     void on_load_game_triggered();
 
-    void on_loadFinished();
 
 private:
     void swap_point(QPushButton* btn1,QPushButton* btn2);
