@@ -24,12 +24,17 @@ public:
     void generate_map();
     void swap_point(point_ p1,point_ p2);
     void on_loadFinished();
+    std::tm start_time();
+    void Victory_Settlement();
+
 
     // bool save();
     // bool saveAs();
     // bool saveFile(const QString &filename);
     // bool loadFile(const QString &filename);
 
+signals:
+    void Awake_StartWindow();
 
 
 private slots:
@@ -40,11 +45,14 @@ private slots:
     void on_load_game_triggered();
 
 
+    void on_Finish_button_clicked();
+
 private:
     void swap_point(QPushButton* btn1,QPushButton* btn2);
     bool isUntitled;
     QString curFile;
     Archives* arc;
+    std::tm start_time_;
 
     Ui::MainWindow *ui;
 };

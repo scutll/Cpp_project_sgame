@@ -17,6 +17,7 @@ public:
     ~start_window();
 
 public:
+    void on_Awake_signal();
     MainWindow* GameWindow(){
         return w;
     }
@@ -25,6 +26,7 @@ private slots:
     void on_offline_game_clicked();
 
     void on_online_game_clicked();
+
 
 private:
     Ui::start_window *ui;

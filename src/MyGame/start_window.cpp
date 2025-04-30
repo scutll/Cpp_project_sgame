@@ -11,6 +11,7 @@ start_window::start_window(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle(tr("活字飞花"));
     w = new MainWindow;
+
 }
 
 start_window::~start_window()
@@ -35,3 +36,9 @@ void start_window::on_online_game_clicked()
     msg.information(this,nullptr,tr("匹配中......"));
 }
 
+void start_window::on_Awake_signal(){
+    w->close();
+    qDebug()<<"close game window";
+    this->show();
+    qDebug()<<"awake start window";
+}

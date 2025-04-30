@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 一个总是存在的存档窗口
     this->arc = new Archives;
+    start_time_ = now_time();
 }
 
 MainWindow::~MainWindow()
@@ -71,8 +72,11 @@ void MainWindow::init()
                 { setPoint(btn); });
     }
 
+    //绑定存档载入信号
+    connect(arc, &Archives::loadFinished, this, &MainWindow::on_loadFinished);
 
 }
+
 
 void MainWindow::generate_map()
 {
@@ -97,6 +101,8 @@ void MainWindow::generate_map()
             _map[num + 1] = point_(i % 6, i / 6);
         }
     }
+
+    start_time_ = now_time();
 }
 
 // 两个Button交换
@@ -225,7 +231,6 @@ void MainWindow::on_load_game_triggered()
     arc->flash();
     arc->show();
 
-    connect(arc, &Archives::loadFinished, this, &MainWindow::on_loadFinished);
     qDebug() << "now can generate";
 }
 
@@ -321,18 +326,18 @@ void Archives::Archives_name_clicked(QPushButton *btn, QLabel *time_label)
 
         QString filename = path + btn->text() + QString(".game");
 
+
+        qDebug() << "Loading: " << filename;
+        pkg_forload = load_game(filename);
+
+        for (int i = 0; i < 36; i++)
         {
-            qDebug() << "Loading: " << filename;
-            pkg_forload = load_game(filename);
-
-            for (int i = 0; i < 36; i++)
-            {
-                game.map[i] = pkg_forload.map[i];
-            }
-            qDebug() << "load success";
-
-            emit loadFinished();
+            game.map[i] = pkg_forload.map[i];
         }
+        qDebug() << "load success";
+
+        emit loadFinished();
+
 
         // for(int i =0;i<6;i++)
         // {
@@ -448,3 +453,36 @@ package load_game(QString path)
     fin.close();
     return pkg;
 }
+
+//游戏完成的判断
+void MainWindow::on_Finish_button_clicked()
+{
+    bool Finished = game.isComplete();
+
+    if(Finished){
+        Victory_Settlement();
+    }
+    else{
+        QMessageBox::information(this,"Not Finished Yet!","你还没有完成");
+        }
+}
+
+void MainWindow::Victory_Settlement(){
+    std::tm now;
+    now = now_time();
+
+    std::time_t start = std::mktime(&start_time_);
+    std::time_t finish = std::mktime(&now);
+
+    double diff_seconds = difftime(finish,start);
+
+    int diff_minutes = static_cast<int>(diff_seconds / 60) % 60;
+    int diff_hours = static_cast<int>(diff_seconds / 3600) % 60;
+    int diff_sec = static_cast<int>(diff_seconds) % 60;
+
+    QMessageBox::information(this,"Congratulations",QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口").arg(diff_hours)
+                                                          .arg(diff_minutes).arg(diff_sec));
+    qDebug()<<"send awake signal:";
+    emit Awake_StartWindow();
+}
+
