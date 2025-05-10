@@ -27,6 +27,8 @@ public:
     std::tm start_time();
     void Victory_Settlement();
 
+    void load_game_and_generate(const package& pkg);
+
 
     // bool save();
     // bool saveAs();

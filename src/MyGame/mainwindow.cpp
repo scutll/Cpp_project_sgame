@@ -401,6 +401,18 @@ bool AskforOverrideArchive(){
     }
 }
 
+
+void MainWindow::load_game_and_generate(const package& pkg){
+
+    for (int i = 0; i < 36; i++)
+    {
+        game.map[i] = pkg.map[i];
+    }
+    qDebug() << "load success";
+
+    generate_map();
+}
+
 void MainWindow::on_loadFinished()
 {
     generate_map();

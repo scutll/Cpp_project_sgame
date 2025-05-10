@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="online_game">
    <property name="geometry">
     <rect>
-     <x>370</x>
-     <y>380</y>
+     <x>280</x>
+     <y>500</y>
      <width>211</width>
      <height>71</height>
     </rect>
@@ -29,14 +29,24 @@
   <widget class="QPushButton" name="offline_game">
    <property name="geometry">
     <rect>
-     <x>370</x>
-     <y>270</y>
+     <x>280</x>
+     <y>370</y>
      <width>211</width>
      <height>81</height>
     </rect>
    </property>
    <property name="text">
     <string>单机游戏</string>
+   </property>
+  </widget>
+  <widget class="QListView" name="msg_list_window">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>240</y>
+     <width>321</width>
+     <height>391</height>
+    </rect>
    </property>
   </widget>
  </widget>

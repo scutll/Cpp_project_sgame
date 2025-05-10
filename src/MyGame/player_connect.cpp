@@ -4,6 +4,7 @@
 #include "player_connect.h"
 #include <QByteArray>
 #include <QDataStream>
+#include <QTimer>
 package deserialization_Package(QDataStream& stream);
 QByteArray serialize_Package(const package& pkg);
 
@@ -24,26 +25,38 @@ PlayerConnector::PlayerConnector(){
 
 bool PlayerConnector::connect_to_server(){
 
-    if(Server_socket)
-        delete Server_socket;
-
-    Server_socket = new QTcpSocket;
-    Server_socket->abort();
+    // Server_socket = new QTcpSocket;
 
 
-    Server_socket->connectToHost(this->ServerIP,this->ServerPort);
-    bool bRet = Server_socket->waitForConnected(1000);
+    // Server_socket->connectToHost(this->ServerIP,this->ServerPort);
+    // bool bRet = Server_socket->waitForConnected(3000);
 
-    if(bRet){
-        qDebug()<<"connection succeed!";
+    // if(bRet){
+    //     qDebug()<<"connection succeed!";
 
-        this->connect(Server_socket,SIGNAL(readyRead()),this,SLOT(recv_msg()));
-    }
-    else{
-        qDebug()<<"failed to connect to the server!";
-    }
+    //     this->connect(Server_socket,&QTcpSocket::readyRead,this,&PlayerConnector::recv_msg);
+    // }
+    // else{
+    //     qDebug()<<"failed to connect to the server!";
+    // }
 
-    return bRet;
+    // return bRet;
+    Server_socket = new QTcpSocket(this);
+
+    // 连接信号到槽
+    connect(Server_socket, &QTcpSocket::connected, this, &PlayerConnector::onConnected);
+    connect(Server_socket, &QTcpSocket::errorOccurred, this, &PlayerConnector::onError);
+
+    // 设置连接超时
+    QTimer::singleShot(1000, this, &PlayerConnector::onTimeout); // 1秒超时
+
+    Server_socket->connectToHost(this->ServerIP, this->ServerPort);
+
+    this->connect(Server_socket,&QTcpSocket::readyRead,this,&PlayerConnector::recv_msg);
+    return true; // 返回 true 表示连接请求已发出
+
+
+
 }
 
 //发送数据
@@ -54,11 +67,12 @@ void PlayerConnector::send_msg(const QString msg){
 }
 
 void PlayerConnector::send_match_request(){
-    send_msg(QString("match request"));
+    qDebug()<<"match request sent";
+    send_msg(QString("match_request"));
 }
 
 void PlayerConnector::send_complete_msg(){
-    send_msg(QString("completed"));
+    send_msg(QString("game_completed"));
 }
 
 
@@ -76,9 +90,12 @@ void PlayerConnector::recv_msg(){
     if(sign == 0){
         stream >> this->new_msg;
         //设置一个信号来处理信息
+        emit recv_msg_str(new_msg);
     }
+
     else if(sign == 1){
         this->new_pkg = deserialization_Package(stream);
+        emit recv_msg_pakcage(new_pkg);
         //设置一个信号来更新地图
     }
 }

@@ -1,12 +1,10 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-#include <iostream>
 #include <vector>
 #include "../../src/common.h"
 #include "../../src/block.h"
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
 #include "../../src/save_package.h"
 //    0  1  2  3  4  5
 //   ------------------>x
