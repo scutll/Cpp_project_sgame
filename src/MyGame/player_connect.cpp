@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QTimer>
+#include <QApplication>
 package deserialization_Package(QDataStream& stream);
 QByteArray serialize_Package(const package& pkg);
 
@@ -46,13 +47,12 @@ bool PlayerConnector::connect_to_server(){
     // 连接信号到槽
     connect(Server_socket, &QTcpSocket::connected, this, &PlayerConnector::onConnected);
     connect(Server_socket, &QTcpSocket::errorOccurred, this, &PlayerConnector::onError);
+    connect(Server_socket,&QTcpSocket::readyRead,this,&PlayerConnector::recv_msg);
 
     // 设置连接超时
     QTimer::singleShot(1000, this, &PlayerConnector::onTimeout); // 1秒超时
 
     Server_socket->connectToHost(this->ServerIP, this->ServerPort);
-
-    this->connect(Server_socket,&QTcpSocket::readyRead,this,&PlayerConnector::recv_msg);
     return true; // 返回 true 表示连接请求已发出
 
 
@@ -79,14 +79,21 @@ void PlayerConnector::send_complete_msg(){
 
 
 //接收数据
-//字节流的第一位标识是0：QString还是1：package
+//字节流的第一位标识是0：QString还是1：package 第二个int 是数据长度
 void PlayerConnector::recv_msg(){
+    emit recv_msg_str("msg received");
+    qDebug()<<"msg received";
+
+    // Server_socket->abort();
+    // Server_socket->connectToHost(this->ServerIP, this->ServerPort);
+
     QByteArray buffer = Server_socket->readAll();
     QDataStream stream(buffer);
 
     int sign;
     stream >> sign; //读取标识位
-
+    // int length;
+    // stream >> length;
     if(sign == 0){
         stream >> this->new_msg;
         //设置一个信号来处理信息
@@ -95,9 +102,12 @@ void PlayerConnector::recv_msg(){
 
     else if(sign == 1){
         this->new_pkg = deserialization_Package(stream);
+        for(int i=0;i<36;i++)
+            qDebug()<<this->new_pkg.map[i].value;
         emit recv_msg_pakcage(new_pkg);
         //设置一个信号来更新地图
     }
+
 }
 
 

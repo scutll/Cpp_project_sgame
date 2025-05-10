@@ -128,6 +128,9 @@ void start_window::onRecv_msg_str(const QString& msg){
 void start_window::onRecv_msg_package(const package& pkg){
     msg_os("匹配成功,正在进入游戏");
 
+    for(int i=0;i<36;i++){
+        msg_os(QString::number(pkg.map[i].value));
+    }
 
     this->close();
     MainWindow* w = new MainWindow;
