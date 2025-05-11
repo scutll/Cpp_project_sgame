@@ -83,6 +83,8 @@ void Server::handle_new_connection(){
         connect(new_player,&QTcpSocket::readyRead,this,&Server::handle_match_request);
         connect(new_player,&QTcpSocket::readyRead,this,&Server::recv_msg);
         // matching_players_list.push(new_player);
+
+        send_msg(new_player,"欢迎进入线上游戏，正在为您匹配......");
     }
 }
 
@@ -101,7 +103,7 @@ void Server::handle_match_request(){
         QMutexLocker locker(&queuemutex);
         matching_players_list.push(player);
         qDebug()<<"新用户加入队列";
-        send_msg(player,"积极寻找对手中，当前匹配队列长度：" + QString::number(matching_players_list.size()));
+        send_msg(player,"积极寻找对手中......当前匹配队列长度：" + QString::number(matching_players_list.size()));
 
 
         qDebug()<<"队列长度: "<<this->matching_players_list.size();
