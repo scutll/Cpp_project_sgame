@@ -21,6 +21,8 @@ void BattleHandler::handlePlayer2() {
 
 
 void send_msg(QTcpSocket* socket,const QString msg);
+
+
 void BattleHandler::handlePlayer(QTcpSocket* player, QTcpSocket* opponent) {
     QByteArray data = player->readAll();
     QString message = QString::fromUtf8(data);

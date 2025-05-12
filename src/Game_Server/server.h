@@ -12,7 +12,7 @@
 #include "../../src/save_package.h"
 #include "../../src/MyGame/scene.h"
 
-
+//服务器类
 class Server : public QMainWindow
 {
     Q_OBJECT
@@ -46,7 +46,21 @@ public:
     void match_two(QTcpSocket* lhs,QTcpSocket* rhs);
 };
 
+//继承于QTcpSocket类的客户类来处理单个连接
+class ClientSocket : public QTcpSocket{
+    Q_OBJECT
 
+public:
+    ClientSocket(QObject* parent = nullptr);
+
+private slots:
+    void recv_msg();
+
+private:
+    quint16 nextBlockSize;
+
+
+};
 
 
 

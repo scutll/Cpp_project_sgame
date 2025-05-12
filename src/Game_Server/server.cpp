@@ -113,26 +113,39 @@ void Server::handle_match_request(){
 
 
 void Server::match_two(QTcpSocket* lhs,QTcpSocket* rhs){
-    std::pair pair_(lhs,rhs);
-    //添加进对战的队列
-    this->compating_players_list.push_back(pair_);
 
-    Scene game;
-    game.generate();
+    QMetaObject::invokeMethod(this,[this,lhs,rhs](){
+
+        std::pair pair_(lhs,rhs);
+        //添加进对战的队列
+        this->compating_players_list.push_back(pair_);
+
+        Scene game;
+        game.generate();
+        if (!lhs->isOpen() || !rhs->isOpen()) {
+            qDebug() << "Socket disconnected!";
+            return;
+        }
+
+        send_msg(lhs,"匹配成功，即将开始游戏:");
+        send_msg(rhs,"匹配成功，即将开始游戏:");
 
 
-    send_msg(lhs,game.package_());
 
-    QThread* thread = new QThread;
-    BattleHandler* handler= new BattleHandler(lhs,rhs);
+        // send_msg(lhs,game.package_());
 
-    handler->moveToThread(thread);
-    connect(thread,&QThread::started,handler,&BattleHandler::startBattle);
-    connect(handler, &BattleHandler::finished, thread, &QThread::quit);
-    connect(handler, &BattleHandler::finished, handler, &BattleHandler::deleteLater);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+        QThread* thread = new QThread;
+        BattleHandler* handler= new BattleHandler(lhs,rhs);
 
-    thread->start();
+        handler->moveToThread(thread);
+        connect(thread,&QThread::started,handler,&BattleHandler::startBattle);
+        connect(handler, &BattleHandler::finished, thread, &QThread::quit);
+        connect(handler, &BattleHandler::finished, handler, &BattleHandler::deleteLater);
+        connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+        thread->start();
+
+    },Qt::QueuedConnection);
 }
 
 

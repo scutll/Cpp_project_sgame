@@ -37,6 +37,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Game_handler.cpp
         scene.cpp
         block.cpp
+        clentsocket.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
