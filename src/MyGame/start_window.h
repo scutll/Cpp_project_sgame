@@ -41,6 +41,8 @@ private slots:
 
     void onRecv_msg_package(const package& pkg);
 
+    void gameClosed();
+
 private:
     bool matching;
     Ui::start_window *ui;

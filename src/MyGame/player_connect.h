@@ -19,6 +19,8 @@ private:
     QString new_msg;
     package new_pkg;
 
+    quint16 nextBlockSize;  // 不是int!!
+
 private slots:
     void recv_msg();
 

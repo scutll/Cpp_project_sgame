@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 一个总是存在的存档窗口
     this->arc = new Archives;
     start_time_ = now_time();
+    OfflineMode();
 }
 
 MainWindow::~MainWindow()
@@ -156,53 +157,6 @@ void MainWindow::setPoint(QPushButton *btn)
     }
 }
 
-// void save_game(QString path,const char* name);
-
-// bool MainWindow::save(){
-//     if(isUntitled)
-//         return saveAs();
-//     else
-//         return saveFile(curFile);       //存档已经有保存记录，直接覆盖保存即可
-// }
-
-// bool MainWindow::saveAs(){
-//     QString fileName = QFileDialog::getSaveFileName(this,
-//                                                     tr("另存为"),"newgame.game");
-//     if(fileName.isEmpty()) return false;
-//     return saveFile(fileName);
-// }
-// bool MainWindow::saveFile(const QString &filename){
-//     const char* name = "mxl";  //以后可以设置一个弹窗询问存档名
-
-//     //鼠标指针变成等待状态
-//     QApplication::setOverrideCursor(Qt::WaitCursor);
-//     save_game(filename,name);   //保存
-//     //鼠标指针恢复
-//     QApplication::restoreOverrideCursor();
-//     isUntitled = false;
-//     //获得文件标准路径
-//     curFile = QFileInfo(filename).canonicalFilePath();
-//     setWindowTitle(curFile);
-//     return true;
-// }
-
-// package load_game(QString path);
-
-// bool MainWindow::loadFile(const QString &filename){
-//     package archive = load_game(filename);
-
-//     QApplication::setOverrideCursor(Qt::WaitCursor);
-//     //载入
-//     for(int i = 0; i < 36; i++){
-//         game.map[i] = archive.map[i];
-//     }
-//     //可以设置弹窗表示保存时间等
-//     QApplication::restoreOverrideCursor();
-
-//     curFile = QFileInfo(filename).canonicalFilePath();
-//     setWindowTitle(curFile);
-//     return true;
-// }
 
 void MainWindow::on_save_game_triggered()
 {
@@ -216,16 +170,6 @@ void MainWindow::on_save_game_triggered()
 
 void MainWindow::on_load_game_triggered()
 {
-    // QString fileName = QFileDialog::getOpenFileName(this,
-    //                                                 tr("载入"),curFile);
-    // if(fileName.isEmpty()){
-    //     QMessageBox::warning(nullptr,nullptr,"warning","文件无效");
-    // }
-
-    // loadFile(fileName);
-    // generate_map();
-
-    // 存档界面
 
     arc->toLoad();
     arc->flash();
@@ -243,15 +187,6 @@ bool confirmSave();
 void Archives::Archives_name_clicked(QPushButton *btn, QLabel *time_label)
 {
     qDebug()<<"Clicked for archives!";
-    // qDebug()<<btn->text()<<time_label->text();
-
-    // QString file;
-    // if(btn->text() == "空存档"){
-    //     file = QString("newgame");
-    // }
-    // else{
-    //     file = btn->text();
-    // }
 
     // 窗口用于保存的情况
     if (this->to_save)
@@ -338,13 +273,6 @@ void Archives::Archives_name_clicked(QPushButton *btn, QLabel *time_label)
 
         emit loadFinished();
 
-
-        // for(int i =0;i<6;i++)
-        // {
-        //     for(int j = 0;j<6;j++)
-        //         std::cout<<game.map[i*6+j].value<<" ";
-        //     std::cout<<std::endl;
-        // }        //测试game.map是否载入成功
     }
 }
 
@@ -480,6 +408,7 @@ void MainWindow::on_Finish_button_clicked()
 }
 
 void MainWindow::Victory_Settlement(){
+
     std::tm now;
     now = now_time();
 
@@ -491,10 +420,28 @@ void MainWindow::Victory_Settlement(){
     int diff_minutes = static_cast<int>(diff_seconds / 60) % 60;
     int diff_hours = static_cast<int>(diff_seconds / 3600) % 60;
     int diff_sec = static_cast<int>(diff_seconds) % 60;
-
     QMessageBox::information(this,"Congratulations",QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口").arg(diff_hours)
                                                           .arg(diff_minutes).arg(diff_sec));
-    qDebug()<<"send awake signal:";
-    emit Awake_StartWindow();
+    if(!is_online()){
+
+        qDebug()<<"send awake signal:";
+        emit Awake_StartWindow();
+    }
+    else if(is_online()){
+        emit finish_online();   //待完善
+    }
 }
 
+
+void MainWindow::OnlineMode(){
+    online = true;
+}
+
+
+void MainWindow::OfflineMode(){
+    online = false;
+}
+
+bool MainWindow::is_online(){
+    return online;
+}

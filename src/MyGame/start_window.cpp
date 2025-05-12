@@ -17,7 +17,9 @@ start_window::start_window(QWidget *parent)
     ui->msg_list_window->setModel(model);
     setWindowTitle(tr("活字飞花"));
     w = new MainWindow;
+    w->init();
 
+    connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
 
 }
 
@@ -29,8 +31,7 @@ start_window::~start_window()
 void start_window::on_offline_game_clicked()
 {
     this->close();
-    MainWindow* w = new MainWindow;
-    w->init();
+    w->OfflineMode();
     w->show();
     w->generate_map();
 }
@@ -82,6 +83,7 @@ void start_window::on_online_game_clicked()
     connect(player,&PlayerConnector::recv_msg_str,this,&start_window::onRecv_msg_str);
     connect(player,&PlayerConnector::recv_msg_pakcage,this,&start_window::onRecv_msg_package);
 
+
 }
 
 void start_window::on_Awake_signal(){
@@ -113,6 +115,7 @@ void start_window::onConnectionSucceeded() {
     qDebug() << "Connection succeeded!";
     msg_os("连接服务器成功，正在匹配：");
     player->send_match_request();
+    // player->send_msg("hello");
 }
 
 void start_window::onConnectionFailed(const QString &errorMessage) {
@@ -133,10 +136,13 @@ void start_window::onRecv_msg_package(const package& pkg){
     }
 
     this->close();
-    MainWindow* w = new MainWindow;
-    w->init();
+
     w->show();
     w->generate_map();
 
     w->load_game_and_generate(pkg);
+}
+
+void start_window::gameClosed(){
+    this->show();
 }

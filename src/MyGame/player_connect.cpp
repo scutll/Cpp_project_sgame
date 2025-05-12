@@ -53,6 +53,8 @@ bool PlayerConnector::connect_to_server(){
     QTimer::singleShot(1000, this, &PlayerConnector::onTimeout); // 1秒超时
 
     Server_socket->connectToHost(this->ServerIP, this->ServerPort);
+
+    nextBlockSize = 0;
     return true; // 返回 true 表示连接请求已发出
 
 
@@ -60,10 +62,16 @@ bool PlayerConnector::connect_to_server(){
 }
 
 //发送数据
+//msg
 void PlayerConnector::send_msg(const QString msg){
-    QByteArray buffer = msg.toLocal8Bit();
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    // out << quint16(0);
 
-    Server_socket->write(buffer);
+    // out.device()->seek(0);
+    // out << quint16(block.size() - sizeof(quint16));
+    out << msg;
+    Server_socket->write(block);
 }
 
 void PlayerConnector::send_match_request(){
@@ -80,33 +88,53 @@ void PlayerConnector::send_complete_msg(){
 
 //接收数据
 //字节流的第一位标识是0：QString还是1：package 第二个int 是数据长度
+//readyread并不是严格地每接收服务器write的一个数据块来触发，一个数据块可能分成几个包来发送，也可能一堆数据块一起发送，因此需要一个forever来循环读取，需要一个简单的传输协议
+//quint16(长度) + qunit16(模式) +data
 void PlayerConnector::recv_msg(){
-    emit recv_msg_str("msg received");
     qDebug()<<"msg received";
 
-    // Server_socket->abort();
-    // Server_socket->connectToHost(this->ServerIP, this->ServerPort);
+    QDataStream in(Server_socket);
+    in.setVersion(QDataStream::Qt_6_8);
 
-    QByteArray buffer = Server_socket->readAll();
-    QDataStream stream(buffer);
+    quint16 mode = -1;
+    forever{
+        qDebug()<<"reading";
+        if(nextBlockSize == 0){
+            qDebug() << "nextBlockSize == 0";
+            if(Server_socket->bytesAvailable() < sizeof(quint16))
+                break;
+            in >> nextBlockSize;
+            qDebug() << nextBlockSize;
+        }
 
-    int sign;
-    stream >> sign; //读取标识位
-    // int length;
-    // stream >> length;
-    if(sign == 0){
-        stream >> this->new_msg;
-        //设置一个信号来处理信息
-        emit recv_msg_str(new_msg);
+        if(nextBlockSize == 0xffff){
+            qDebug() << "reading finished";
+            break;
+        }
+
+        if(Server_socket->bytesAvailable() < nextBlockSize){
+            qDebug() << "uncomplete data";
+            break;
+        }
+
+        in >> mode;
+
+        qDebug() << mode;
+        if(mode == 0){
+            QString msg;
+            in >> msg;
+            qDebug() << msg;
+            emit recv_msg_str(msg);
+        }
+        else if(mode == 1){
+            this->new_pkg = deserialization_Package(in);
+            emit recv_msg_pakcage(new_pkg);
+        }
+
+        nextBlockSize = 0;
+        mode = -1;
     }
 
-    else if(sign == 1){
-        this->new_pkg = deserialization_Package(stream);
-        for(int i=0;i<36;i++)
-            qDebug()<<this->new_pkg.map[i].value;
-        emit recv_msg_pakcage(new_pkg);
-        //设置一个信号来更新地图
-    }
 
 }
 

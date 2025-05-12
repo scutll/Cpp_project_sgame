@@ -49,6 +49,19 @@
     </rect>
    </property>
   </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>220</y>
+     <width>69</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>消息框</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
