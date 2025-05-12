@@ -48,7 +48,7 @@ private:
     Ui::start_window *ui;
     QStandardItemModel *model;
     MainWindow* w;
-    PlayerConnector* player;
+    PlayerConnector* GameServer;
 };
 
 #endif // START_WINDOW_H

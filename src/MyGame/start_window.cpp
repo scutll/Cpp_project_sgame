@@ -49,10 +49,10 @@ void start_window::on_online_game_clicked()
     // // msg.information(this,nullptr,tr("匹配中......"));
     // msg_os("匹配中......");
     // QApplication::processEvents();//强制处理事件队列中的消息，因为conncet函数里的waitfortimeout是阻塞调用，此时msg_os会被阻塞留在事件队列中无法运行
-    // this->player = new PlayerConnector;
+    // this->GameServer = new PlayerConnector;
 
     // bool connect_success;
-    // connect_success = player->connect_to_server();
+    // connect_success = GameServer->connect_to_server();
     // if(!connect_success){
     //     qDebug()<<"connection failed";
     //     msg_os("连接服务器失败", true);
@@ -62,7 +62,7 @@ void start_window::on_online_game_clicked()
     //     return;
     // }
 
-    // player->send_match_request();
+    // GameServer->send_match_request();
 
     if (matching)
         return;
@@ -70,18 +70,18 @@ void start_window::on_online_game_clicked()
     matching = true;
     msg_os("正在连接服务器......");
 
-    this->player = new PlayerConnector;
+    this->GameServer = new PlayerConnector;
 
 
 
-    connect(player, &PlayerConnector::connectionSucceeded, this, &start_window::onConnectionSucceeded);
-    connect(player, &PlayerConnector::connectionFailed, this, &start_window::onConnectionFailed);
+    connect(GameServer, &PlayerConnector::connectionSucceeded, this, &start_window::onConnectionSucceeded);
+    connect(GameServer, &PlayerConnector::connectionFailed, this, &start_window::onConnectionFailed);
 
-    player->connect_to_server();
+    GameServer->connect_to_server();
 
 
-    connect(player,&PlayerConnector::recv_msg_str,this,&start_window::onRecv_msg_str);
-    connect(player,&PlayerConnector::recv_msg_pakcage,this,&start_window::onRecv_msg_package);
+    connect(GameServer,&PlayerConnector::recv_msg_str,this,&start_window::onRecv_msg_str);
+    connect(GameServer,&PlayerConnector::recv_msg_pakcage,this,&start_window::onRecv_msg_package);
 
 
 }
@@ -114,8 +114,8 @@ void start_window::msg_os(const QString msg,bool error){
 void start_window::onConnectionSucceeded() {
     qDebug() << "Connection succeeded!";
     msg_os("连接服务器成功，正在匹配：");
-    player->send_match_request();
-    // player->send_msg("hello");
+    GameServer->send_match_request();
+    // GameServer->send_msg("hello");
 }
 
 void start_window::onConnectionFailed(const QString &errorMessage) {
