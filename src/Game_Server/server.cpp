@@ -127,8 +127,8 @@ void Server::match_two(QTcpSocket* lhs,QTcpSocket* rhs){
             return;
         }
 
-        send_msg(lhs,"匹配成功，即将开始游戏:");
-        send_msg(rhs,"匹配成功，即将开始游戏:");
+        send_msg(lhs,"与player2匹配成功，即将开始游戏:");
+        send_msg(rhs,"与player1匹配成功，即将开始游戏:");
 
 
 

@@ -35,7 +35,8 @@ int main(){
 
     std::cin.get();
 
-
-
+    for (int i = 0; i < 36;i++){
+        game.map[i] = i + 1;
+    }//创建已完成存档
     game.play();
 }

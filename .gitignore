@@ -4,6 +4,7 @@ build
 bin
 # IDE
 .vscode
+.idea
 # clang
 .cache
 *.game
