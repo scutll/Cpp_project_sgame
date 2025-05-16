@@ -25,7 +25,7 @@ private:
     void dealUpdateLocalUserData(const QString& userAccount,const QString& type);
     void dealClientDisconnected(const int socket_id);
     void dealNewClientLogin(const QString& userAccount);
-    void dealAcceptUserNormalMessage(const QString& senderAccount,const QString& receiverAccount,const QString& msg);
+    void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
 
 private:
     TcpServer *tcpServer;
