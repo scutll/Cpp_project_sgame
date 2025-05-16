@@ -2,6 +2,7 @@
 // Created by mxl_scut on 25-5-15.
 //
 
+//Client类提供了处理用户登录和请求发送信息的接口，作为可拓展性类，其他类只需要调用相应接口就可以接入Cient类来获取客户端功能
 #ifndef CILENT_H
 #define CILENT_H
 #include <QtWidgets/QWidget>
@@ -29,7 +30,7 @@ public:
 signals:
     void sendLoginInfo();
 
-//  提供给外部的接口
+//提供给外部的接口
 public:
     void dealUserLogined(const QString& userName);
 signals:
