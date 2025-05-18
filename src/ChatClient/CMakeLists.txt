@@ -19,17 +19,19 @@ set(PROJECT_SOURCES
         widget.cpp
         widget.h
         widget.ui
-        cmake-build-debug/src/Client.cpp
-        cmake-build-debug/include/Client.h
-        cmake-build-debug/src/ClientNetworkManager.cpp
-        cmake-build-debug/include/ClientNetworkManager.h
-        cmake-build-debug/include/global.h
+        Client.cpp
+        Client.h
+        ClientNetworkManager.cpp
+        ClientNetworkManager.h
+        global.h
+        global.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ChatClient
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        global.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ChatClient APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

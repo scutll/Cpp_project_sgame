@@ -17,12 +17,12 @@ find_package(Qt6 COMPONENTS Network)
 
 add_executable(ChatServer
   main.cpp
-        cmake-build-debug/src/ClientWork.cpp
-        cmake-build-debug/include/ClientWork.h
-        cmake-build-debug/src/ChatServer.cpp
-        cmake-build-debug/include/ChatServer.h
-        cmake-build-debug/src/TcpServer.cpp
-        cmake-build-debug/include/TcpServer.h
+        ClientWork.cpp
+        ClientWork.h
+        ChatServer.cpp
+        ChatServer.h
+        TcpServer.cpp
+        TcpServer.h
 )
 target_link_libraries(ChatServer PRIVATE Qt6::Core)
 target_link_libraries(ChatServer PRIVATE Qt6::Network)

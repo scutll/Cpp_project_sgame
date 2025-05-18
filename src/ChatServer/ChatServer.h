@@ -11,6 +11,7 @@
 #include "ClientWork.h"
 #include "TcpServer.h"
 #include <QThread>
+#include <QVector>
 
 
 
@@ -20,16 +21,17 @@ public:
     ChatServer(QObject* parent = nullptr);
     ~ChatServer();
 private:
-    void newClientConnection(const qintptr handle);
+    void newClientConnection(qintptr handle);
     void dealNoticeClientDisconnected(const QString& userAccount);
     void dealUpdateLocalUserData(const QString& userAccount,const QString& type);
-    void dealClientDisconnected(const int socket_id);
-    void dealNewClientLogin(const QString& userAccount);
+    void dealClientDisconnected(int socket_id);
+    void dealNewClientLogin(const QString& usrName);
     void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
 
 private:
     TcpServer *tcpServer;
     QMap<QThread*, ClientWork*> clients;
+    QVector<QString> existingUsers;
 
 signals:
     void transferNoticeDisconnected(const QString& userAccount);

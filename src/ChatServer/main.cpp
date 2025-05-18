@@ -1,5 +1,5 @@
 #include <QCoreApplication>
-
+#include "ChatServer.h"
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     // If you do not need a running Qt event loop, remove the call
     // to a.exec() or use the Non-Qt Plain C++ Application template.
 
-    qDebug()<<"hello concle";
+    ChatServer server;
+    qDebug()<<"server running:";
     return a.exec();
 }

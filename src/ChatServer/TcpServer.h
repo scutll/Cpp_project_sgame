@@ -17,8 +17,7 @@ public:
 protected:
     void incomingConnection(qintptr handle) Q_DECL_OVERRIDE;
 signals:
-    void newClientConnected(const qintptr handle);
-
+    void newClientConnected(qintptr handle);
 
 };
 

@@ -14,14 +14,19 @@
 class ClientNetworkManager :public QObject{
     Q_OBJECT
     enum MSGTYPE {
-        Login = 0, NoticeNewLogin, FriendApplication, WaitAcceptApplication, SendAcceptApplicationNotice,
-        AcceptedApplication, NormalMessage, SendNormalMessage, SendUserDisconnected
+        /*server接收*/
+        Login = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
+        /*client接收*/
+        NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
+         SendNormalMesssage, SendUserDisconnected
     };
 public:
     ClientNetworkManager(QObject* parent = nullptr);
     ~ClientNetworkManager();
 
 private:
+    quint16 nextBlockSize = 0;
+    qint16 MSG_TYPE = -1;
     QTcpSocket* socket = nullptr;
     QMutex mutex;
 

@@ -49,7 +49,7 @@ signals:
     void NoticeClientDisconnected(const QString& userAccount);    //提醒服务器用户退出连接
     void updateLocalUserData(const QString& userAccount,const QString& type);
     void clientDisconnected(int socket_id);
-    void newClientLogin(const QString& userAccount);
+    void newClientLogin(const QString& usrName);
     void acceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
 
 

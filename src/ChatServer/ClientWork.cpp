@@ -2,7 +2,7 @@
 // Created by mxl_scut on 25-5-15.
 //
 
-#include "../include/ClientWork.h"
+#include "ClientWork.h"
 
 #include <bits/fs_fwd.h>
 
@@ -57,7 +57,7 @@ void ClientWork::dealNoticeClientDisconnected(const QString &userName) {
 
     this->socket->write(block);
 
-    emit updateLocalUserData(userName,"0");
+    // emit updateLocalUserData(userName,"0");
 }
 
 
@@ -79,7 +79,7 @@ void ClientWork::noticeClientLogin(const QString &userAccount) {
 
 
 void ClientWork::sendUserMessageToReceiver(const QString &senderName, const QString& receiverName, const QString &message) {
-    if (this->userName != receiverName)
+    if (this->userName != receiverName && receiverName != QString("All"))
         return;
     QMetaObject::invokeMethod(this,[this,senderName,message]() {
         QByteArray block;
@@ -130,9 +130,10 @@ void ClientWork::ReadData() {
         qDebug() << MSG_TYPE;
 
         if (MSG_TYPE == Login) {
-            QString loginUserAccount;
-            in >> loginUserAccount;
-            emit newClientLogin(loginUserAccount);
+            QString loginUserName;
+            in >> loginUserName;
+            this->userName = loginUserName;
+            emit newClientLogin(loginUserName);
         }
         else if (MSG_TYPE == FriendApplication) {
             //暂时不开放
@@ -146,6 +147,7 @@ void ClientWork::ReadData() {
             QString message;
 
             in >> sender >> receiver >> message;
+            qDebug() << "message from " << sender << " to " << receiver << ": " << message;
             emit acceptUserNormalMessage(sender,receiver,message);
         }
 

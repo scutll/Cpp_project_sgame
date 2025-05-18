@@ -2,7 +2,7 @@
 // Created by mxl_scut on 25-5-15.
 //
 //VERSION 1.0 服务器不做本地记录，玩家直接设置账号和用户名，直接指定消息发送给谁或者全体（All）
-#include "../include/ChatServer.h"
+#include "ChatServer.h"
 
 ChatServer::ChatServer(QObject *parent)
     :QObject(parent){
@@ -45,7 +45,7 @@ void ChatServer::newClientConnection(const qintptr handle) {
     connect(this,&ChatServer::transferNewClientLogin,work,&ClientWork::noticeClientLogin,Qt::QueuedConnection);
 
     //接收普通消息
-    connect(work,&ClientWork::acceptUserNormalMessage,this,ChatServer::dealAcceptUserNormalMessage,Qt::QueuedConnection);
+    connect(work,&ClientWork::acceptUserNormalMessage,this,&ChatServer::dealAcceptUserNormalMessage,Qt::QueuedConnection);
     connect(this,&ChatServer::transferAcceptUserNormalMessage,work,&ClientWork::sendUserMessageToReceiver,Qt::QueuedConnection);
 }
 
@@ -55,7 +55,24 @@ void ChatServer::dealNoticeClientDisconnected(const QString &userAccount) {
 
 
 void ChatServer::dealUpdateLocalUserData(const QString &userAccount, const QString &type) {
+    if (type == "1") {
+        qDebug() << userAccount << "added to users:";
+        existingUsers.push_back(userAccount);
+    }
+    else if (type == "0") {
+        qDebug() << userAccount << "removed from users:";
+        for (int i=0;i < existingUsers.size();i++) {
+            if (existingUsers.at(i) == userAccount) {
+                existingUsers.erase(existingUsers.begin()+i);
+                break;
+            }
+        }
+    }
 
+    qDebug() << "existingUsers: ";
+    for (const QString& user: this->existingUsers) {
+        qDebug() << user;
+    }
 }
 
 
@@ -78,9 +95,10 @@ void ChatServer::dealClientDisconnected(const int socket_id) {
 
 
 
-void ChatServer::dealNewClientLogin(const QString &userAccount) {
-
-    emit transferNewClientLogin(userAccount);
+void ChatServer::dealNewClientLogin(const QString &usrName) {
+    qDebug() << usrName << "loginned ";
+    emit transferNewClientLogin(usrName);
+    dealUpdateLocalUserData(usrName,"1");
 }
 
 
