@@ -23,7 +23,7 @@ void ClientNetworkManager::initializeSocket() {
     this->socket->connectToHost(QHostAddress("127.0.0.1"), quint16(521125));
 
     if (!this->socket->waitForConnected()) {
-        emit this->connectErrorSignal();
+        emit this->connectErrorSignal(this->socket->errorString());
         qDebug() << this->socket->errorString();
         return;
     }

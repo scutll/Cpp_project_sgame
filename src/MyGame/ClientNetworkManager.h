@@ -38,7 +38,7 @@ public:
     void sendUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
 
 signals:
-    void connectErrorSignal();
+    void connectErrorSignal(const QString& error);
     void connectedSignal();
     void UserLogined(const QString& userName);
     void acceptNormalMessage(const QString& senderName,const QString& message);

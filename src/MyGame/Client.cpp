@@ -29,7 +29,7 @@ Client::Client(const QString &userName, const int &userAccount, QWidget *parent)
 
 
     //连接错误
-    connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::deleteChatThread,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
 
     //服务器通知有用户登录
     connect(this->client_network_manager,&ClientNetworkManager::UserLogined,this,&Client::dealUserLogined,Qt::QueuedConnection);
@@ -46,6 +46,11 @@ Client::Client(const QString &userName, const int &userAccount, QWidget *parent)
 }
 
 Client::~Client() {
+    this->deleteChatThread();
+}
+
+void Client::dealconnectErrorSignal(const QString &error) {
+    emit INTERFACE_dealConnnectError(error);
     this->deleteChatThread();
 }
 
@@ -115,7 +120,7 @@ void Client::INTERFACE_retryConnect() {
 
 
     //重新连接
-    connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::deleteChatThread,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
     connect(this->client_network_manager,&ClientNetworkManager::UserLogined,this,&Client::dealUserLogined,Qt::QueuedConnection);
     connect(this,&Client::SendUserMessage,this->client_network_manager,&ClientNetworkManager::sendUserNormalMessage,Qt::QueuedConnection);
     connect(this->client_network_manager,&ClientNetworkManager::acceptNormalMessage,this,&Client::dealAcceptNormalMessage,Qt::QueuedConnection);

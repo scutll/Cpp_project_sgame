@@ -37,6 +37,7 @@ public:
     void dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void dealUserDisconnected(const QString& userName);
     void dealUserLogined(const QString& userName);
+    void dealconnectErrorSignal(const QString& error);
 
 
     //提供给外部的接口
@@ -50,6 +51,7 @@ signals:
     void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void INTERFACE_dealUserDisconnected(const QString& userName);
     void INTERFACE_dealUserLogined(const QString& userName);
+    void INTERFACE_dealConnnectError(const QString &error);
 };
 
 

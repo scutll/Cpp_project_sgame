@@ -1,5 +1,5 @@
-#include "../../src/block.h"
-#include "../../src/common.h"
+#include "../../src/TerminalVersion/block.h"
+#include "../../src/TerminalVersion/common.h"
 #include <cassert>
 
 //判断是否有相同数字

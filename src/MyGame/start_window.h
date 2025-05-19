@@ -66,6 +66,8 @@ private slots:
 
     void dealINTERFACE_dealUserLogined(const QString& userName);
 
+    void dealINTERFACE_dealConnnectError(const QString& error);
+
 
 private:
     bool matching;

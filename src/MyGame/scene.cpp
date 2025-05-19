@@ -1,9 +1,9 @@
 #include "scene.h"
-#include "../../src/common.h"
-#include "../../src/color.h"
-#include "../../src/display_symbol.h"
-#include "../../src/language.h"
-#include "../../src/utility.inl"
+#include "../../src/TerminalVersion/common.h"
+#include "../../src/TerminalVersion/color.h"
+#include "../../src/TerminalVersion/display_symbol.h"
+#include "../../src/TerminalVersion/language.h"
+#include "../../src/TerminalVersion/utility.inl"
 #include "mainwindow.h"
 #include <vector>
 #include <fstream>
@@ -12,7 +12,7 @@
 #include <iostream>
 #include <cmath>
 #include <chrono>
-#include "../../src/save_package.h"
+#include "../../src/TerminalVersion/save_package.h"
 #include <ctime>
 #include <cstring>
 

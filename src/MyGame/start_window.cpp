@@ -7,6 +7,7 @@
 #include <QToolButton>
 #include <QLineEdit>
 #include <QInputDialog>
+#include <QDir>
 
 
 start_window::start_window(QWidget *parent)
@@ -37,6 +38,9 @@ start_window::start_window(QWidget *parent)
     // ui->LoginBtn = new QPushButton;
 
 
+    QDir dir(QCoreApplication::applicationDirPath());
+    if(!dir.exists("archives"))
+        dir.mkdir("archives");
 }
 
 start_window::~start_window()
@@ -275,6 +279,10 @@ void start_window::dealINTERFACE_dealUserDisconnected(const QString& userName){
     app_msg("系统",message,true);
 }
 
+void start_window::dealINTERFACE_dealConnnectError(const QString& error) {
+    this->app_msg("系统","连接失败: " + error, true);
+}
+
 void start_window::dealINTERFACE_dealUserLogined(const QString& userName){
     if(userName == this->chatclient->userName_())
         return;
@@ -288,4 +296,5 @@ void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_dealUserDisconnected,this,&start_window::dealINTERFACE_dealUserDisconnected);
     connect(chatclient,&Client::INTERFACE_dealUserLogined,this,&start_window::dealINTERFACE_dealUserLogined);
     connect(chatclient,&Client::INTERFACE_dealAcceptNormalMessage,this,&start_window::dealINTERFACE_dealAcceptNormalMessage);
+    connect(chatclient,&Client::INTERFACE_dealConnnectError,this,&start_window::dealINTERFACE_dealConnnectError);
 }

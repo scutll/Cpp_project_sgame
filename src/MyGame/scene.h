@@ -2,10 +2,10 @@
 #define SCENE_H_
 
 #include <vector>
-#include "../../src/common.h"
-#include "../../src/block.h"
+#include "../../src/TerminalVersion/common.h"
+#include "../../src/TerminalVersion/block.h"
 #include "mainwindow.h"
-#include "../../src/save_package.h"
+#include "../../src/TerminalVersion/save_package.h"
 //    0  1  2  3  4  5
 //   ------------------>x
 // 0 │0  1  2  3  4  5

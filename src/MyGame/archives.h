@@ -1,11 +1,12 @@
 #ifndef ARCHIVES_H
 #define ARCHIVES_H
 
+#include <qcoreapplication.h>
 #include <vector>
 #include <QDialog>
 #include <QPushButton>
 #include <QLabel>
-#include "../../src/save_package.h"
+#include "../../src/TerminalVersion/save_package.h"
 
 namespace Ui {
 class Archives;
@@ -41,7 +42,7 @@ private:
 
     package pkg_forload;
     //存档保存地址
-    QString path = "../../archives/";
+    QString path = QCoreApplication::applicationDirPath() + "/archives/";
 };
 
 

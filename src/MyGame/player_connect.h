@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <QTcpSocket>
 #include <QString>
-#include "../../src/save_package.h"
+#include "../../src/TerminalVersion/save_package.h"
 
 class PlayerConnector : public QObject{
     Q_OBJECT

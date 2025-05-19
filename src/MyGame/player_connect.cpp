@@ -1,6 +1,6 @@
 #include "player_connect.h"
-#include "../../src/scene.h"
-#include "../../src/save_package.h"
+#include "../../src/TerminalVersion/scene.h"
+#include "../../src/TerminalVersion/save_package.h"
 #include "player_connect.h"
 #include <QByteArray>
 #include <QDataStream>

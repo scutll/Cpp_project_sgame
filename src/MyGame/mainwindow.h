@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 #include <QPushButton>
 #include <QMainWindow>
-#include "../../src/common.h"
+#include "../../src/TerminalVersion/common.h"
 #include "archives.h"
 
 

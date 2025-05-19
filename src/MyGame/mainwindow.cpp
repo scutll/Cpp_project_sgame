@@ -7,17 +7,17 @@
 #include <QMessageBox>
 #include <fstream>
 #include <QString>
-#include "../../src/common.h"
+#include "../../src/TerminalVersion/common.h"
 #include "scene.h"
-#include "../../src/language.h"
+#include "../../src/TerminalVersion/language.h"
 #include <chrono>
-#include "../../src/save_package.h"
+#include "../../src/TerminalVersion/save_package.h"
 #include <ctime>
 #include <QString>
 #include "archives.h"
 #include <QInputDialog>
 #include <QApplication>
-#include "../../src/utility.inl"
+#include "../../src/TerminalVersion/utility.inl"
 
 Scene game;
 // 使用两个map。一个map_索引对应按钮，即坐标->按钮。另一个_map按钮对应索引，即btn->text().toInt() -> 坐标
@@ -218,11 +218,7 @@ void Archives::Archives_name_clicked(QPushButton *btn, QLabel *time_label)
         }
 
         QString filename = path + archive_name + QString(".game"); // path
-        qDebug() << "Saveing: " << filename;
 
-        save_game(filename, archive_name.toStdString().c_str());
-        if (!replace)
-            archives_cnt++;
 
         //确认存档
         bool confirm = confirmSave();
@@ -245,6 +241,12 @@ void Archives::Archives_name_clicked(QPushButton *btn, QLabel *time_label)
         qDebug() << arc_time << " time";
         time_label->setText(arc_time);
 
+
+        //进行保存
+        qDebug() << "Saveing: " << filename;
+        save_game(filename, archive_name.toStdString().c_str());
+        if (!replace)
+            archives_cnt++;
         qDebug() << "saved";
     }
 

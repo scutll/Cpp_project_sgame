@@ -1,5 +1,5 @@
 #include <cassert>
-#include "../../src/language.h"
+#include "../../src/TerminalVersion/language.h"
 
 I18n::Dict chinese = {
     {I18n::Key::WELCOME_PLAYER,"欢迎! 玩家: "},
