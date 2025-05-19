@@ -84,7 +84,6 @@ void Client::dealUserDisconnected(const QString &userName) {
 }
 
 void Client::dealUserLogined(const QString& userName) {
-
     emit this->INTERFACE_dealUserLogined(userName);
 
 }

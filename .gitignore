@@ -17,3 +17,7 @@ src/block.cpp
 src/scene.cpp
 src/language.cpp
 src/scene.h
+src/MyGame/expandablemenu.h
+src/MyGame/expandablemenu.cpp
+
+src/ChatClient

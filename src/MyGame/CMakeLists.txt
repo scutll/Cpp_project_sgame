@@ -20,6 +20,10 @@ set(PROJECT_SOURCES
     mainwindow.h
 )
 
+INCLUDE_DIRECTORIES(
+    ${PROJECT_SOURCE_DIR}
+)
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(MyGame
         MANUAL_FINALIZATION
@@ -34,6 +38,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         player_connect.cpp
         player_connect.h
         player_connect.cpp
+        Client.cpp Client.h ClientNetworkManager.cpp ClientNetworkManager.h global.cpp global.h
+
+
     )
 
 # Define target properties for Android with Qt 6 as:

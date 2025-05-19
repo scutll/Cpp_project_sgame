@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>980</width>
-    <height>756</height>
+    <width>783</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="online_game">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>500</y>
+     <x>540</x>
+     <y>550</y>
      <width>211</width>
      <height>71</height>
     </rect>
@@ -29,8 +29,8 @@
   <widget class="QPushButton" name="offline_game">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>370</y>
+     <x>540</x>
+     <y>420</y>
      <width>211</width>
      <height>81</height>
     </rect>
@@ -42,24 +42,83 @@
   <widget class="QListView" name="msg_list_window">
    <property name="geometry">
     <rect>
-     <x>620</x>
-     <y>240</y>
-     <width>321</width>
-     <height>391</height>
+     <x>0</x>
+     <y>400</y>
+     <width>491</width>
+     <height>221</height>
     </rect>
    </property>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>620</x>
-     <y>220</y>
+     <x>0</x>
+     <y>380</y>
      <width>69</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>消息框</string>
+    <string>消息</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="MessageLine">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>620</y>
+     <width>331</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="SendBtn">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>620</y>
+     <width>61</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Send</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="RetryConnectionBtn">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>380</y>
+     <width>131</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>重新连接</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="LoginBtn">
+   <property name="geometry">
+    <rect>
+     <x>91</x>
+     <y>380</y>
+     <width>271</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>请登录</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="ReceiverLine">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>620</y>
+     <width>101</width>
+     <height>26</height>
+    </rect>
    </property>
   </widget>
  </widget>
