@@ -68,6 +68,8 @@ private slots:
 
     void dealINTERFACE_dealConnnectError(const QString& error);
 
+    void dealINTERFACE_dealServerDisconnected();
+
 
 private:
     bool matching;

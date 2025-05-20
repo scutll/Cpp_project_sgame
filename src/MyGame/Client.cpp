@@ -28,6 +28,20 @@ Client::Client(const QString &userName, const int &userAccount, QWidget *parent)
     this->chat_thread->start();
 
 
+    this->connect_Init();
+
+}
+
+Client::~Client() {
+    this->deleteChatThread();
+}
+
+void Client::dealconnectErrorSignal(const QString &error) {
+    emit INTERFACE_dealConnnectError(error);
+    this->deleteChatThread();
+}
+
+void Client::connect_Init() {
     //连接错误
     connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
 
@@ -43,16 +57,15 @@ Client::Client(const QString &userName, const int &userAccount, QWidget *parent)
     //服务器通知用户有其他用户离线
     connect(this->client_network_manager,&ClientNetworkManager::userDisconnectedSignal,this,&Client::dealUserDisconnected,Qt::QueuedConnection);
 
+    //服务器断连消息
+    connect(this->client_network_manager,&ClientNetworkManager::ServerDisconnectedSignal,this,&Client::dealServerDisconnected);
 }
 
-Client::~Client() {
-    this->deleteChatThread();
+void Client::dealServerDisconnected() {
+    qDebug() << "Server disconnected";
+    emit this->INTERFACE_ServerDisconnected();
 }
 
-void Client::dealconnectErrorSignal(const QString &error) {
-    emit INTERFACE_dealConnnectError(error);
-    this->deleteChatThread();
-}
 
 
 void Client::deleteChatThread() {
@@ -68,6 +81,10 @@ void Client::deleteChatThread() {
 
     }
 
+}
+
+bool Client::INTREFACE_isConnected() {
+    return client_network_manager->isConnected();
 }
 
 void Client::setUserName(const QString &userName) {
@@ -120,12 +137,7 @@ void Client::INTERFACE_retryConnect() {
 
 
     //重新连接
-    connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
-    connect(this->client_network_manager,&ClientNetworkManager::UserLogined,this,&Client::dealUserLogined,Qt::QueuedConnection);
-    connect(this,&Client::SendUserMessage,this->client_network_manager,&ClientNetworkManager::sendUserNormalMessage,Qt::QueuedConnection);
-    connect(this->client_network_manager,&ClientNetworkManager::acceptNormalMessage,this,&Client::dealAcceptNormalMessage,Qt::QueuedConnection);
-    connect(this->client_network_manager,&ClientNetworkManager::userDisconnectedSignal,this,&Client::dealUserDisconnected,Qt::QueuedConnection);
-
+    this->connect_Init();
 }
 
 

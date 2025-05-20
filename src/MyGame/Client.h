@@ -38,6 +38,10 @@ public:
     void dealUserDisconnected(const QString& userName);
     void dealUserLogined(const QString& userName);
     void dealconnectErrorSignal(const QString& error);
+    void dealServerDisconnected();
+
+    //构建CNM和Client之间的沟通
+    void connect_Init();
 
 
     //提供给外部的接口
@@ -47,11 +51,13 @@ public:
     void INTERFACE_retryConnect();
     void INTERFACE_SendUserMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void INTERFACE_clientLogin(const QString& userName);
+    bool INTREFACE_isConnected();
 signals:
     void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void INTERFACE_dealUserDisconnected(const QString& userName);
     void INTERFACE_dealUserLogined(const QString& userName);
     void INTERFACE_dealConnnectError(const QString &error);
+    void INTERFACE_ServerDisconnected();
 };
 
 

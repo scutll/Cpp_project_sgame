@@ -29,10 +29,11 @@ void ClientNetworkManager::initializeSocket() {
     }
 
     GLOB_IsConnectedToServer = true;
+    //服务器事件通知到主线程
     connect(this->socket,&QTcpSocket::readyRead, this, &ClientNetworkManager::ReadData,Qt::DirectConnection);
+    connect(this->socket,&QTcpSocket::disconnected,this,&ClientNetworkManager::dealServerDisconnected,Qt::DirectConnection);
     emit this->connectedSignal();
     this->sendLoginInfo();
-
 
 }
 
@@ -101,7 +102,13 @@ void ClientNetworkManager::ReadData() {
 
 }
 
+void ClientNetworkManager::dealServerDisconnected() {
+    emit this->ServerDisconnectedSignal();
+}
 
+bool ClientNetworkManager::isConnected() {
+    return socket->state() == QTcpSocket::ConnectedState;
+}
 
 void ClientNetworkManager::sendLoginInfo() {
     QByteArray block;

@@ -210,6 +210,11 @@ void start_window::on_SendBtn_clicked()
         app_msg("系统","网络未连接! 请先登录",true);
         return;
     }
+    if (!chatclient->INTREFACE_isConnected()) {
+        app_msg("系统","服务器已断开连接......发送失败",true);
+        return;
+    }
+
     if(ui->ReceiverLine->text() == this->chatclient->userName_() || ui->ReceiverLine->text() == "")
         return;
 
@@ -292,9 +297,15 @@ void start_window::dealINTERFACE_dealUserLogined(const QString& userName){
     app_msg("系统",message);
 }
 
+void start_window::dealINTERFACE_dealServerDisconnected() {
+    app_msg("系統","服务器已断开，请稍后尝试重新连接",true);
+}
+
+
 void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_dealUserDisconnected,this,&start_window::dealINTERFACE_dealUserDisconnected);
     connect(chatclient,&Client::INTERFACE_dealUserLogined,this,&start_window::dealINTERFACE_dealUserLogined);
     connect(chatclient,&Client::INTERFACE_dealAcceptNormalMessage,this,&start_window::dealINTERFACE_dealAcceptNormalMessage);
     connect(chatclient,&Client::INTERFACE_dealConnnectError,this,&start_window::dealINTERFACE_dealConnnectError);
+    connect(chatclient,&Client::INTERFACE_ServerDisconnected,this,&start_window::dealINTERFACE_dealServerDisconnected);
 }

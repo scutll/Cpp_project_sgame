@@ -36,6 +36,9 @@ public:
     void ReadData();
     void sendLoginInfo();
     void sendUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
+    void dealServerDisconnected();
+    bool isConnected();
+
 
 signals:
     void connectErrorSignal(const QString& error);
@@ -43,7 +46,7 @@ signals:
     void UserLogined(const QString& userName);
     void acceptNormalMessage(const QString& senderName,const QString& message);
     void userDisconnectedSignal(const QString& userName);
-
+    void ServerDisconnectedSignal();
 
 };
 
