@@ -115,7 +115,7 @@ void ClientNetworkManager::sendLoginInfo() {
     QDataStream out(&block, QIODevice::WriteOnly);
     qDebug() << "login info: " << GLOB_UserName;
     out << quint16(0);
-    out << qint16(MSGTYPE::Login);
+    out << qint16(MSGTYPE::LoginRequest);
 
     out << QString(GLOB_UserName);
 

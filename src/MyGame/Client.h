@@ -14,7 +14,7 @@ class Client : public QWidget{
     Q_OBJECT
 
 public:
-    Client(const QString& userName,const int& userAccount,QWidget* parent = nullptr);
+    Client(const QString& userName,const qint64& userAccount,QWidget* parent = nullptr);
     Client(QWidget* parent = nullptr);
     ~Client();
 

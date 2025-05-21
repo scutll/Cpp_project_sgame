@@ -4,10 +4,29 @@
 //VERSION 1.0 服务器不做本地记录，玩家直接设置账号和用户名，直接指定消息发送给谁或者全体（All）
 #include "ChatServer.h"
 
+#include <QCoreApplication>
+#include <QDir>
+
 ChatServer::ChatServer(QObject *parent)
     :QObject(parent){
     this->tcpServer = new TcpServer(this);
     connect(tcpServer, &TcpServer::newClientConnected, this,&ChatServer::newClientConnection,Qt::DirectConnection);
+
+
+    UserInfoPath = QCoreApplication::applicationDirPath() + "/UserInfo/";
+    QDir infodir(QCoreApplication::applicationDirPath());
+    if (!infodir.exists("UserInfo")) {
+        qDebug() << "UserInfo文件夹不存在，正在初始化......";
+        if (!infodir.mkdir("UserInfo"))
+            qDebug() << "UserInfo 文件夹创建失败";
+    }
+
+    UserPasswordPath = QCoreApplication::applicationDirPath() + "/UserPassword/";
+    if (!infodir.exists("UserPassword")) {
+        qDebug() << "UserPassword文件夹不存在，正在初始化......";
+        if (!infodir.mkdir("UserPassword"))
+            qDebug() << "UserPassword 文件夹创建失败";
+    }
 
 }
 
@@ -49,20 +68,20 @@ void ChatServer::newClientConnection(const qintptr handle) {
     connect(this,&ChatServer::transferAcceptUserNormalMessage,work,&ClientWork::sendUserMessageToReceiver,Qt::QueuedConnection);
 }
 
-void ChatServer::dealNoticeClientDisconnected(const QString &userAccount) {
-    emit this->transferNoticeDisconnected(userAccount);
+void ChatServer::dealNoticeClientDisconnected(const QString &userName) {
+    emit this->transferNoticeDisconnected(userName);
 }
 
 
-void ChatServer::dealUpdateLocalUserData(const QString &userAccount, const QString &type) {
+void ChatServer::dealUpdateLocalUserData(const QString &userName, const QString &type) {
     if (type == "1") {
-        qDebug() << userAccount << "added to users:";
-        existingUsers.push_back(userAccount);
+        qDebug() << userName << "added to users:";
+        existingUsers.push_back(userName);
     }
     else if (type == "0") {
-        qDebug() << userAccount << "removed from users:";
+        qDebug() << userName << "removed from users:";
         for (int i=0;i < existingUsers.size();i++) {
-            if (existingUsers.at(i) == userAccount) {
+            if (existingUsers.at(i) == userName) {
                 existingUsers.erase(existingUsers.begin()+i);
                 break;
             }
@@ -108,3 +127,40 @@ void ChatServer::dealAcceptUserNormalMessage(const QString &senderName, const QS
     emit transferAcceptUserNormalMessage(senderName,receiverName,message);
 
 }
+
+
+void ChatServer::SaveUserInfo(const QString& userName,const qint64 userAccount) {
+    QString filename = this->UserInfoPath + QString::number(userAccount) + ".usr";
+    QFile usrinfoFile(filename);
+
+    if (!usrinfoFile.open(QIODevice::WriteOnly)) {
+        qDebug() << "无法打开用户信息文件 " + filename << " : " << usrinfoFile.errorString();
+        return;
+    }
+    QDataStream out(&usrinfoFile);
+    out.setVersion(QDataStream::Qt_6_8);
+
+    out << userAccount << userName;
+
+    usrinfoFile.close();
+
+
+
+}
+void ChatServer::SaveUserPsw(const qint64 userAccount, const QString& password) {
+
+    QString filename = this->UserPasswordPath + "accpsw.psw";
+    QFile usrAccountPasswordFile(filename);
+    if (!usrAccountPasswordFile.open(QIODevice::WriteOnly)) {
+        qDebug() << "无法打开密码映射文件 " + this->UserPasswordPath + "accpsw.psw" << " : " << usrAccountPasswordFile.errorString();
+        return;
+    }
+    QDataStream out(&usrAccountPasswordFile);
+    out.setVersion(QDataStream::Qt_6_8);
+
+    out << userAccount << password;
+
+    usrAccountPasswordFile.close();
+}
+
+

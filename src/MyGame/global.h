@@ -9,7 +9,7 @@
 #include <QString>
 #include <QListWidgetItem>
 
-extern int GLOB_UserAccount;
+extern qint64 GLOB_UserAccount;
 extern QString GLOB_UserName;
 extern bool GLOB_IsConnectedToServer;
 #endif //GLOBAL_H

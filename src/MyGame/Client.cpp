@@ -14,7 +14,7 @@ Client::Client(QWidget* parent) {
 }
 
 
-Client::Client(const QString &userName, const int &userAccount, QWidget *parent)
+Client::Client(const QString &userName, const qint64 &userAccount, QWidget *parent)
     :QWidget(parent){
     GLOB_UserAccount = userAccount;
     GLOB_UserName = userName;

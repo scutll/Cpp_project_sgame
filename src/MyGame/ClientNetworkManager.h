@@ -15,7 +15,7 @@ class ClientNetworkManager :public QObject{
     Q_OBJECT
     enum MSGTYPE {
         /*server接收*/
-        Login = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
+        LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
         /*client接收*/
         NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
          SendNormalMesssage, SendUserDisconnected

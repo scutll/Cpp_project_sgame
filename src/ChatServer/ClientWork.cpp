@@ -62,13 +62,13 @@ void ClientWork::dealNoticeClientDisconnected(const QString &userName) {
 
 
 
-void ClientWork::noticeClientLogin(const QString &userAccount) {
+void ClientWork::noticeClientLogin(const QString &userName) {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
     out << quint16(0);
     out << qint16(MSGTYPE::NoticeNewLogin);
-    out << userAccount;
+    out << userName;
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));
 
@@ -129,10 +129,13 @@ void ClientWork::ReadData() {
         in >> MSG_TYPE;
         qDebug() << MSG_TYPE;
 
-        if (MSG_TYPE == Login) {
+        if (MSG_TYPE == LoginRequest) {
             QString loginUserName;
             in >> loginUserName;
             this->userName = loginUserName;
+            //检查是否允许登录的逻辑
+
+
             emit newClientLogin(loginUserName);
         }
         else if (MSG_TYPE == FriendApplication) {

@@ -20,10 +20,12 @@ class ChatServer : public QObject{
 public:
     ChatServer(QObject* parent = nullptr);
     ~ChatServer();
+    void SaveUserInfo(const QString& userName,const qint64 userAccount);
+    void SaveUserPsw(const qint64 userAccount, const QString& password);
 private:
     void newClientConnection(qintptr handle);
-    void dealNoticeClientDisconnected(const QString& userAccount);
-    void dealUpdateLocalUserData(const QString& userAccount,const QString& type);
+    void dealNoticeClientDisconnected(const QString& userName);
+    void dealUpdateLocalUserData(const QString& userName,const QString& type);
     void dealClientDisconnected(int socket_id);
     void dealNewClientLogin(const QString& usrName);
     void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
@@ -32,11 +34,13 @@ private:
     TcpServer *tcpServer;
     QMap<QThread*, ClientWork*> clients;
     QVector<QString> existingUsers;
+    QString UserInfoPath;
+    QString UserPasswordPath;
 
 signals:
-    void transferNoticeDisconnected(const QString& userAccount);
-    void transferNewClientLogin(const QString& userAccount);
-    void transferAcceptUserNormalMessage(const QString& senderAccount, const QString& receiverAccount, const QString& msg);
+    void transferNoticeDisconnected(const QString& userName);
+    void transferNewClientLogin(const QString& userName);
+    void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg);
 
 
 
