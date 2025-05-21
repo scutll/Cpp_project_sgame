@@ -18,7 +18,7 @@ class ClientWork :public QObject{
         /*server接收*/
         LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
         /*client接收*/
-        NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
+        RefuseLoginWrongPassword,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
          SendNormalMesssage, SendUserDisconnected
     };
 
@@ -29,7 +29,8 @@ public:
     void initializeSocket();
     int SocketId();
     void dealNoticeClientDisconnected(const QString& userName);
-    void noticeClientLogin(const QString& userName);
+    void noticeClientLogin(const qint64 userAccount,const QString& userName);
+    void noticeRefusedWrongPsw(const qint64 userAccount);
     Q_INVOKABLE void sendUserMessageToReceiver(const QString& senderName, const QString& receiverName,const QString& message);
 private:
     void ReadData();
@@ -49,7 +50,7 @@ signals:
     void NoticeClientDisconnected(const QString& userName);    //提醒服务器用户退出连接
     void updateLocalUserData(const QString& userName,const QString& type);
     void clientDisconnected(int socket_id);
-    void newClientLogin(const QString& usrName);
+    void newClientLogin(const qint64 userAccount,const QString& userPassword);
     void acceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
 
 

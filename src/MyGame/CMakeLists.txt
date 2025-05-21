@@ -39,6 +39,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         player_connect.h
         player_connect.cpp
         Client.cpp Client.h ClientNetworkManager.cpp ClientNetworkManager.h global.cpp global.h
+        asklogin.h asklogin.cpp asklogin.ui
 
 
     )

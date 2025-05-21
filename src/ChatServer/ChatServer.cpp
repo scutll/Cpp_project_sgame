@@ -62,6 +62,7 @@ void ChatServer::newClientConnection(const qintptr handle) {
     //用户登录
     connect(work,&ClientWork::newClientLogin,this,&ChatServer::dealNewClientLogin,Qt::QueuedConnection);
     connect(this,&ChatServer::transferNewClientLogin,work,&ClientWork::noticeClientLogin,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferRefuseWrongPassword,work,&ClientWork::noticeRefusedWrongPsw,Qt::QueuedConnection);
 
     //接收普通消息
     connect(work,&ClientWork::acceptUserNormalMessage,this,&ChatServer::dealAcceptUserNormalMessage,Qt::QueuedConnection);
@@ -114,12 +115,90 @@ void ChatServer::dealClientDisconnected(const int socket_id) {
 
 
 
-void ChatServer::dealNewClientLogin(const QString &usrName) {
-    qDebug() << usrName << "loginned ";
-    emit transferNewClientLogin(usrName);
+void ChatServer::dealNewClientLogin(const qint64 userAccount,const QString &userPassword) {
+    qDebug() << userAccount << " requesting login ; password: " << userPassword;
+    //检查是否可以登录
+    bool allowLogin = this->checkLoginInfo(userAccount,userPassword);
+    if (!allowLogin) {
+        qDebug() << userAccount << "login refused: Wrong password";
+        emit transferRefuseWrongPassword(userAccount);
+        return;
+    }
+
+    QString usrName = getUserName(userAccount);
+    emit transferNewClientLogin(userAccount,usrName);
     dealUpdateLocalUserData(usrName,"1");
 }
 
+bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPassword) {
+    qDebug() << "正在检查用户密码";
+    qint64 Account;
+    QString Password;
+    QString filename = this->UserPasswordPath + "accpsw.psw";
+
+    //第一个用户，此时没有这些文件
+    QFileInfo pswfileInfo(filename);
+    if(!pswfileInfo.exists()){
+        qDebug() << userAccount << " 不存在，正在创建： " << userAccount;
+        SaveUserInfo(QString::number(userAccount),userAccount);
+        SaveUserPsw(userAccount,userPassword);
+        qDebug() << "创建完成";
+        return true;
+    }
+
+    QFile usrAccountPasswordFile(filename);
+    if (!usrAccountPasswordFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "无法打开密码映射文件 " + this->UserPasswordPath + "accpsw.psw" << " : " << usrAccountPasswordFile.errorString();
+        return false;
+    }
+
+    QDataStream in(&usrAccountPasswordFile);
+    in.setVersion(QDataStream::Qt_6_8);
+    while (!in.atEnd()) {
+        in >> Account >> Password;
+        if (Account != userAccount)
+            continue;
+        else{
+            qDebug() << "找到用户 " << Account;
+            if (userPassword != Password)
+            {
+                qDebug() << "用户密码错误 : " << userPassword << "正确密码：" <<Password;
+                return false;
+            }
+            else
+                return true;
+        }
+    }
+    qDebug() << userAccount << " 不存在，正在创建： " << userAccount;
+    SaveUserInfo(QString::number(userAccount),userAccount);
+    SaveUserPsw(userAccount,userPassword);
+    qDebug() << "创建完成";
+
+    return true;
+
+}
+
+QString ChatServer::getUserName(const qint64 userAccount) {
+    QString filename = this->UserInfoPath + QString::number(userAccount) + ".usr";
+    QFile userInfoFile(filename);
+
+    if (!userInfoFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "无法打开用户信息文件 " + filename << " : " << userInfoFile.errorString();
+        return "";
+    }
+    QDataStream in(&userInfoFile);
+    in.setVersion(QDataStream::Qt_6_8);
+
+    qint64 account;
+    QString userName;
+    in >> account;
+    in >> userName;
+
+    qDebug() << userAccount << " 用户名: " << userName;
+    return userName;
+
+
+}
 
 
 void ChatServer::dealAcceptUserNormalMessage(const QString &senderName, const QString &receiverName,
@@ -145,13 +224,13 @@ void ChatServer::SaveUserInfo(const QString& userName,const qint64 userAccount) 
     usrinfoFile.close();
 
 
-
 }
 void ChatServer::SaveUserPsw(const qint64 userAccount, const QString& password) {
+    qDebug() << "保存用户账号 - 密码: " << userAccount << password;
 
     QString filename = this->UserPasswordPath + "accpsw.psw";
     QFile usrAccountPasswordFile(filename);
-    if (!usrAccountPasswordFile.open(QIODevice::WriteOnly)) {
+    if (!usrAccountPasswordFile.open(QIODevice::Append | QIODevice::ReadWrite)) {
         qDebug() << "无法打开密码映射文件 " + this->UserPasswordPath + "accpsw.psw" << " : " << usrAccountPasswordFile.errorString();
         return;
     }

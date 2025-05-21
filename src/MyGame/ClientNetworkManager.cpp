@@ -33,7 +33,8 @@ void ClientNetworkManager::initializeSocket() {
     connect(this->socket,&QTcpSocket::readyRead, this, &ClientNetworkManager::ReadData,Qt::DirectConnection);
     connect(this->socket,&QTcpSocket::disconnected,this,&ClientNetworkManager::dealServerDisconnected,Qt::DirectConnection);
     emit this->connectedSignal();
-    this->sendLoginInfo();
+
+    // this->sendLoginInfo();
 
 }
 
@@ -44,31 +45,37 @@ void ClientNetworkManager::ReadData() {
 
     forever{
         if (nextBlockSize == 0){
-            qDebug() << "next block size is 0";
             if (socket->bytesAvailable() < sizeof(quint16))
                 break;
             in >> nextBlockSize;
         }
 
         if (nextBlockSize == 0xffff){
-            qDebug() << "reading finished";
             nextBlockSize = 0;
             break;
         }
 
         if (socket->bytesAvailable() < nextBlockSize) {
-            qDebug() << "uncomplete data";
             break;
         }
 
         in >> MSG_TYPE;
-        qDebug() << MSG_TYPE;
 
         if (MSG_TYPE == MSGTYPE::NoticeNewLogin) {
-            QString username;
-            in >> username;
-            qDebug() << username << "Logined";
-            emit this->UserLogined(username);
+            qint64 userAccount;
+            QString userName;
+
+            in >> userAccount;
+            in >> userName;
+            qDebug() << userAccount << userName << "Logined";
+
+            emit this->noticeUserLogined(userAccount, userName);
+        }
+
+        else if (MSG_TYPE == MSGTYPE::RefuseLoginWrongPassword) {
+            qint64 userAccount;
+            in >> userAccount;
+            emit this->RefuseWrongPassword(userAccount);
         }
 
         else if (MSG_TYPE == MSGTYPE::WaitAcceptApplication) {
@@ -124,6 +131,22 @@ void ClientNetworkManager::sendLoginInfo() {
 
     this->socket->write(block);
 
+}
+
+void ClientNetworkManager::dealSendLoginRequest(const qint64 userAccount,const QString& userPassword) {
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    qDebug() << "login request: " << userAccount << userPassword;
+    out << quint16(0);
+    out << qint16(MSGTYPE::LoginRequest);
+
+    out << userAccount;
+    out << userPassword;
+
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    this->socket->write(block);
 }
 
 

@@ -22,12 +22,14 @@ public:
     ~ChatServer();
     void SaveUserInfo(const QString& userName,const qint64 userAccount);
     void SaveUserPsw(const qint64 userAccount, const QString& password);
+    bool checkLoginInfo(const qint64 userAccount,const QString& userPassword);
+    QString getUserName(const qint64 userAccount);
 private:
     void newClientConnection(qintptr handle);
     void dealNoticeClientDisconnected(const QString& userName);
     void dealUpdateLocalUserData(const QString& userName,const QString& type);
     void dealClientDisconnected(int socket_id);
-    void dealNewClientLogin(const QString& usrName);
+    void dealNewClientLogin(const qint64 userAccount,const QString& userPassword);
     void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
 
 private:
@@ -39,9 +41,9 @@ private:
 
 signals:
     void transferNoticeDisconnected(const QString& userName);
-    void transferNewClientLogin(const QString& userName);
+    void transferNewClientLogin(const qint64 userAccount,const QString& userName);
     void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg);
-
+    void transferRefuseWrongPassword(const qint64 userAccount);
 
 
 };

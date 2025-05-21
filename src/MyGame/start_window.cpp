@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <QDir>
+#include "asklogin.h"
 
 
 start_window::start_window(QWidget *parent)
@@ -227,33 +228,26 @@ void start_window::on_SendBtn_clicked()
 void start_window::on_LoginBtn_clicked()
 {
     if(!userLoged){
-        bool ok;
-        QString username = QInputDialog::getText(
-            this,
-            tr("输入用户名以登录"),
-            tr("your user name: "),
-            QLineEdit::Normal,
-            "",
-            &ok
-            );
-        if(ok && username != ""){
-            //假设不会有重名的
-            this->userName = username;
-            chatclient = new Client(this->userName,0);
-            this->init_chatclient();
-            qDebug() << "userName set: " << userName;
-            this->userLoged = true;
-            chatclient->INTERFACE_dealUserLogined(this->userName);
+        qint64 userAccount;
+        QString userPassword;
+        AskLogin* loginDialog = new AskLogin(this);
+        qDebug() << "正在打开登录界面";
+        if(loginDialog->exec() == QDialog::Accepted){
+            userAccount = loginDialog->getUserAccount();
+            userPassword = loginDialog->getUserPassword();
 
-            ui->LoginBtn->setText("已登录: " + userName);
-            ui->LoginBtn->repaint();  // 强制立即重绘，不经过事件队列
-            qDebug() << ui->LoginBtn->text();
+            this->temp_password = userPassword;
+
+            chatclient = new Client(QString::number(userAccount),userAccount);
+            this->init_chatclient();
             clientConnected = true;
+            chatclient->INTERFACE_LoginRequest(userAccount,userPassword);
         }
         else{
-            msg_os("请输入正确用户名",true);
+            msg_os("登录失败，请输入正确账号密码",true);
             return;
         }
+
     }
     else{
         app_msg("系统","您已登录! 用户名: " + this->userName,true);
@@ -263,8 +257,10 @@ void start_window::on_LoginBtn_clicked()
 
 void start_window::on_RetryConnectionBtn_clicked()
 {
-    if(clientConnected)
-        chatclient->INTERFACE_retryConnect();
+    if(clientConnected){
+        app_msg("系统","正在尝试重连");
+        chatclient->INTERFACE_retryConnect(GLOB_UserAccount,this->temp_password);
+    }
 }
 
 
@@ -274,13 +270,6 @@ void start_window::dealINTERFACE_dealAcceptNormalMessage(const QString& senderNa
 
 void start_window::dealINTERFACE_dealUserDisconnected(const QString& userName){
     QString message = userName + "已离线";
-
-    // for(auto& action : menu->actions()){
-    //     if(action->text() == userName){
-    //         menu->removeAction(action);
-    //         break;
-    //     }
-    // }
     app_msg("系统",message,true);
 }
 
@@ -302,10 +291,35 @@ void start_window::dealINTERFACE_dealServerDisconnected() {
 }
 
 
+void start_window::dealINTERFACE_dealLoginAccepted(const qint64 userAccount,const QString& userName) {
+    this->userLoged = true;
+    GLOB_IsConnectedToServer = true;
+    GLOB_UserAccount = userAccount;
+    GLOB_UserName = userName;
+
+    ui->LoginBtn->setText("已登录: " + userName);
+    ui->LoginBtn->repaint();  // 强制立即重绘，不经过事件队列
+
+    app_msg("系统","登录成功: " + userName,false);
+
+}
+
+void start_window::dealINTERFACE_dealRefusedWrongPsw(const qint64 userAccount) {
+    this->userLoged = false;
+    GLOB_IsConnectedToServer = true;
+    GLOB_UserAccount = userAccount;
+
+    app_msg("系统","登录失败,密码错误" + userName,true);
+}
+
+
 void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_dealUserDisconnected,this,&start_window::dealINTERFACE_dealUserDisconnected);
     connect(chatclient,&Client::INTERFACE_dealUserLogined,this,&start_window::dealINTERFACE_dealUserLogined);
     connect(chatclient,&Client::INTERFACE_dealAcceptNormalMessage,this,&start_window::dealINTERFACE_dealAcceptNormalMessage);
     connect(chatclient,&Client::INTERFACE_dealConnnectError,this,&start_window::dealINTERFACE_dealConnnectError);
     connect(chatclient,&Client::INTERFACE_ServerDisconnected,this,&start_window::dealINTERFACE_dealServerDisconnected);
+    connect(chatclient,&Client::INTERFACE_RefusedWrongPsw,this,&start_window::dealINTERFACE_dealRefusedWrongPsw);
+    connect(chatclient,&Client::INTERFACE_LoginAccepted,this,&start_window::dealINTERFACE_dealLoginAccepted);
+
 }

@@ -42,11 +42,15 @@ void Client::dealconnectErrorSignal(const QString &error) {
 }
 
 void Client::connect_Init() {
+    //请求登录
+    connect(this,&Client::SendLoginRequest,this->client_network_manager,&ClientNetworkManager::dealSendLoginRequest);
+    connect(this->client_network_manager,&ClientNetworkManager::RefuseWrongPassword,this,&Client::dealRefuseWrongPsw);
+
     //连接错误
     connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
 
     //服务器通知有用户登录
-    connect(this->client_network_manager,&ClientNetworkManager::UserLogined,this,&Client::dealUserLogined,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::noticeUserLogined,this,&Client::dealNoticeUserLogined,Qt::QueuedConnection);
 
     //前端提出发送信息请求，转移到工作线程发送
     connect(this,&Client::SendUserMessage,this->client_network_manager,&ClientNetworkManager::sendUserNormalMessage,Qt::QueuedConnection);
@@ -65,6 +69,7 @@ void Client::dealServerDisconnected() {
     qDebug() << "Server disconnected";
     emit this->INTERFACE_ServerDisconnected();
 }
+
 
 
 
@@ -105,14 +110,24 @@ void Client::dealUserDisconnected(const QString &userName) {
     emit this->INTERFACE_dealUserDisconnected(userName);
 }
 
-void Client::dealUserLogined(const QString& userName) {
+void Client::dealRefuseWrongPsw(const qint64 userAccount) {
+    if (GLOB_UserAccount != userAccount) {
+        return;
+    }
+    emit this->INTERFACE_RefusedWrongPsw(userAccount);
+}
+
+void Client::dealNoticeUserLogined(const qint64 userAccount,const QString& userName) {
+    if (GLOB_UserAccount == userAccount) {
+        emit this->INTERFACE_LoginAccepted(userAccount,userName);
+    }
     emit this->INTERFACE_dealUserLogined(userName);
 
 }
 
-void Client::INTERFACE_clientLogin(const QString &userName) {
+void Client::INTERFACE_LoginRequest(const qint64 userAccount,const QString& userPassword) {
 
-    emit this->clientLogin(userName);
+    emit this->SendLoginRequest(userAccount,userPassword);
 
 }
 
@@ -122,7 +137,7 @@ void Client::INTERFACE_SendUserMessage(const QString &senderName, const QString 
 
 }
 
-void Client::INTERFACE_retryConnect() {
+void Client::INTERFACE_retryConnect(const qint64 userAccount,const QString& userPassword) {
 
 
     this->deleteChatThread();
@@ -138,6 +153,10 @@ void Client::INTERFACE_retryConnect() {
 
     //重新连接
     this->connect_Init();
+
+    this->INTERFACE_LoginRequest(userAccount,userPassword);
+
+
 }
 
 

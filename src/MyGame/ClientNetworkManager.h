@@ -17,7 +17,7 @@ class ClientNetworkManager :public QObject{
         /*server接收*/
         LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
         /*client接收*/
-        NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
+        RefuseLoginWrongPassword,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
          SendNormalMesssage, SendUserDisconnected
     };
 public:
@@ -35,6 +35,7 @@ public:
     void initializeSocket();
     void ReadData();
     void sendLoginInfo();
+    void dealSendLoginRequest(const qint64 userAccount,const QString& userPassword);
     void sendUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void dealServerDisconnected();
     bool isConnected();
@@ -43,7 +44,8 @@ public:
 signals:
     void connectErrorSignal(const QString& error);
     void connectedSignal();
-    void UserLogined(const QString& userName);
+    void RefuseWrongPassword(const qint64 userAccount);
+    void noticeUserLogined(const qint64 userAccount,const QString& userName);
     void acceptNormalMessage(const QString& senderName,const QString& message);
     void userDisconnectedSignal(const QString& userName);
     void ServerDisconnectedSignal();

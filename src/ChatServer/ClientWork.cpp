@@ -62,18 +62,32 @@ void ClientWork::dealNoticeClientDisconnected(const QString &userName) {
 
 
 
-void ClientWork::noticeClientLogin(const QString &userName) {
+void ClientWork::noticeClientLogin(const qint64 userAccount,const QString &userName) {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
     out << quint16(0);
     out << qint16(MSGTYPE::NoticeNewLogin);
+    out << userAccount;
     out << userName;
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));
 
     socket->write(block);
 
+}
+
+void ClientWork::noticeRefusedWrongPsw(const qint64 userAccount) {
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out << quint16(0);
+    out << qint16(MSGTYPE::RefuseLoginWrongPassword);
+    out << userAccount;
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    socket->write(block);
 }
 
 
@@ -110,19 +124,15 @@ void ClientWork::ReadData() {
 
     forever{
         if (nextBlockSize == 0) {
-            qDebug() << "nextBlockSize == 0";
             if (this->socket->bytesAvailable() < sizeof(quint16))
                 break;
             in>>nextBlockSize;
-            qDebug() << "BlockSize: "<< nextBlockSize;
         }
         if (nextBlockSize == 0xffff) {
-            qDebug() << "reading finished";
             nextBlockSize = 0;
             break;
         }
         if (socket->bytesAvailable() < nextBlockSize) {
-            qDebug() << "uncomplete data block";
             break;
         }
 
@@ -130,13 +140,14 @@ void ClientWork::ReadData() {
         qDebug() << MSG_TYPE;
 
         if (MSG_TYPE == LoginRequest) {
-            QString loginUserName;
-            in >> loginUserName;
-            this->userName = loginUserName;
-            //检查是否允许登录的逻辑
+            QString userPassword;
+            qint64 userAccount;
+            in >> userAccount;
+            in >> userPassword;
 
-
-            emit newClientLogin(loginUserName);
+            qDebug() << "login request: " << userAccount << userPassword;
+            //提交到server进行处理
+            emit newClientLogin(userAccount,userPassword);
         }
         else if (MSG_TYPE == FriendApplication) {
             //暂时不开放

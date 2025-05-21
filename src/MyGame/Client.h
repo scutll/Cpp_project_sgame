@@ -32,13 +32,14 @@ signals:
 
     signals:
     void SendUserMessage(const QString& senderName,const QString& receiverName,const QString& message);
-    void clientLogin(const QString& UserName);
+    void SendLoginRequest(const qint64 userAccount,const QString& userPassword);
 public:
     void dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void dealUserDisconnected(const QString& userName);
-    void dealUserLogined(const QString& userName);
+    void dealNoticeUserLogined(const qint64 userAccount,const QString& userName);
     void dealconnectErrorSignal(const QString& error);
     void dealServerDisconnected();
+    void dealRefuseWrongPsw(const qint64 userAccount);
 
     //构建CNM和Client之间的沟通
     void connect_Init();
@@ -48,16 +49,18 @@ public:
     //怎么处理数据，Client根本无需关心，它负责的只有把数据传输给本地类和接收本地类的信息并发送
     //public直接调用(Local的请求)，signals通过连接调用 (Client的通知)
 public:
-    void INTERFACE_retryConnect();
+    void INTERFACE_retryConnect(const qint64 userAccount,const QString& userPassword);
     void INTERFACE_SendUserMessage(const QString& senderName,const QString& receiverName,const QString& message);
-    void INTERFACE_clientLogin(const QString& userName);
+    void INTERFACE_LoginRequest(const qint64 userAccount,const QString& userPassword);
     bool INTREFACE_isConnected();
 signals:
-    void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void INTERFACE_dealUserDisconnected(const QString& userName);
     void INTERFACE_dealUserLogined(const QString& userName);
+    void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void INTERFACE_dealConnnectError(const QString &error);
     void INTERFACE_ServerDisconnected();
+    void INTERFACE_LoginAccepted(const qint64 userAccount,const QString& userName);
+    void INTERFACE_RefusedWrongPsw(const qint64 userAccount);
 };
 
 

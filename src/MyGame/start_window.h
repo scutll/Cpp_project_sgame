@@ -70,6 +70,9 @@ private slots:
 
     void dealINTERFACE_dealServerDisconnected();
 
+    void dealINTERFACE_dealLoginAccepted(const qint64 userAccount,const QString& userName);
+
+    void dealINTERFACE_dealRefusedWrongPsw(const qint64 userAccount);
 
 private:
     bool matching;
@@ -86,6 +89,7 @@ private:
     bool menuON = false;
     bool userLoged = false;
     QString userName = Q_NULLPTR;
+    QString temp_password;
 
 
 };
