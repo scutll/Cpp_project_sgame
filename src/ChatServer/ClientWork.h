@@ -38,7 +38,7 @@ private:
 private:
     QTcpSocket* socket = nullptr;
     QString userName;
-    qint64 userAccount;
+    qint64 userAccount = 0;
     QString receiverUserAccount_temp;
     QMutex mutex;
     qintptr socketDescriptor = 0;

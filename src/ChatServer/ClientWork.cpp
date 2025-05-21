@@ -75,6 +75,10 @@ void ClientWork::noticeClientLogin(const qint64 userAccount,const QString &userN
 
     socket->write(block);
 
+
+    if(this->userAccount == userAccount){
+        this->userName = userName;
+    }
 }
 
 void ClientWork::noticeRefusedWrongPsw(const qint64 userAccount) {
@@ -146,6 +150,9 @@ void ClientWork::ReadData() {
             in >> userPassword;
 
             qDebug() << "login request: " << userAccount << userPassword;
+            if(this->userAccount == 0){
+                this->userAccount = userAccount;
+            }
             //提交到server进行处理
             emit newClientLogin(userAccount,userPassword);
         }
