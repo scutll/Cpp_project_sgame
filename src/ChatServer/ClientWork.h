@@ -11,7 +11,7 @@
 #include <QMutex>
 #include <QDataStream>
 #include <QTcpSocket>
-
+ 
 class ClientWork :public QObject{
     Q_OBJECT
     enum MSGTYPE {
