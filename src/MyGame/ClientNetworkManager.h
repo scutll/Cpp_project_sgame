@@ -15,10 +15,11 @@ class ClientNetworkManager :public QObject{
     Q_OBJECT
     enum MSGTYPE {
         /*server接收*/
-        LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
+        LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,ModifyNameRequest,
         /*client接收*/
         RefuseLoginWrongPassword,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
-         SendNormalMesssage, SendUserDisconnected
+        RepeatedNameRejected,UserNameModified,
+        SendNormalMesssage, SendUserDisconnected
     };
 public:
     ClientNetworkManager(QObject* parent = nullptr);
@@ -38,10 +39,13 @@ public:
     void dealSendLoginRequest(const qint64 userAccount,const QString& userPassword);
     void sendUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void dealServerDisconnected();
+    void dealNameModifyRequest(const qint64 userAccount,const QString& newName);
     bool isConnected();
 
 
 signals:
+    void noticeRepeatedNameRejected(const qint64 userAccount);
+    void noticeNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
     void connectErrorSignal(const QString& error);
     void connectedSignal();
     void RefuseWrongPassword(const qint64 userAccount);

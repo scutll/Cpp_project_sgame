@@ -16,10 +16,11 @@ class ClientWork :public QObject{
     Q_OBJECT
     enum MSGTYPE {
         /*server接收*/
-        LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,
+        LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,ModifyNameRequest,
         /*client接收*/
         RefuseLoginWrongPassword,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
-         SendNormalMesssage, SendUserDisconnected
+        RepeatedNameRejected,UserNameModified,
+        SendNormalMesssage, SendUserDisconnected
     };
 
 public:
@@ -31,6 +32,8 @@ public:
     void dealNoticeClientDisconnected(const QString& userName);
     void noticeClientLogin(const qint64 userAccount,const QString& userName);
     void noticeRefusedWrongPsw(const qint64 userAccount);
+    void noticeRejectRepeatedName(const qint64 userAccount);
+    void noticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
     Q_INVOKABLE void sendUserMessageToReceiver(const QString& senderName, const QString& receiverName,const QString& message);
 private:
     void ReadData();
@@ -52,7 +55,7 @@ signals:
     void clientDisconnected(int socket_id);
     void newClientLogin(const qint64 userAccount,const QString& userPassword);
     void acceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
-
+    void ModifyUserNameRequest(const qint64 userAccount,const QString& newName);
 
 };
 

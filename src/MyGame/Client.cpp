@@ -46,6 +46,10 @@ void Client::connect_Init() {
     connect(this,&Client::SendLoginRequest,this->client_network_manager,&ClientNetworkManager::dealSendLoginRequest);
     connect(this->client_network_manager,&ClientNetworkManager::RefuseWrongPassword,this,&Client::dealRefuseWrongPsw);
 
+    //请求修改用户名
+    connect(this,&Client::NameModifyRequest,this->client_network_manager,&ClientNetworkManager::dealNameModifyRequest);
+    connect(this->client_network_manager,&ClientNetworkManager::noticeNameModified,this,&Client::dealNoticeNameModified);
+    connect(this->client_network_manager,&ClientNetworkManager::noticeRepeatedNameRejected,this,&Client::dealNoticeRepeatedNameRejected);
     //连接错误
     connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
 
@@ -125,6 +129,18 @@ void Client::dealNoticeUserLogined(const qint64 userAccount,const QString& userN
 
 }
 
+void Client::dealNoticeRepeatedNameRejected(const qint64 userAccount) {
+    emit INTERFACE_repeatedName();
+}
+
+
+void Client::dealNoticeNameModified(const qint64 userAccount,const QString& userName,const QString& newName) {
+    if (userAccount == GLOB_UserAccount)
+        emit INTERFACE_NameModifyAccepted(userAccount,newName);
+    else
+        emit this->INTERFACE_NoticeUserNameModified(userAccount,userName,newName);
+}
+
 void Client::INTERFACE_LoginRequest(const qint64 userAccount,const QString& userPassword) {
 
     emit this->SendLoginRequest(userAccount,userPassword);
@@ -157,6 +173,11 @@ void Client::INTERFACE_retryConnect(const qint64 userAccount,const QString& user
     this->INTERFACE_LoginRequest(userAccount,userPassword);
 
 
+}
+
+
+void Client::INTERFACE_UserNameModifyRequest(const qint64 userAccount, const QString &newName) {
+    emit this->NameModifyRequest(userAccount,newName);
 }
 
 

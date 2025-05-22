@@ -102,6 +102,19 @@ void ClientNetworkManager::ReadData() {
             qDebug() << senderName << "disconnected";
             emit this->userDisconnectedSignal(senderName);
         }
+        else if (MSG_TYPE == MSGTYPE::RepeatedNameRejected) {
+            qint64 userAccount;
+            in >> userAccount;
+            emit noticeRepeatedNameRejected(userAccount);
+        }
+        else if (MSG_TYPE == MSGTYPE::UserNameModified) {
+            qint64 userAccount;
+            QString newName;
+            QString userName;
+            in >> userAccount >> userName >> newName;
+
+            emit noticeNameModified(userAccount,userName,newName);
+        }
 
         nextBlockSize = 0;
         MSG_TYPE = -1;
@@ -131,6 +144,22 @@ void ClientNetworkManager::sendLoginInfo() {
 
     this->socket->write(block);
 
+}
+
+void ClientNetworkManager::dealNameModifyRequest(const qint64 userAccount,const QString& newName) {
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    qDebug() << "name modify request: " << userAccount << newName;
+    out << quint16(0);
+    out << qint16(MSGTYPE::ModifyNameRequest);
+
+    out << userAccount;
+    out << newName;
+
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    this->socket->write(block);
 }
 
 void ClientNetworkManager::dealSendLoginRequest(const qint64 userAccount,const QString& userPassword) {

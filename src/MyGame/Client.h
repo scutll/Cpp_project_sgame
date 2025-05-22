@@ -33,6 +33,7 @@ signals:
     signals:
     void SendUserMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void SendLoginRequest(const qint64 userAccount,const QString& userPassword);
+    void NameModifyRequest(const qint64 userAccount,const QString& newName);
 public:
     void dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void dealUserDisconnected(const QString& userName);
@@ -40,6 +41,8 @@ public:
     void dealconnectErrorSignal(const QString& error);
     void dealServerDisconnected();
     void dealRefuseWrongPsw(const qint64 userAccount);
+    void dealNoticeNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
+    void dealNoticeRepeatedNameRejected(const qint64 userAccount);
 
     //构建CNM和Client之间的沟通
     void connect_Init();
@@ -53,6 +56,7 @@ public:
     void INTERFACE_SendUserMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void INTERFACE_LoginRequest(const qint64 userAccount,const QString& userPassword);
     bool INTREFACE_isConnected();
+    void INTERFACE_UserNameModifyRequest(const qint64 userAccount,const QString& newName);
 signals:
     void INTERFACE_dealUserDisconnected(const QString& userName);
     void INTERFACE_dealUserLogined(const QString& userName);
@@ -61,6 +65,9 @@ signals:
     void INTERFACE_ServerDisconnected();
     void INTERFACE_LoginAccepted(const qint64 userAccount,const QString& userName);
     void INTERFACE_RefusedWrongPsw(const qint64 userAccount);
+    void INTERFACE_repeatedName();
+    void INTERFACE_NoticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
+    void INTERFACE_NameModifyAccepted(const qint64 userAccount,const QString& newName);
 };
 
 

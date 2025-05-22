@@ -250,7 +250,22 @@ void start_window::on_LoginBtn_clicked()
 
     }
     else{
-        app_msg("系统","您已登录! 用户名: " + this->userName,true);
+        bool ok;
+        QString newName = QInputDialog::getText(this,
+                                                "修改名称",
+                                                "请输入您的新名称:",
+                                                QLineEdit::Normal,
+                                                "",
+                                                &ok);
+        if(ok && !newName.isEmpty()){
+            chatclient->INTERFACE_UserNameModifyRequest(GLOB_UserAccount,newName);
+        }
+        else if(!ok){
+            qDebug() << "用户取消修改名称";
+        }
+        else{
+            app_msg("系统","名称不合法",true);
+        }
     }
 }
 
@@ -297,7 +312,7 @@ void start_window::dealINTERFACE_dealLoginAccepted(const qint64 userAccount,cons
     GLOB_UserAccount = userAccount;
     GLOB_UserName = userName;
 
-    ui->LoginBtn->setText("已登录: " + userName);
+    ui->LoginBtn->setText("已登录: (" + QString::number(userAccount) + ") " + userName);
     ui->LoginBtn->repaint();  // 强制立即重绘，不经过事件队列
 
     app_msg("系统","登录成功: " + userName,false);
@@ -312,6 +327,23 @@ void start_window::dealINTERFACE_dealRefusedWrongPsw(const qint64 userAccount) {
     app_msg("系统","登录失败,密码错误" + userName,true);
 }
 
+void start_window::dealINTERFACE_dealNameModifyAccepted(const qint64 userAccount, const QString &newName) {
+    GLOB_UserName = newName;
+    app_msg("系统","名称修改成功，新名称: " + newName);
+    ui->LoginBtn->setText("已登录: (" + QString::number(userAccount) + ") " + GLOB_UserName);
+}
+
+void start_window::dealINTERFACE_repeatedName() {
+    app_msg("系统","修改名称失败: 该名称已被注册",true);
+}
+
+void start_window::dealINTERFACE_dealNoticeUserNameModified(const qint64 userAccount, const QString &userName, const QString &newName) {
+    app_msg("系统","(" + QString::number(userAccount) + ")" + userName + " 修改昵称为: " + newName);
+}
+
+
+
+
 
 void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_dealUserDisconnected,this,&start_window::dealINTERFACE_dealUserDisconnected);
@@ -321,5 +353,8 @@ void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_ServerDisconnected,this,&start_window::dealINTERFACE_dealServerDisconnected);
     connect(chatclient,&Client::INTERFACE_RefusedWrongPsw,this,&start_window::dealINTERFACE_dealRefusedWrongPsw);
     connect(chatclient,&Client::INTERFACE_LoginAccepted,this,&start_window::dealINTERFACE_dealLoginAccepted);
+    connect(chatclient,&Client::INTERFACE_NameModifyAccepted,this,&start_window::dealINTERFACE_dealNameModifyAccepted);
+    connect(chatclient,&Client::INTERFACE_NoticeUserNameModified,this,&start_window::dealINTERFACE_dealNoticeUserNameModified);
+    connect(chatclient,&Client::INTERFACE_repeatedName,this,&start_window::dealINTERFACE_repeatedName);
 
 }

@@ -74,6 +74,12 @@ private slots:
 
     void dealINTERFACE_dealRefusedWrongPsw(const qint64 userAccount);
 
+    void dealINTERFACE_dealNameModifyAccepted(const qint64 userAccount,const QString& newName);
+
+    void dealINTERFACE_dealNoticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
+
+    void dealINTERFACE_repeatedName();
+
 private:
     bool matching;
     Ui::start_window *ui;

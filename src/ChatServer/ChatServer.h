@@ -24,6 +24,7 @@ public:
     void SaveUserPsw(const qint64 userAccount, const QString& password);
     bool checkLoginInfo(const qint64 userAccount,const QString& userPassword);
     QString getUserName(const qint64 userAccount);
+    bool nameExists(const QString& userName);
 private:
     void newClientConnection(qintptr handle);
     void dealNoticeClientDisconnected(const QString& userName);
@@ -31,11 +32,13 @@ private:
     void dealClientDisconnected(int socket_id);
     void dealNewClientLogin(const qint64 userAccount,const QString& userPassword);
     void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
+    void dealModifyName(const qint64 userAccount,const QString& newName);
+    void updateUserName(const qint64 userAccount,const QString& newName);
 
 private:
     TcpServer *tcpServer;
     QMap<QThread*, ClientWork*> clients;
-    QVector<QString> existingUsers;
+    QVector<QString> existingUsers;     //这个暂时没有用，只是查看现在用户，但用户改名后并不会修改里面的旧名字
     QString UserInfoPath;
     QString UserPasswordPath;
 
@@ -44,7 +47,8 @@ signals:
     void transferNewClientLogin(const qint64 userAccount,const QString& userName);
     void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg);
     void transferRefuseWrongPassword(const qint64 userAccount);
-
+    void transferRejectRepeatedName(const qint64 userAccount);
+    void transferUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
 
 };
 

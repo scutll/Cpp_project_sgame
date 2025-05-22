@@ -53,7 +53,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>380</y>
+     <y>350</y>
      <width>69</width>
      <height>19</height>
     </rect>
@@ -89,9 +89,9 @@
    <property name="geometry">
     <rect>
      <x>360</x>
-     <y>380</y>
+     <y>370</y>
      <width>131</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -101,10 +101,10 @@
   <widget class="QPushButton" name="LoginBtn">
    <property name="geometry">
     <rect>
-     <x>91</x>
-     <y>380</y>
-     <width>271</width>
-     <height>21</height>
+     <x>0</x>
+     <y>370</y>
+     <width>361</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -121,6 +121,15 @@
     </rect>
    </property>
   </widget>
+  <zorder>online_game</zorder>
+  <zorder>offline_game</zorder>
+  <zorder>msg_list_window</zorder>
+  <zorder>MessageLine</zorder>
+  <zorder>SendBtn</zorder>
+  <zorder>RetryConnectionBtn</zorder>
+  <zorder>LoginBtn</zorder>
+  <zorder>ReceiverLine</zorder>
+  <zorder>label</zorder>
  </widget>
  <resources/>
  <connections/>

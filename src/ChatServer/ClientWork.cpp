@@ -95,6 +95,40 @@ void ClientWork::noticeRefusedWrongPsw(const qint64 userAccount) {
 }
 
 
+void ClientWork::noticeRejectRepeatedName(const qint64 userAccount) {
+    if(this->userAccount != userAccount)
+        return;
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out << quint16(0);
+    out << qint16(MSGTYPE::RepeatedNameRejected);
+    out << userAccount;
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    socket->write(block);
+}
+
+void ClientWork::noticeUserNameModified(const qint64 userAccount, const QString &userName, const QString &newName) {
+    if (this->userAccount == userAccount) {
+        this->userName = newName;
+    }
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out << quint16(0);
+    out << qint16(MSGTYPE::UserNameModified);
+    out << userAccount;
+    out << userName;
+    out << newName;
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    socket->write(block);
+}
+
+
 
 void ClientWork::sendUserMessageToReceiver(const QString &senderName, const QString& receiverName, const QString &message) {
     if (this->userName != receiverName && receiverName != QString("All"))
@@ -170,6 +204,14 @@ void ClientWork::ReadData() {
             in >> sender >> receiver >> message;
             qDebug() << "message from " << sender << " to " << receiver << ": " << message;
             emit acceptUserNormalMessage(sender,receiver,message);
+        }
+        else if (MSG_TYPE == ModifyNameRequest) {
+            QString newName;
+            qint64 userAccount;
+
+            in >> userAccount >> newName;
+            qDebug() << userAccount << ": modify name request: " << newName;
+            emit ModifyUserNameRequest(userAccount,newName);
         }
 
         nextBlockSize = 0;

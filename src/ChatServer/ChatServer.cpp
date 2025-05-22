@@ -6,6 +6,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 
 ChatServer::ChatServer(QObject *parent)
     :QObject(parent){
@@ -50,6 +51,11 @@ void ChatServer::newClientConnection(const qintptr handle) {
 
     connect(thread,&QThread::started,work,&ClientWork::initializeSocket,Qt::DirectConnection);
     thread->start();
+
+    //用户修改名称
+    connect(work,&ClientWork::ModifyUserNameRequest,this,&ChatServer::dealModifyName);
+    connect(this,&ChatServer::transferRejectRepeatedName,work,&ClientWork::noticeRejectRepeatedName);
+    connect(this,&ChatServer::transferUserNameModified,work,&ClientWork::noticeUserNameModified);
 
     //用户断联的处理
     connect(work,&ClientWork::NoticeClientDisconnected,this,&ChatServer::dealNoticeClientDisconnected,Qt::QueuedConnection);
@@ -112,6 +118,17 @@ void ChatServer::dealClientDisconnected(const int socket_id) {
     }
 
 }
+
+void ChatServer::dealModifyName(const qint64 userAccount, const QString &newName) {
+    if (nameExists(newName)) {
+        emit this->transferRejectRepeatedName(userAccount);
+        return;
+    }
+    QString userName = getUserName(userAccount);
+    updateUserName(userAccount,newName);
+    emit this->transferUserNameModified(userAccount,userName,newName);
+}
+
 
 
 
@@ -178,12 +195,54 @@ bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPass
 
 }
 
+bool ChatServer::nameExists(const QString &name) {
+    QDir dir(this->UserInfoPath);
+    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
+    foreach(const QFileInfo& fileinfo, fileList) {
+        QString fileName = UserInfoPath + fileinfo.fileName();
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qDebug() << "无法打开用户信息文件 " + fileName << " : " << file.errorString();
+            return "";
+        }
+        QDataStream in(&file);
+        in.setVersion(QDataStream::Qt_6_8);
+
+        qint64 account;
+        QString userName;
+        in >> account;
+        in >> userName;
+
+        qDebug() << "找到了: " << account << userName;
+        if (name == userName)
+            return true;
+    }
+    return false;
+}
+
+void ChatServer::updateUserName(const qint64 userAccount,const QString &newName) {
+    QString filename = this->UserInfoPath + QString::number(userAccount) + ".usr";
+    QFile userfile(filename);
+    if (!userfile.open(QIODevice::WriteOnly)) {
+        qDebug() << "修改用户名---无法打开用户信息文件 " + filename << " : " << userfile.errorString();
+        return;
+    }
+    QDataStream out(&userfile);
+    out.setVersion(QDataStream::Qt_6_8);
+
+    out.device()->seek(0);
+    out << userAccount << newName;
+
+    userfile.close();
+
+}
+
 QString ChatServer::getUserName(const qint64 userAccount) {
     QString filename = this->UserInfoPath + QString::number(userAccount) + ".usr";
     QFile userInfoFile(filename);
 
     if (!userInfoFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "无法打开用户信息文件 " + filename << " : " << userInfoFile.errorString();
+        qDebug() << "查询用户名---无法打开用户信息文件 " + filename << " : " << userInfoFile.errorString();
         return "";
     }
     QDataStream in(&userInfoFile);
