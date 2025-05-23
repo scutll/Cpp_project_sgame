@@ -24,3 +24,22 @@ qint64 AskLogin::getUserAccount(){
 QString AskLogin::getUserPassword(){
     return this->ui->GetUserPasswordLine->text();
 }
+
+void AskLogin::dealNoticeRefusedLogin(const qint64 userAccount) {
+    ui->refuseLogin->setText("账号或密码错误，请检查您的账号密码");
+    ui->refuseLogin->setStyleSheet("color: red;");
+    ui->GetUserAccountLine->setText(QString::number(userAccount));
+}
+
+
+
+void AskLogin::on_RegisterRequestLogin_clicked()
+{
+    this->close();
+    emit this->NoticeStartWindow_Register();
+}
+
+void AskLogin::AskLoginAfterRegisterAccepted(const qint64 userAccout,const QString& userPassword) {
+    ui->GetUserAccountLine->setText(QString::number(userAccout));
+    ui->GetUserPasswordLine->setText(userPassword);
+}

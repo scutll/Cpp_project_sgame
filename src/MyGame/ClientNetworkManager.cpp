@@ -72,10 +72,10 @@ void ClientNetworkManager::ReadData() {
             emit this->noticeUserLogined(userAccount, userName);
         }
 
-        else if (MSG_TYPE == MSGTYPE::RefuseLoginWrongPassword) {
+        else if (MSG_TYPE == MSGTYPE::RefuseLogin) {
             qint64 userAccount;
             in >> userAccount;
-            emit this->RefuseWrongPassword(userAccount);
+            emit this->RefuseLoginSignal(userAccount);
         }
 
         else if (MSG_TYPE == MSGTYPE::WaitAcceptApplication) {
@@ -114,6 +114,18 @@ void ClientNetworkManager::ReadData() {
             in >> userAccount >> userName >> newName;
 
             emit noticeNameModified(userAccount,userName,newName);
+        }
+        else if (MSG_TYPE == MSGTYPE::AccountOccupied) {
+            qint64 userAccount;
+            in >> userAccount;
+            emit this->NoticeAccountOccupied(userAccount);
+        }
+        else if (MSG_TYPE == MSGTYPE::RegisterAccepted) {
+            qint64 userAccount;
+            QString userName;
+            QString extName;
+            in >> userAccount >> userName >> extName;
+            emit this->NoticeRegisterAccepted(userAccount,userName,extName);
         }
 
         nextBlockSize = 0;
@@ -195,4 +207,21 @@ void ClientNetworkManager::sendUserNormalMessage(const QString &senderName, cons
 
     this->socket->write(block);
 
+}
+
+void ClientNetworkManager::dealRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName) {
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    qDebug() << "register request: " << userAccount << userPassword << userName;
+    out << quint16(0);
+    out << qint16(MSGTYPE::RegisterRequest);
+
+    out << userAccount;
+    out << userPassword;
+    out << userName;
+
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    this->socket->write(block);
 }

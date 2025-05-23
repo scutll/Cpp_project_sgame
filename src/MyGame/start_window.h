@@ -72,13 +72,19 @@ private slots:
 
     void dealINTERFACE_dealLoginAccepted(const qint64 userAccount,const QString& userName);
 
-    void dealINTERFACE_dealRefusedWrongPsw(const qint64 userAccount);
+    void dealINTERFACE_dealRefusedLogin(const qint64 userAccount);
 
     void dealINTERFACE_dealNameModifyAccepted(const qint64 userAccount,const QString& newName);
 
     void dealINTERFACE_dealNoticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
 
     void dealINTERFACE_repeatedName();
+
+    void dealINTERFACE_noticeAccountOccupied(const qint64 userAccount);
+
+    void dealINTERFACE_noticeRegisterAccepted(const qint64 userAccount, const QString& userName,const QString& extName);
+
+    void dealAskRegister();
 
 private:
     bool matching;
@@ -87,6 +93,7 @@ private:
     MainWindow* w;
     PlayerConnector* GameServer;
     QMenu* menu;
+    QString registeredPassword;
 
     bool clientConnected = false;
     Client* chatclient;

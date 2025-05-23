@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <QDir>
+#include "askregister.h"
 #include "asklogin.h"
 
 
@@ -225,12 +226,36 @@ void start_window::on_SendBtn_clicked()
 }
 
 
+void start_window::dealAskRegister(){
+    qint64 userAccount;
+    QString userPassword;
+    QString userName;
+    AskRegister* registerDialog = new AskRegister(this);
+    qDebug() << "正在打开注册界面";
+    if(registerDialog->exec() == QDialog::Accepted){
+        userAccount = registerDialog->getUserAccount();
+        userPassword = registerDialog->getUserPsw();
+        userName = registerDialog->getUserName();
+
+        this->registeredPassword = userPassword;
+
+        chatclient = new Client(userName,userAccount + 0xff);
+        this->init_chatclient();
+        clientConnected = true;
+        qDebug() << "注册: " << userAccount << userPassword << userName;
+        chatclient->INTERFACE_registerRequest(userAccount,userPassword,userName);
+    }
+
+}
+
+
 void start_window::on_LoginBtn_clicked()
 {
     if(!userLoged){
         qint64 userAccount;
         QString userPassword;
         AskLogin* loginDialog = new AskLogin(this);
+        connect(loginDialog,&AskLogin::NoticeStartWindow_Register,this,&start_window::dealAskRegister);
         qDebug() << "正在打开登录界面";
         if(loginDialog->exec() == QDialog::Accepted){
             userAccount = loginDialog->getUserAccount();
@@ -244,7 +269,6 @@ void start_window::on_LoginBtn_clicked()
             chatclient->INTERFACE_LoginRequest(userAccount,userPassword);
         }
         else{
-            msg_os("登录失败，请输入正确账号密码",true);
             return;
         }
 
@@ -313,19 +337,34 @@ void start_window::dealINTERFACE_dealLoginAccepted(const qint64 userAccount,cons
     GLOB_UserName = userName;
 
     ui->LoginBtn->setText("已登录: (" + QString::number(userAccount) + ") " + userName);
-    ui->LoginBtn->repaint();  // 强制立即重绘，不经过事件队列
+    // ui->LoginBtn->repaint();  // 强制立即重绘，不经过事件队列
 
     app_msg("系统","登录成功: " + userName,false);
 
 }
 
-void start_window::dealINTERFACE_dealRefusedWrongPsw(const qint64 userAccount) {
+void start_window::dealINTERFACE_dealRefusedLogin(const qint64 userAccount) {
     this->userLoged = false;
     GLOB_IsConnectedToServer = true;
     GLOB_UserAccount = userAccount;
+    qint64 newAccount;
 
-    app_msg("系统","登录失败,密码错误" + userName,true);
+    // app_msg("系统","登录失败,密码或账号错误" + userName,true);
+    AskLogin* loginDialog = new AskLogin(this);
+    loginDialog->dealNoticeRefusedLogin(userAccount);
+    qDebug() << "正在再次打开登录界面";
+    QString newPassword;
+    if(loginDialog->exec() == QDialog::Accepted){
+        newAccount = loginDialog->getUserAccount();
+        newPassword = loginDialog->getUserPassword();
+
+        this->temp_password = newPassword;
+        GLOB_UserAccount = newAccount;
+        chatclient->INTERFACE_LoginRequest(GLOB_UserAccount,newPassword);
+    }
+
 }
+
 
 void start_window::dealINTERFACE_dealNameModifyAccepted(const qint64 userAccount, const QString &newName) {
     GLOB_UserName = newName;
@@ -341,7 +380,60 @@ void start_window::dealINTERFACE_dealNoticeUserNameModified(const qint64 userAcc
     app_msg("系统","(" + QString::number(userAccount) + ")" + userName + " 修改昵称为: " + newName);
 }
 
+void start_window::dealINTERFACE_noticeAccountOccupied(const qint64 userAccount){
+    qint64 user_Account;
+    QString userPassword;
+    QString userName;
+    AskRegister* registerDialog = new AskRegister(this);
+    registerDialog->dealRefuseRegister();
+    qDebug() << "正在重新打开注册界面";
+    if(registerDialog->exec() == QDialog::Accepted){
+        user_Account = registerDialog->getUserAccount();
+        userPassword = registerDialog->getUserPsw();
+        userName = registerDialog->getUserName();
+        this->registeredPassword = userPassword;
 
+        chatclient = new Client(userName,userAccount + 0xff);
+        this->init_chatclient();
+        clientConnected = true;
+        qDebug() << "注册: " << userAccount << userPassword << userName;
+        chatclient->INTERFACE_registerRequest(userAccount,userPassword,userName);
+    }
+}
+
+void start_window::dealINTERFACE_noticeRegisterAccepted(const qint64 userAccount, const QString& userName,const QString& extName){
+    QString extraStr;
+    if(userName != extName){
+        extraStr = userName + "已经被占用, 将使用默认初始名称: " + extName;
+    }
+
+
+    //注册成功后要先删除原来的临时客户端线程，否则会导致提醒两次登录
+    chatclient->deleteChatThread();
+
+    if (!userLoged) {
+        qint64 account;
+        QString password;
+        AskLogin* loginDialog = new AskLogin(this);
+        loginDialog->AskLoginAfterRegisterAccepted(userAccount,this->registeredPassword);
+        connect(loginDialog,&AskLogin::NoticeStartWindow_Register,this,&start_window::dealAskRegister);
+        qDebug() << "允许登录,正在打开登录界面";
+        if(loginDialog->exec() == QDialog::Accepted){
+            account = loginDialog->getUserAccount();
+            password = loginDialog->getUserPassword();
+
+            this->temp_password = password;
+
+            chatclient = new Client(QString::number(account),account);
+            this->init_chatclient();
+            clientConnected = true;
+            chatclient->INTERFACE_LoginRequest(account,password);
+        }
+        else{
+            return;
+        }
+    }
+}
 
 
 
@@ -351,10 +443,12 @@ void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_dealAcceptNormalMessage,this,&start_window::dealINTERFACE_dealAcceptNormalMessage);
     connect(chatclient,&Client::INTERFACE_dealConnnectError,this,&start_window::dealINTERFACE_dealConnnectError);
     connect(chatclient,&Client::INTERFACE_ServerDisconnected,this,&start_window::dealINTERFACE_dealServerDisconnected);
-    connect(chatclient,&Client::INTERFACE_RefusedWrongPsw,this,&start_window::dealINTERFACE_dealRefusedWrongPsw);
+    connect(chatclient,&Client::INTERFACE_RefusedLogin,this,&start_window::dealINTERFACE_dealRefusedLogin);
     connect(chatclient,&Client::INTERFACE_LoginAccepted,this,&start_window::dealINTERFACE_dealLoginAccepted);
     connect(chatclient,&Client::INTERFACE_NameModifyAccepted,this,&start_window::dealINTERFACE_dealNameModifyAccepted);
     connect(chatclient,&Client::INTERFACE_NoticeUserNameModified,this,&start_window::dealINTERFACE_dealNoticeUserNameModified);
     connect(chatclient,&Client::INTERFACE_repeatedName,this,&start_window::dealINTERFACE_repeatedName);
+    connect(chatclient,&Client::INTERFACE_NoticeAccountOccupied,this,&start_window::dealINTERFACE_noticeAccountOccupied);
+    connect(chatclient,&Client::INTERFACE_NoticeRegisterAccepted,this,&start_window::dealINTERFACE_noticeRegisterAccepted);
 
 }

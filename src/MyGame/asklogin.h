@@ -16,9 +16,17 @@ public:
     ~AskLogin();
     qint64 getUserAccount();
     QString getUserPassword();
+    void dealNoticeRefusedLogin(const qint64 userAccount);
+    void AskLoginAfterRegisterAccepted(const qint64 userAccout,const QString& userPassword);
+
+private slots:
+    void on_RegisterRequestLogin_clicked();
 
 private:
     Ui::AskLogin *ui;
+
+signals:
+    void NoticeStartWindow_Register();
 };
 
 #endif // ASKLOGIN_H

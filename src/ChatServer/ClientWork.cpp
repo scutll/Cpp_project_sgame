@@ -66,6 +66,8 @@ void ClientWork::noticeClientLogin(const qint64 userAccount,const QString &userN
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
+
+    qDebug() << "通知 " << this->userAccount << " :" << userAccount << "已登录";
     out << quint16(0);
     out << qint16(MSGTYPE::NoticeNewLogin);
     out << userAccount;
@@ -81,18 +83,55 @@ void ClientWork::noticeClientLogin(const qint64 userAccount,const QString &userN
     }
 }
 
-void ClientWork::noticeRefusedWrongPsw(const qint64 userAccount) {
+void ClientWork::noticeRefusedLogin(const qint64 userAccount) {
+    if (this->userAccount != userAccount)
+        return;
+
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
     out << quint16(0);
-    out << qint16(MSGTYPE::RefuseLoginWrongPassword);
+    out << qint16(MSGTYPE::RefuseLogin);
     out << userAccount;
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));
 
     socket->write(block);
 }
+
+
+void ClientWork::noticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName) {
+    if (this->register_Account != userAccount)
+        return;
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out << quint16(0);
+    out << qint16(MSGTYPE::RegisterAccepted);
+    out << userAccount;
+    out << userName;
+    out << extName;
+
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+    socket->write(block);
+}
+
+void ClientWork::noticeAccountOccupied(const qint64 userAccount) {
+    if (register_Account != userAccount)
+        return;
+    qDebug() << userAccount << " register request :账号重复,无法注册";
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out << quint16(0);
+    out << qint16(MSGTYPE::AccountOccupied);
+    out << userAccount;
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    socket->write(block);
+}
+
 
 
 void ClientWork::noticeRejectRepeatedName(const qint64 userAccount) {
@@ -185,6 +224,7 @@ void ClientWork::ReadData() {
 
             qDebug() << "login request: " << userAccount << userPassword;
             if(this->userAccount == 0){
+                qDebug() << "线程处理登录: 修改账号为: " << userAccount;
                 this->userAccount = userAccount;
             }
             //提交到server进行处理
@@ -212,6 +252,16 @@ void ClientWork::ReadData() {
             in >> userAccount >> newName;
             qDebug() << userAccount << ": modify name request: " << newName;
             emit ModifyUserNameRequest(userAccount,newName);
+        }
+        else if (MSG_TYPE == MSGTYPE::RegisterRequest) {
+            QString userName;
+            qint64 userAccount;
+            QString userPassword;
+
+            in >> userAccount >> userPassword >> userName;
+            register_Account = userAccount;
+            qDebug() << "register request: " << userAccount << userPassword << userName;
+            emit this->noticeRegisterRequest(userAccount,userPassword,userName);
         }
 
         nextBlockSize = 0;

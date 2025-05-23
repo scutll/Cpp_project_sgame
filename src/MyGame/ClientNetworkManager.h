@@ -16,10 +16,12 @@ class ClientNetworkManager :public QObject{
     enum MSGTYPE {
         /*server接收*/
         LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,ModifyNameRequest,
+        RegisterRequest,
         /*client接收*/
-        RefuseLoginWrongPassword,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
+        RefuseLogin,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
         RepeatedNameRejected,UserNameModified,
-        SendNormalMesssage, SendUserDisconnected
+        SendNormalMesssage, SendUserDisconnected,
+        RegisterAccepted,AccountOccupied
     };
 public:
     ClientNetworkManager(QObject* parent = nullptr);
@@ -41,14 +43,17 @@ public:
     void dealServerDisconnected();
     void dealNameModifyRequest(const qint64 userAccount,const QString& newName);
     bool isConnected();
+    void dealRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName);
 
 
 signals:
+    void NoticeAccountOccupied(const qint64 userAccount);
+    void NoticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
     void noticeRepeatedNameRejected(const qint64 userAccount);
     void noticeNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
     void connectErrorSignal(const QString& error);
     void connectedSignal();
-    void RefuseWrongPassword(const qint64 userAccount);
+    void RefuseLoginSignal(const qint64 userAccount);
     void noticeUserLogined(const qint64 userAccount,const QString& userName);
     void acceptNormalMessage(const QString& senderName,const QString& message);
     void userDisconnectedSignal(const QString& userName);

@@ -25,6 +25,8 @@ public:
     bool checkLoginInfo(const qint64 userAccount,const QString& userPassword);
     QString getUserName(const qint64 userAccount);
     bool nameExists(const QString& userName);
+    bool accountOccupied(const qint64 userAccount);
+
 private:
     void newClientConnection(qintptr handle);
     void dealNoticeClientDisconnected(const QString& userName);
@@ -34,7 +36,7 @@ private:
     void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void dealModifyName(const qint64 userAccount,const QString& newName);
     void updateUserName(const qint64 userAccount,const QString& newName);
-
+    void dealRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName);
 private:
     TcpServer *tcpServer;
     QMap<QThread*, ClientWork*> clients;
@@ -46,10 +48,11 @@ signals:
     void transferNoticeDisconnected(const QString& userName);
     void transferNewClientLogin(const qint64 userAccount,const QString& userName);
     void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg);
-    void transferRefuseWrongPassword(const qint64 userAccount);
+    void transferRefuseLogin(const qint64 userAccount);
     void transferRejectRepeatedName(const qint64 userAccount);
     void transferUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
-
+    void transferAccountOccupied(const qint64 userAccount);
+    void transferRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
 };
 
 

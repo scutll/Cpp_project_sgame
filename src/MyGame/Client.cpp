@@ -42,14 +42,20 @@ void Client::dealconnectErrorSignal(const QString &error) {
 }
 
 void Client::connect_Init() {
+
+    //请求注册
+    connect(this,&Client::RegisterRequest,this->client_network_manager,&ClientNetworkManager::dealRegisterRequest,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::NoticeAccountOccupied,this,&Client::dealNoticeAccountOccupied,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::NoticeRegisterAccepted,this,&Client::dealNoticeRegisterAccepted,Qt::QueuedConnection);
+
     //请求登录
-    connect(this,&Client::SendLoginRequest,this->client_network_manager,&ClientNetworkManager::dealSendLoginRequest);
-    connect(this->client_network_manager,&ClientNetworkManager::RefuseWrongPassword,this,&Client::dealRefuseWrongPsw);
+    connect(this,&Client::SendLoginRequest,this->client_network_manager,&ClientNetworkManager::dealSendLoginRequest,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::RefuseLoginSignal,this,&Client::dealRefuseLoginSignal,Qt::QueuedConnection);
 
     //请求修改用户名
-    connect(this,&Client::NameModifyRequest,this->client_network_manager,&ClientNetworkManager::dealNameModifyRequest);
-    connect(this->client_network_manager,&ClientNetworkManager::noticeNameModified,this,&Client::dealNoticeNameModified);
-    connect(this->client_network_manager,&ClientNetworkManager::noticeRepeatedNameRejected,this,&Client::dealNoticeRepeatedNameRejected);
+    connect(this,&Client::NameModifyRequest,this->client_network_manager,&ClientNetworkManager::dealNameModifyRequest,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::noticeNameModified,this,&Client::dealNoticeNameModified,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::noticeRepeatedNameRejected,this,&Client::dealNoticeRepeatedNameRejected,Qt::QueuedConnection);
     //连接错误
     connect(this->client_network_manager,&ClientNetworkManager::connectErrorSignal,this,&Client::dealconnectErrorSignal,Qt::QueuedConnection);
 
@@ -78,7 +84,7 @@ void Client::dealServerDisconnected() {
 
 
 void Client::deleteChatThread() {
-
+    qDebug() << "删除聊天线程中:";
     if (this->chat_thread != Q_NULLPTR) {
         this->client_network_manager->deleteLater();
         this->client_network_manager = Q_NULLPTR;
@@ -114,11 +120,11 @@ void Client::dealUserDisconnected(const QString &userName) {
     emit this->INTERFACE_dealUserDisconnected(userName);
 }
 
-void Client::dealRefuseWrongPsw(const qint64 userAccount) {
+void Client::dealRefuseLoginSignal(const qint64 userAccount) {
     if (GLOB_UserAccount != userAccount) {
         return;
     }
-    emit this->INTERFACE_RefusedWrongPsw(userAccount);
+    emit this->INTERFACE_RefusedLogin(userAccount);
 }
 
 void Client::dealNoticeUserLogined(const qint64 userAccount,const QString& userName) {
@@ -141,8 +147,20 @@ void Client::dealNoticeNameModified(const qint64 userAccount,const QString& user
         emit this->INTERFACE_NoticeUserNameModified(userAccount,userName,newName);
 }
 
-void Client::INTERFACE_LoginRequest(const qint64 userAccount,const QString& userPassword) {
+void Client::dealNoticeAccountOccupied(const qint64 userAccount) {
+    emit this->INTERFACE_NoticeAccountOccupied(userAccount);
+}
 
+void Client::dealNoticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName) {
+    emit this->INTERFACE_NoticeRegisterAccepted(userAccount,userName,extName);
+}
+
+void Client::INTERFACE_registerRequest(const qint64 userAccount,const QString& userPassword,const QString& userName) {
+    emit this->RegisterRequest(userAccount,userPassword,userName);
+}
+
+void Client::INTERFACE_LoginRequest(const qint64 userAccount,const QString& userPassword) {
+    qDebug() << "发送登录请求";
     emit this->SendLoginRequest(userAccount,userPassword);
 
 }

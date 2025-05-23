@@ -52,10 +52,16 @@ void ChatServer::newClientConnection(const qintptr handle) {
     connect(thread,&QThread::started,work,&ClientWork::initializeSocket,Qt::DirectConnection);
     thread->start();
 
+    //用户注册请求
+    connect(work,&ClientWork::noticeRegisterRequest,this,&ChatServer::dealRegisterRequest,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferAccountOccupied,work,&ClientWork::noticeAccountOccupied,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferRegisterAccepted,work,&ClientWork::noticeRegisterAccepted,Qt::QueuedConnection);
+
+
     //用户修改名称
-    connect(work,&ClientWork::ModifyUserNameRequest,this,&ChatServer::dealModifyName);
-    connect(this,&ChatServer::transferRejectRepeatedName,work,&ClientWork::noticeRejectRepeatedName);
-    connect(this,&ChatServer::transferUserNameModified,work,&ClientWork::noticeUserNameModified);
+    connect(work,&ClientWork::ModifyUserNameRequest,this,&ChatServer::dealModifyName,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferRejectRepeatedName,work,&ClientWork::noticeRejectRepeatedName,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferUserNameModified,work,&ClientWork::noticeUserNameModified,Qt::QueuedConnection);
 
     //用户断联的处理
     connect(work,&ClientWork::NoticeClientDisconnected,this,&ChatServer::dealNoticeClientDisconnected,Qt::QueuedConnection);
@@ -68,7 +74,7 @@ void ChatServer::newClientConnection(const qintptr handle) {
     //用户登录
     connect(work,&ClientWork::newClientLogin,this,&ChatServer::dealNewClientLogin,Qt::QueuedConnection);
     connect(this,&ChatServer::transferNewClientLogin,work,&ClientWork::noticeClientLogin,Qt::QueuedConnection);
-    connect(this,&ChatServer::transferRefuseWrongPassword,work,&ClientWork::noticeRefusedWrongPsw,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferRefuseLogin,work,&ClientWork::noticeRefusedLogin,Qt::QueuedConnection);
 
     //接收普通消息
     connect(work,&ClientWork::acceptUserNormalMessage,this,&ChatServer::dealAcceptUserNormalMessage,Qt::QueuedConnection);
@@ -76,6 +82,8 @@ void ChatServer::newClientConnection(const qintptr handle) {
 }
 
 void ChatServer::dealNoticeClientDisconnected(const QString &userName) {
+    if(userName.isEmpty())
+        return;
     emit this->transferNoticeDisconnected(userName);
 }
 
@@ -119,6 +127,24 @@ void ChatServer::dealClientDisconnected(const int socket_id) {
 
 }
 
+void ChatServer::dealRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName) {
+    if (accountOccupied(userAccount)) {
+        emit transferAccountOccupied(userAccount);
+        return;
+    }
+    QString extName;
+    if (nameExists(userName))
+        extName = QString::number(userAccount);
+    else
+        extName = userName;
+
+    this->SaveUserInfo(extName,userAccount);
+    this->SaveUserPsw(userAccount,userPassword);
+    emit this->transferRegisterAccepted(userAccount,userName,extName);
+
+}
+
+
 void ChatServer::dealModifyName(const qint64 userAccount, const QString &newName) {
     if (nameExists(newName)) {
         emit this->transferRejectRepeatedName(userAccount);
@@ -138,7 +164,7 @@ void ChatServer::dealNewClientLogin(const qint64 userAccount,const QString &user
     bool allowLogin = this->checkLoginInfo(userAccount,userPassword);
     if (!allowLogin) {
         qDebug() << userAccount << "login refused: Wrong password";
-        emit transferRefuseWrongPassword(userAccount);
+        emit transferRefuseLogin(userAccount);
         return;
     }
 
@@ -153,14 +179,11 @@ bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPass
     QString Password;
     QString filename = this->UserPasswordPath + "accpsw.psw";
 
-    //第一个用户，此时没有这些文件
-    QFileInfo pswfileInfo(filename);
-    if(!pswfileInfo.exists()){
-        qDebug() << userAccount << " 不存在，正在创建： " << userAccount;
-        SaveUserInfo(QString::number(userAccount),userAccount);
-        SaveUserPsw(userAccount,userPassword);
-        qDebug() << "创建完成";
-        return true;
+    //加入注册功能，没有用户直接拒绝
+    QFile userInfoFile(this->UserInfoPath + QString::number(userAccount) + ".usr");
+    if(!userInfoFile.open(QIODevice::ReadOnly)){
+        qDebug() << userAccount << "不存在";
+        return false;
     }
 
     QFile usrAccountPasswordFile(filename);
@@ -186,12 +209,8 @@ bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPass
                 return true;
         }
     }
-    qDebug() << userAccount << " 不存在，正在创建： " << userAccount;
-    SaveUserInfo(QString::number(userAccount),userAccount);
-    SaveUserPsw(userAccount,userPassword);
-    qDebug() << "创建完成";
 
-    return true;
+    return false;
 
 }
 
@@ -212,9 +231,32 @@ bool ChatServer::nameExists(const QString &name) {
         QString userName;
         in >> account;
         in >> userName;
+        if (name == userName)
+            return true;
+    }
+    return false;
+}
+
+bool ChatServer::accountOccupied(const qint64 userAccount) {
+    QDir dir(this->UserInfoPath);
+    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
+    foreach(const QFileInfo& fileinfo, fileList) {
+        QString fileName = UserInfoPath + fileinfo.fileName();
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qDebug() << "无法打开用户信息文件 " + fileName << " : " << file.errorString();
+            return "";
+        }
+        QDataStream in(&file);
+        in.setVersion(QDataStream::Qt_6_8);
+
+        qint64 account;
+        QString userName;
+        in >> account;
+        in >> userName;
 
         qDebug() << "找到了: " << account << userName;
-        if (name == userName)
+        if (userAccount == account)
             return true;
     }
     return false;

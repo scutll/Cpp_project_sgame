@@ -17,10 +17,12 @@ class ClientWork :public QObject{
     enum MSGTYPE {
         /*server接收*/
         LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,ModifyNameRequest,
+        RegisterRequest,
         /*client接收*/
-        RefuseLoginWrongPassword,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
+        RefuseLogin,NoticeNewLogin, WaitAcceptApplication,AcceptedApplication,
         RepeatedNameRejected,UserNameModified,
-        SendNormalMesssage, SendUserDisconnected
+        SendNormalMesssage, SendUserDisconnected,
+        RegisterAccepted,AccountOccupied
     };
 
 public:
@@ -31,10 +33,13 @@ public:
     int SocketId();
     void dealNoticeClientDisconnected(const QString& userName);
     void noticeClientLogin(const qint64 userAccount,const QString& userName);
-    void noticeRefusedWrongPsw(const qint64 userAccount);
+    void noticeRefusedLogin(const qint64 userAccount);
     void noticeRejectRepeatedName(const qint64 userAccount);
     void noticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
     Q_INVOKABLE void sendUserMessageToReceiver(const QString& senderName, const QString& receiverName,const QString& message);
+    void noticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
+    void noticeAccountOccupied(const qint64 userAccount);
+
 private:
     void ReadData();
     void dealClientDisconnected();
@@ -46,6 +51,7 @@ private:
     QMutex mutex;
     qintptr socketDescriptor = 0;
     int socket_id = 0;
+    qint64 register_Account = 0;
     quint16 nextBlockSize = 0;
     qint16 MSG_TYPE = -1;
 
@@ -56,7 +62,7 @@ signals:
     void newClientLogin(const qint64 userAccount,const QString& userPassword);
     void acceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
     void ModifyUserNameRequest(const qint64 userAccount,const QString& newName);
-
+    void noticeRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName);
 };
 
 
