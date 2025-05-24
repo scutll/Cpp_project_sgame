@@ -239,6 +239,9 @@ void start_window::dealAskRegister(){
 
         this->registeredPassword = userPassword;
 
+        if(chatclient)
+            delete chatclient;
+
         chatclient = new Client(userName,userAccount + 0xff);
         this->init_chatclient();
         clientConnected = true;
@@ -262,6 +265,9 @@ void start_window::on_LoginBtn_clicked()
             userPassword = loginDialog->getUserPassword();
 
             this->temp_password = userPassword;
+
+            if(chatclient)
+                delete chatclient;
 
             chatclient = new Client(QString::number(userAccount),userAccount);
             this->init_chatclient();
@@ -393,11 +399,14 @@ void start_window::dealINTERFACE_noticeAccountOccupied(const qint64 userAccount)
         userName = registerDialog->getUserName();
         this->registeredPassword = userPassword;
 
+        if(chatclient)
+            delete chatclient;
+
         chatclient = new Client(userName,userAccount + 0xff);
         this->init_chatclient();
         clientConnected = true;
         qDebug() << "注册: " << userAccount << userPassword << userName;
-        chatclient->INTERFACE_registerRequest(userAccount,userPassword,userName);
+        chatclient->INTERFACE_registerRequest(user_Account,userPassword,userName);
     }
 }
 
@@ -423,6 +432,9 @@ void start_window::dealINTERFACE_noticeRegisterAccepted(const qint64 userAccount
             password = loginDialog->getUserPassword();
 
             this->temp_password = password;
+
+            if(chatclient)
+                delete chatclient;
 
             chatclient = new Client(QString::number(account),account);
             this->init_chatclient();
@@ -450,5 +462,4 @@ void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_repeatedName,this,&start_window::dealINTERFACE_repeatedName);
     connect(chatclient,&Client::INTERFACE_NoticeAccountOccupied,this,&start_window::dealINTERFACE_noticeAccountOccupied);
     connect(chatclient,&Client::INTERFACE_NoticeRegisterAccepted,this,&start_window::dealINTERFACE_noticeRegisterAccepted);
-
 }

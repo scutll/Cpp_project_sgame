@@ -84,6 +84,7 @@ void Client::dealServerDisconnected() {
 
 
 void Client::deleteChatThread() {
+
     qDebug() << "删除聊天线程中:";
     if (this->chat_thread != Q_NULLPTR) {
         this->client_network_manager->deleteLater();
