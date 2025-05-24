@@ -8,7 +8,7 @@ AskLogin::AskLogin(QDialog *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->LoginRequestBtn,&QPushButton::clicked,this,&QDialog::accept);
+    connect(ui->LoginRequestBtn,&QPushButton::clicked,this,&AskLogin::on_LoginRequestBtn_clicked);
     connect(this,&QDialog::close,this,&QDialog::reject);
 }
 
@@ -43,3 +43,18 @@ void AskLogin::AskLoginAfterRegisterAccepted(const qint64 userAccout,const QStri
     ui->GetUserAccountLine->setText(QString::number(userAccout));
     ui->GetUserPasswordLine->setText(userPassword);
 }
+
+void AskLogin::on_LoginRequestBtn_clicked()
+{
+    bool ok;
+    ui->GetUserAccountLine->text().toLongLong(&ok);
+
+    if(!ok){
+        ui->refuseLogin->setText("账号格式错误: 请输入数字");
+        ui->refuseLogin->setStyleSheet("color: red;");
+        return;
+    }
+
+    accept();
+}
+

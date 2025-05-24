@@ -7,7 +7,7 @@ AskRegister::AskRegister(QDialog *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->RegisterBtn,&QPushButton::clicked,this,&QDialog::accept);
+    connect(ui->RegisterBtn,&QPushButton::clicked,this,&AskRegister::on_RegisterBtn_clicked);
     connect(this,&QDialog::close,this,&QDialog::reject);
 }
 
@@ -31,5 +31,18 @@ qint64 AskRegister::getUserAccount(){
 void AskRegister::dealRefuseRegister(){
     ui->RefuseRegister->setText("账号已被注册，请使用其他账号");
     ui->RefuseRegister->setStyleSheet("color: red;");
+}
+
+
+void AskRegister::on_RegisterBtn_clicked()
+{    bool ok;
+    ui->UserAccount->text().toLongLong(&ok);
+
+    if(!ok){
+        ui->RefuseRegister->setText("账号格式错误: 请输入数字");
+        ui->RefuseRegister->setStyleSheet("color: red;");
+        return;
+    }
+    accept();
 }
 

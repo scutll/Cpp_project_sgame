@@ -20,6 +20,9 @@ public:
     qint64 getUserAccount();
 
 
+private slots:
+    void on_RegisterBtn_clicked();
+
 private:
     Ui::AskRegister *ui;
 };

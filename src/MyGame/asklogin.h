@@ -22,6 +22,8 @@ public:
 private slots:
     void on_RegisterRequestLogin_clicked();
 
+    void on_LoginRequestBtn_clicked();
+
 private:
     Ui::AskLogin *ui;
 
