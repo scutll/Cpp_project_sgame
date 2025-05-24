@@ -75,6 +75,7 @@ void ChatServer::newClientConnection(const qintptr handle) {
     connect(work,&ClientWork::newClientLogin,this,&ChatServer::dealNewClientLogin,Qt::QueuedConnection);
     connect(this,&ChatServer::transferNewClientLogin,work,&ClientWork::noticeClientLogin,Qt::QueuedConnection);
     connect(this,&ChatServer::transferRefuseLogin,work,&ClientWork::noticeRefusedLogin,Qt::QueuedConnection);
+    connect(this,&ChatServer::transferAccountAlreadyLogined,work,&ClientWork::noticeAccountAlreadyLogined,Qt::QueuedConnection);
 
     //接收普通消息
     connect(work,&ClientWork::acceptUserNormalMessage,this,&ChatServer::dealAcceptUserNormalMessage,Qt::QueuedConnection);
@@ -161,10 +162,15 @@ void ChatServer::dealModifyName(const qint64 userAccount, const QString &newName
 void ChatServer::dealNewClientLogin(const qint64 userAccount,const QString &userPassword) {
     qDebug() << userAccount << " requesting login ; password: " << userPassword;
     //检查是否可以登录
-    bool allowLogin = this->checkLoginInfo(userAccount,userPassword);
-    if (!allowLogin) {
+    int allowLogin = this->checkLoginInfo(userAccount,userPassword);
+    if (allowLogin == 1) {
         qDebug() << userAccount << "login refused: Wrong password";
         emit transferRefuseLogin(userAccount);
+        return;
+    }
+    else if (allowLogin == 2) {
+        qDebug() << userAccount << "already logined";
+        emit transferAccountAlreadyLogined(userAccount);
         return;
     }
 
@@ -173,7 +179,7 @@ void ChatServer::dealNewClientLogin(const qint64 userAccount,const QString &user
     dealUpdateLocalUserData(usrName,"1");
 }
 
-bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPassword) {
+int ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPassword) {
     qDebug() << "正在检查用户密码";
     qint64 Account;
     QString Password;
@@ -183,13 +189,19 @@ bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPass
     QFile userInfoFile(this->UserInfoPath + QString::number(userAccount) + ".usr");
     if(!userInfoFile.open(QIODevice::ReadOnly)){
         qDebug() << userAccount << "不存在";
-        return false;
+        return 1;
+    }
+
+    //检查用户是否已经登录
+    if (AccountLogined(userAccount)) {
+        qDebug() << userAccount << "已经登录";
+        return 2;
     }
 
     QFile usrAccountPasswordFile(filename);
     if (!usrAccountPasswordFile.open(QIODevice::ReadOnly)) {
         qDebug() << "无法打开密码映射文件 " + this->UserPasswordPath + "accpsw.psw" << " : " << usrAccountPasswordFile.errorString();
-        return false;
+        return 1;
     }
 
     QDataStream in(&usrAccountPasswordFile);
@@ -203,15 +215,25 @@ bool ChatServer::checkLoginInfo(const qint64 userAccount,const QString &userPass
             if (userPassword != Password)
             {
                 qDebug() << "用户密码错误 : " << userPassword << "正确密码：" <<Password;
-                return false;
+                return 1;
             }
             else
-                return true;
+                return 0;
         }
     }
 
-    return false;
+    return 1;
 
+}
+
+bool ChatServer::AccountLogined(const qint64 userAccount) {
+    foreach(QThread* thread,this->clients.keys()) {
+        const qint64 account = this->clients.value(thread)->Account();
+        bool logined = this->clients.value(thread)->Logined();
+        if (account == userAccount && logined)
+            return true;
+    }
+    return false;
 }
 
 bool ChatServer::nameExists(const QString &name) {

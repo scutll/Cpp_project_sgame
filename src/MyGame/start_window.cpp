@@ -358,7 +358,7 @@ void start_window::dealINTERFACE_dealRefusedLogin(const qint64 userAccount) {
     // app_msg("系统","登录失败,密码或账号错误" + userName,true);
     AskLogin* loginDialog = new AskLogin(this);
     loginDialog->dealNoticeRefusedLogin(userAccount);
-    qDebug() << "正在再次打开登录界面";
+    qDebug() << "(密码错误)正在再次打开登录界面";
     QString newPassword;
     if(loginDialog->exec() == QDialog::Accepted){
         newAccount = loginDialog->getUserAccount();
@@ -370,6 +370,32 @@ void start_window::dealINTERFACE_dealRefusedLogin(const qint64 userAccount) {
     }
 
 }
+
+void start_window::dealINTERFACE_accountAlreadyLogined(const qint64 userAccount) {
+    if(userLoged)
+        return;
+
+    this->userLoged = false;
+    GLOB_IsConnectedToServer = true;
+    GLOB_UserAccount = userAccount;
+    qint64 newAccount;
+
+    //账号已经被登录
+    AskLogin* loginDialog = new AskLogin(this);
+    loginDialog->dealNoticeAccountAlreadyLogined(userAccount);
+    qDebug() << "(账号已登录)正在再次打开登录界面";
+    QString newPassword;
+    if(loginDialog->exec() == QDialog::Accepted){
+        newAccount = loginDialog->getUserAccount();
+        newPassword = loginDialog->getUserPassword();
+
+        this->temp_password = newPassword;
+        GLOB_UserAccount = newAccount;
+        chatclient->INTERFACE_LoginRequest(GLOB_UserAccount,newPassword);
+    }
+
+}
+
 
 
 void start_window::dealINTERFACE_dealNameModifyAccepted(const qint64 userAccount, const QString &newName) {
@@ -456,6 +482,7 @@ void start_window::init_chatclient(){
     connect(chatclient,&Client::INTERFACE_dealConnnectError,this,&start_window::dealINTERFACE_dealConnnectError);
     connect(chatclient,&Client::INTERFACE_ServerDisconnected,this,&start_window::dealINTERFACE_dealServerDisconnected);
     connect(chatclient,&Client::INTERFACE_RefusedLogin,this,&start_window::dealINTERFACE_dealRefusedLogin);
+    connect(chatclient,&Client::INTERFACE_AccountAlreadyLogined,this,&start_window::dealINTERFACE_accountAlreadyLogined);
     connect(chatclient,&Client::INTERFACE_LoginAccepted,this,&start_window::dealINTERFACE_dealLoginAccepted);
     connect(chatclient,&Client::INTERFACE_NameModifyAccepted,this,&start_window::dealINTERFACE_dealNameModifyAccepted);
     connect(chatclient,&Client::INTERFACE_NoticeUserNameModified,this,&start_window::dealINTERFACE_dealNoticeUserNameModified);

@@ -31,6 +31,12 @@ void AskLogin::dealNoticeRefusedLogin(const qint64 userAccount) {
     ui->GetUserAccountLine->setText(QString::number(userAccount));
 }
 
+void AskLogin::dealNoticeAccountAlreadyLogined(const qint64 userAccount){
+    ui->refuseLogin->setText("账号已经被登录！");
+    ui->refuseLogin->setStyleSheet("color: red;");
+    ui->GetUserAccountLine->setText(QString::number(userAccount));
+}
+
 
 
 void AskLogin::on_RegisterRequestLogin_clicked()

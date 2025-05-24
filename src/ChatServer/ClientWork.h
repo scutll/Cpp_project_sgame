@@ -19,7 +19,8 @@ class ClientWork :public QObject{
         LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,ModifyNameRequest,
         RegisterRequest,
         /*client接收*/
-        RefuseLogin,NoticeNewLogin, WaitAcceptApplication,AcceptedApplication,
+        RefuseLogin,NoticeNewLogin,AccountAlreadyLogined,
+        WaitAcceptApplication,AcceptedApplication,
         RepeatedNameRejected,UserNameModified,
         SendNormalMesssage, SendUserDisconnected,
         RegisterAccepted,AccountOccupied
@@ -34,16 +35,19 @@ public:
     void dealNoticeClientDisconnected(const QString& userName);
     void noticeClientLogin(const qint64 userAccount,const QString& userName);
     void noticeRefusedLogin(const qint64 userAccount);
+    void noticeAccountAlreadyLogined(const qint64 userAccount);
     void noticeRejectRepeatedName(const qint64 userAccount);
     void noticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
     Q_INVOKABLE void sendUserMessageToReceiver(const QString& senderName, const QString& receiverName,const QString& message);
     void noticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
     void noticeAccountOccupied(const qint64 userAccount);
-
+    bool Logined(){return userLogined;}
+    const qint64 Account(){return userAccount;}
 private:
     void ReadData();
     void dealClientDisconnected();
 private:
+    bool userLogined = false;
     QTcpSocket* socket = nullptr;
     QString userName;
     qint64 userAccount = 0;

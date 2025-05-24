@@ -18,7 +18,8 @@ class ClientNetworkManager :public QObject{
         LoginRequest = 0,FriendApplication,SendAcceptApplicationNotice,NormalMessage,ModifyNameRequest,
         RegisterRequest,
         /*client接收*/
-        RefuseLogin,NoticeNewLogin, WaitAcceptApplication,  AcceptedApplication,
+        RefuseLogin,NoticeNewLogin, AccountAlreadyLogined,
+        WaitAcceptApplication,  AcceptedApplication,
         RepeatedNameRejected,UserNameModified,
         SendNormalMesssage, SendUserDisconnected,
         RegisterAccepted,AccountOccupied
@@ -47,6 +48,7 @@ public:
 
 
 signals:
+    void AccountAlreadyLoginedSignal(const qint64 userAccount);
     void NoticeAccountOccupied(const qint64 userAccount);
     void NoticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
     void noticeRepeatedNameRejected(const qint64 userAccount);

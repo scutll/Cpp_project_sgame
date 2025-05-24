@@ -74,6 +74,8 @@ private slots:
 
     void dealINTERFACE_dealRefusedLogin(const qint64 userAccount);
 
+    void dealINTERFACE_accountAlreadyLogined(const qint64 userAccount);
+
     void dealINTERFACE_dealNameModifyAccepted(const qint64 userAccount,const QString& newName);
 
     void dealINTERFACE_dealNoticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);

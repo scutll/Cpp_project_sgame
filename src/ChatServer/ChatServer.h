@@ -22,9 +22,10 @@ public:
     ~ChatServer();
     void SaveUserInfo(const QString& userName,const qint64 userAccount);
     void SaveUserPsw(const qint64 userAccount, const QString& password);
-    bool checkLoginInfo(const qint64 userAccount,const QString& userPassword);
+    int checkLoginInfo(const qint64 userAccount,const QString& userPassword);       //0允许登录，1账号或密码错误，2用户已登录
     QString getUserName(const qint64 userAccount);
     bool nameExists(const QString& userName);
+    bool AccountLogined(const qint64 userAccount);
     bool accountOccupied(const qint64 userAccount);
 
 private:
@@ -45,6 +46,7 @@ private:
     QString UserPasswordPath;
 
 signals:
+    void transferAccountAlreadyLogined(const qint64 userAccount);
     void transferNoticeDisconnected(const QString& userName);
     void transferNewClientLogin(const qint64 userAccount,const QString& userName);
     void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg);

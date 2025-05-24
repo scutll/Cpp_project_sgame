@@ -63,6 +63,9 @@ void ClientWork::dealNoticeClientDisconnected(const QString &userName) {
 
 
 void ClientWork::noticeClientLogin(const qint64 userAccount,const QString &userName) {
+    if (this->userAccount == userAccount)
+        this->userLogined = true;
+
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
 
@@ -84,7 +87,7 @@ void ClientWork::noticeClientLogin(const qint64 userAccount,const QString &userN
 }
 
 void ClientWork::noticeRefusedLogin(const qint64 userAccount) {
-    if (this->userAccount != userAccount)
+    if (this->userAccount != userAccount || Logined())
         return;
 
     QByteArray block;
@@ -92,6 +95,23 @@ void ClientWork::noticeRefusedLogin(const qint64 userAccount) {
 
     out << quint16(0);
     out << qint16(MSGTYPE::RefuseLogin);
+    out << userAccount;
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    socket->write(block);
+}
+
+
+void ClientWork::noticeAccountAlreadyLogined(const qint64 userAccount) {
+    if (this->userAccount != userAccount || Logined()) {
+        return;
+    }
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out << quint16(0);
+    out << qint16(MSGTYPE::AccountAlreadyLogined);
     out << userAccount;
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));

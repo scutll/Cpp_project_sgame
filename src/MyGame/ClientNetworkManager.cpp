@@ -127,6 +127,11 @@ void ClientNetworkManager::ReadData() {
             in >> userAccount >> userName >> extName;
             emit this->NoticeRegisterAccepted(userAccount,userName,extName);
         }
+        else if (MSG_TYPE == MSGTYPE::AccountAlreadyLogined) {
+            qint64 userAccount;
+            in >> userAccount;
+            emit this->AccountAlreadyLoginedSignal(userAccount);
+        }
 
         nextBlockSize = 0;
         MSG_TYPE = -1;

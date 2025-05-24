@@ -18,6 +18,7 @@ public:
     QString getUserPassword();
     void dealNoticeRefusedLogin(const qint64 userAccount);
     void AskLoginAfterRegisterAccepted(const qint64 userAccout,const QString& userPassword);
+    void dealNoticeAccountAlreadyLogined(const qint64 userAccount);
 
 private slots:
     void on_RegisterRequestLogin_clicked();

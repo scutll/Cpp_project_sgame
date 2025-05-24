@@ -21,6 +21,7 @@ public:
 private:
     QThread* chat_thread = nullptr;
     ClientNetworkManager* client_network_manager = nullptr;
+    bool userLogined = false;
 
 public:
     void setUserName(const QString& userName);
@@ -39,6 +40,7 @@ public:
     void dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void dealUserDisconnected(const QString& userName);
     void dealNoticeUserLogined(const qint64 userAccount,const QString& userName);
+    void dealAccountAlreadyLogined(const qint64 userAccount);
     void dealconnectErrorSignal(const QString& error);
     void dealServerDisconnected();
     void dealRefuseLoginSignal(const qint64 userAccount);
@@ -67,6 +69,7 @@ signals:
     void INTERFACE_NoticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
     void INTERFACE_dealUserDisconnected(const QString& userName);
     void INTERFACE_dealUserLogined(const QString& userName);
+    void INTERFACE_AccountAlreadyLogined(const qint64 userAccount);
     void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
     void INTERFACE_dealConnnectError(const QString &error);
     void INTERFACE_ServerDisconnected();

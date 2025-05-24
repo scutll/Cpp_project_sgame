@@ -51,6 +51,7 @@ void Client::connect_Init() {
     //请求登录
     connect(this,&Client::SendLoginRequest,this->client_network_manager,&ClientNetworkManager::dealSendLoginRequest,Qt::QueuedConnection);
     connect(this->client_network_manager,&ClientNetworkManager::RefuseLoginSignal,this,&Client::dealRefuseLoginSignal,Qt::QueuedConnection);
+    connect(this->client_network_manager,&ClientNetworkManager::AccountAlreadyLoginedSignal,this,&Client::dealAccountAlreadyLogined,Qt::QueuedConnection);
 
     //请求修改用户名
     connect(this,&Client::NameModifyRequest,this->client_network_manager,&ClientNetworkManager::dealNameModifyRequest,Qt::QueuedConnection);
@@ -130,10 +131,16 @@ void Client::dealRefuseLoginSignal(const qint64 userAccount) {
 
 void Client::dealNoticeUserLogined(const qint64 userAccount,const QString& userName) {
     if (GLOB_UserAccount == userAccount) {
+        userLogined = true;
         emit this->INTERFACE_LoginAccepted(userAccount,userName);
     }
     emit this->INTERFACE_dealUserLogined(userName);
 
+}
+
+void Client::dealAccountAlreadyLogined(const qint64 userAccount) {
+    if(GLOB_UserAccount == userAccount)
+        emit INTERFACE_AccountAlreadyLogined(userAccount);
 }
 
 void Client::dealNoticeRepeatedNameRejected(const qint64 userAccount) {
@@ -149,6 +156,9 @@ void Client::dealNoticeNameModified(const qint64 userAccount,const QString& user
 }
 
 void Client::dealNoticeAccountOccupied(const qint64 userAccount) {
+    if(this->userLogined)
+        return;
+
     emit this->INTERFACE_NoticeAccountOccupied(userAccount);
 }
 
