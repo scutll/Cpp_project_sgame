@@ -18,4 +18,3 @@ TcpServer::~TcpServer() {
 void TcpServer::incomingConnection(qintptr handle) {
     emit this->newClientConnected(handle);
 }
-

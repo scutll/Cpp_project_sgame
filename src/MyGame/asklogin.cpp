@@ -63,4 +63,3 @@ void AskLogin::on_LoginRequestBtn_clicked()
 
     accept();
 }
-

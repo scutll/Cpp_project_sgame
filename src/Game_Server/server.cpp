@@ -185,26 +185,6 @@ void Server::run() {
 }
 
 
-// void Server::run(){
-//     while(true){
-//         QMutexLocker locker(&queuemutex);
-//         if(this->matching_players_list.size() >= 2){
-//             QTcpSocket* player1 = matching_players_list.front();
-//             matching_players_list.pop();
-//             QTcpSocket* player2 = matching_players_list.front();
-//             matching_players_list.pop();
-
-//             locker.unlock();
-
-//             match_two(player1,player2);
-
-//         }
-//     }
-// }
-
-
-
-
 //消息协议格式 quint16(长度) + quint16(类型) + QString/package
 
 void Server::recv_msg(){

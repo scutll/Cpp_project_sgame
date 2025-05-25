@@ -47,4 +47,3 @@ void send_msg(QTcpSocket* socket,const QString msg){
 
     socket->write(bytes);
 }
-

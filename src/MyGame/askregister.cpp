@@ -50,4 +50,3 @@ void AskRegister::on_RegisterBtn_clicked()
     }
     accept();
 }
-

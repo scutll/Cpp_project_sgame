@@ -24,6 +24,9 @@ public:
     void SaveUserPsw(const qint64 userAccount, const QString& password);
     int checkLoginInfo(const qint64 userAccount,const QString& userPassword);       //0允许登录，1账号或密码错误，2用户已登录
     QString getUserName(const qint64 userAccount);
+    qint64 getUserAccount(const QString& userName);
+    void saveUnsentMessage(const QString& senderName,const QString& receiverName,const QString& message);
+    void sendUnsentMessage(const qint64 userAccount,const QString& userName);
     bool nameExists(const QString& userName);
     bool AccountLogined(const qint64 userAccount);
     bool accountOccupied(const qint64 userAccount);
@@ -44,6 +47,7 @@ private:
     QVector<QString> existingUsers;     //这个暂时没有用，只是查看现在用户，但用户改名后并不会修改里面的旧名字
     QString UserInfoPath;
     QString UserPasswordPath;
+    QString UserUnsentMessagePath;
 
 signals:
     void transferAccountAlreadyLogined(const qint64 userAccount);

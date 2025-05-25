@@ -29,6 +29,13 @@ ChatServer::ChatServer(QObject *parent)
             qDebug() << "UserPassword 文件夹创建失败";
     }
 
+    UserUnsentMessagePath = QCoreApplication::applicationDirPath() + "/UnsentMessage/";
+    if (!infodir.exists("UnsentMessage")) {
+        qDebug() << "UnsentMessage文件夹不存在，正在初始化......";
+        if (!infodir.mkdir("UnsentMessage"))
+            qDebug() << "UnsentMessage 文件夹创建失败";
+    }
+
 }
 
 ChatServer::~ChatServer() {
@@ -176,6 +183,7 @@ void ChatServer::dealNewClientLogin(const qint64 userAccount,const QString &user
 
     QString usrName = getUserName(userAccount);
     emit transferNewClientLogin(userAccount,usrName);
+    sendUnsentMessage(userAccount,usrName);
     dealUpdateLocalUserData(usrName,"1");
 }
 
@@ -323,11 +331,85 @@ QString ChatServer::getUserName(const qint64 userAccount) {
 
 }
 
+qint64 ChatServer::getUserAccount(const QString &userName) {
+    QDir dir(this->UserInfoPath);
+    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
+    foreach(const QFileInfo& fileinfo, fileList) {
+        QString fileName = UserInfoPath + fileinfo.fileName();
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qDebug() << "无法打开用户信息文件 " + fileName << " : " << file.errorString();
+            return 0;
+        }
+        QDataStream in(&file);
+        in.setVersion(QDataStream::Qt_6_8);
+
+        qint64 account;
+        QString Name;
+        in >> account;
+        in >> Name;
+
+        if (userName == Name) {
+            qDebug() << "找到了: " << account << Name;
+            return account;
+
+        }
+    }
+    return 0;
+}
+
+void ChatServer::saveUnsentMessage(const QString& senderName,const QString& receiverName,const QString& message) {
+    QString filename = this->UserUnsentMessagePath + QString::number(getUserAccount(receiverName)) + ".usm";
+    QFile userInfoFile(filename);
+
+    if (!userInfoFile.open(QIODevice::Append)) {
+        qDebug() << "保存未发送信息---无法打开用户信息文件 " + filename << " : " << userInfoFile.errorString();
+        return;
+    }
+    QDataStream out(&userInfoFile);
+    out.setVersion(QDataStream::Qt_6_8);
+
+    out << senderName << message;
+
+    qDebug() << "存入未发送消息: " << "from " << senderName << " to " << receiverName << " : " << message;
+
+}
+
+void ChatServer::sendUnsentMessage(const qint64 userAccount, const QString &userName) {
+    qDebug() << "正在查询未发送信息 of: " << userAccount;
+    QString filename = this->UserUnsentMessagePath + QString::number(userAccount) + ".usm";
+    QFile unsentFile(filename);
+
+    if (!unsentFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "查询未发送信息---无法打开用户信息文件 " + filename << " : " << unsentFile.errorString();
+        return;
+    }
+    QString sender;
+    QString receiver = userName;
+    QString message;
+
+    QDataStream in(&unsentFile);
+    in.setVersion(QDataStream::Qt_6_8);
+    while (!in.atEnd()) {
+        in >> sender >> message;
+        emit transferAcceptUserNormalMessage(sender,receiver,message);
+    }
+    unsentFile.close();
+
+    QFile resizefile(filename);
+    resizefile.open(QIODevice::WriteOnly);
+    resizefile.close();
+}
+
+
+
 
 void ChatServer::dealAcceptUserNormalMessage(const QString &senderName, const QString &receiverName,
     const QString &message) {
-    emit transferAcceptUserNormalMessage(senderName,receiverName,message);
-
+    if (AccountLogined(getUserAccount(receiverName)))
+        emit transferAcceptUserNormalMessage(senderName,receiverName,message);
+    qDebug() << receiverName << "未登录，缓存到Unsent区";
+    saveUnsentMessage(senderName,receiverName,message);
 }
 
 
@@ -364,5 +446,3 @@ void ChatServer::SaveUserPsw(const qint64 userAccount, const QString& password) 
 
     usrAccountPasswordFile.close();
 }
-
-
