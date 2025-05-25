@@ -358,7 +358,7 @@ qint64 ChatServer::getUserAccount(const QString &userName) {
     return 0;
 }
 
-void ChatServer::saveUnsentMessage(const QString& senderName,const QString& receiverName,const QString& message) {
+void ChatServer::saveUnsentMessage(const QString& senderName,const QString& receiverName,const QString& message,const QString& sendTime) {
     QString filename = this->UserUnsentMessagePath + QString::number(getUserAccount(receiverName)) + ".usm";
     QFile userInfoFile(filename);
 
@@ -369,9 +369,9 @@ void ChatServer::saveUnsentMessage(const QString& senderName,const QString& rece
     QDataStream out(&userInfoFile);
     out.setVersion(QDataStream::Qt_6_8);
 
-    out << senderName << message;
+    out << senderName << message << sendTime;
 
-    qDebug() << "存入未发送消息: " << "from " << senderName << " to " << receiverName << " : " << message;
+    qDebug() << "存入未发送消息: " << sendTime << " from " << senderName << " to " << receiverName << " : " << message;
 
 }
 
@@ -387,12 +387,13 @@ void ChatServer::sendUnsentMessage(const qint64 userAccount, const QString &user
     QString sender;
     QString receiver = userName;
     QString message;
+    QString sendTime;
 
     QDataStream in(&unsentFile);
     in.setVersion(QDataStream::Qt_6_8);
     while (!in.atEnd()) {
-        in >> sender >> message;
-        emit transferAcceptUserNormalMessage(sender,receiver,message);
+        in >> sender >> message >> sendTime;
+        emit transferAcceptUserNormalMessage(sender,receiver,message,sendTime);
     }
     unsentFile.close();
 
@@ -405,11 +406,11 @@ void ChatServer::sendUnsentMessage(const qint64 userAccount, const QString &user
 
 
 void ChatServer::dealAcceptUserNormalMessage(const QString &senderName, const QString &receiverName,
-    const QString &message) {
+    const QString &message,const QString& sendTime) {
     if (AccountLogined(getUserAccount(receiverName)))
-        emit transferAcceptUserNormalMessage(senderName,receiverName,message);
+        emit transferAcceptUserNormalMessage(senderName,receiverName,message,sendTime);
     qDebug() << receiverName << "未登录，缓存到Unsent区";
-    saveUnsentMessage(senderName,receiverName,message);
+    saveUnsentMessage(senderName,receiverName,message,sendTime);
 }
 
 

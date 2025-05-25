@@ -25,7 +25,7 @@ public:
     int checkLoginInfo(const qint64 userAccount,const QString& userPassword);       //0允许登录，1账号或密码错误，2用户已登录
     QString getUserName(const qint64 userAccount);
     qint64 getUserAccount(const QString& userName);
-    void saveUnsentMessage(const QString& senderName,const QString& receiverName,const QString& message);
+    void saveUnsentMessage(const QString& senderName,const QString& receiverName,const QString& message,const QString& sendTime);
     void sendUnsentMessage(const qint64 userAccount,const QString& userName);
     bool nameExists(const QString& userName);
     bool AccountLogined(const qint64 userAccount);
@@ -37,7 +37,7 @@ private:
     void dealUpdateLocalUserData(const QString& userName,const QString& type);
     void dealClientDisconnected(int socket_id);
     void dealNewClientLogin(const qint64 userAccount,const QString& userPassword);
-    void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
+    void dealAcceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message,const QString& sendTime);
     void dealModifyName(const qint64 userAccount,const QString& newName);
     void updateUserName(const qint64 userAccount,const QString& newName);
     void dealRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName);
@@ -53,7 +53,7 @@ signals:
     void transferAccountAlreadyLogined(const qint64 userAccount);
     void transferNoticeDisconnected(const QString& userName);
     void transferNewClientLogin(const qint64 userAccount,const QString& userName);
-    void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg);
+    void transferAcceptUserNormalMessage(const QString& SenderUserName, const QString& receiverUserName, const QString& msg,const QString& sendTime);
     void transferRefuseLogin(const qint64 userAccount);
     void transferRejectRepeatedName(const qint64 userAccount);
     void transferUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);

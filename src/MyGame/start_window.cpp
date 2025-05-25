@@ -90,7 +90,7 @@ void start_window::on_online_game_clicked()
         return;
 
     matching = true;
-    msg_os("正在连接游戏服务器......");
+    app_msg("game服务器","正在连接游戏服务器......");
 
     this->GameServer = new PlayerConnector;
 
@@ -116,57 +116,46 @@ void start_window::on_Awake_signal(){
 }
 
 void start_window::app_msg(const QString& sender,const QString& message,bool error){
-    QString messageLine = "[" + sender + "] " + message;
+    QString messageLine = message;
+
+    QStandardItem *_Line = new QStandardItem(QString("[" + sender + "] "));
+    model->appendRow(_Line);
+
+    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
+    ui->msg_list_window->scrollTo(lastIndex);
 
     QStandardItem *item = new QStandardItem(messageLine);
     if(error)
         item->setForeground(QBrush(QColor("red")));
     model->appendRow(item);
 
-    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
+
+    lastIndex = model->index(model->rowCount() - 1, 0);
     ui->msg_list_window->scrollTo(lastIndex);
-}
-
-void start_window::add_msg(const QString msg,bool error){
-    QStandardItem *item = new QStandardItem(msg);
-    if(error)
-        item->setForeground(QBrush(QColor("red")));
-    model->appendRow(item);
-
-    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
-    ui->msg_list_window->scrollTo(lastIndex);
-
-}
-
-void start_window::msg_server(const QString msg){
-    add_msg("[服务器]"+msg);
-}
-void start_window::msg_os(const QString msg,bool error){
-    add_msg("[系统]"+msg,error);
 }
 
 void start_window::onConnectionSucceeded() {
     qDebug() << "Connection succeeded!";
-    msg_os("连接服务器成功，正在匹配：");
+    app_msg("game服务器", "连接服务器成功，正在匹配：");
     GameServer->send_match_request();
     // GameServer->send_msg("hello");
 }
 
 void start_window::onConnectionFailed(const QString &errorMessage) {
     qDebug() << "Connection failed:" << errorMessage;
-    msg_os(errorMessage, true);
+    app_msg("game服务器", errorMessage, true);
     matching = false;
 }
 
 void start_window::onRecv_msg_str(const QString& msg){
-    msg_server(msg);
+    app_msg("game服务器",msg);
 }
 
 void start_window::onRecv_msg_package(const package& pkg){
-    msg_os("匹配成功,正在进入游戏");
+    app_msg("game服务器","匹配成功,正在进入游戏");
 
     for(int i=0;i<36;i++){
-        msg_os(QString::number(pkg.map[i].value));
+        app_msg("game服务器", QString::number(pkg.map[i].value));
     }
 
     this->close();
@@ -309,8 +298,8 @@ void start_window::on_RetryConnectionBtn_clicked()
 }
 
 
-void start_window::dealINTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message){
-    app_msg(senderName,message);
+void start_window::dealINTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message, const QString& sendTime){
+    app_msg(senderName + "--" + sendTime, message);
 }
 
 void start_window::dealINTERFACE_dealUserDisconnected(const QString& userName){

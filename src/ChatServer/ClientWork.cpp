@@ -5,6 +5,7 @@
 #include "ClientWork.h"
 
 #include <bits/fs_fwd.h>
+#include <QDateTime>
 
 ClientWork::ClientWork(const quintptr &handle, QObject *parent) :QObject(parent){
     this->socketDescriptor = handle; //获取套接字描述符
@@ -189,17 +190,17 @@ void ClientWork::noticeUserNameModified(const qint64 userAccount, const QString 
 
 
 
-void ClientWork::sendUserMessageToReceiver(const QString &senderName, const QString& receiverName, const QString &message) {
+void ClientWork::sendUserMessageToReceiver(const QString &senderName, const QString& receiverName, const QString &message,const QString& sendTime) {
     if (this->userName != receiverName && receiverName != QString("All"))
         return;
-    QMetaObject::invokeMethod(this,[this,senderName,message]() {
+    QMetaObject::invokeMethod(this,[this,senderName,message,sendTime]() {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_6_8);
 
         out << quint16(0);
         out << qint16(MSGTYPE::SendNormalMesssage);
-        out << senderName << message;
+        out << senderName << message << sendTime;
 
         out.device()->seek(0);
         out << quint16(block.size() - sizeof(quint16));
@@ -260,10 +261,11 @@ void ClientWork::ReadData() {
             QString sender;
             QString receiver;
             QString message;
+            QDateTime currentTime = QDateTime::currentDateTime();
 
             in >> sender >> receiver >> message;
             qDebug() << "message from " << sender << " to " << receiver << ": " << message;
-            emit acceptUserNormalMessage(sender,receiver,message);
+            emit acceptUserNormalMessage(sender,receiver,message,currentTime.toString("yyyy-MM-dd HH:mm:ss"));
         }
         else if (MSG_TYPE == ModifyNameRequest) {
             QString newName;

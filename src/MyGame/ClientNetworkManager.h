@@ -57,7 +57,7 @@ signals:
     void connectedSignal();
     void RefuseLoginSignal(const qint64 userAccount);
     void noticeUserLogined(const qint64 userAccount,const QString& userName);
-    void acceptNormalMessage(const QString& senderName,const QString& message);
+    void acceptNormalMessage(const QString& senderName,const QString& message, const QString& sendTime);
     void userDisconnectedSignal(const QString& userName);
     void ServerDisconnectedSignal();
 

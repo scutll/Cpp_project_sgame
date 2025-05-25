@@ -37,7 +37,7 @@ signals:
     void NameModifyRequest(const qint64 userAccount,const QString& newName);
     void RegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName);
 public:
-    void dealAcceptNormalMessage(const QString& senderName,const QString& message);
+    void dealAcceptNormalMessage(const QString& senderName,const QString& message, const QString& sendTime);
     void dealUserDisconnected(const QString& userName);
     void dealNoticeUserLogined(const qint64 userAccount,const QString& userName);
     void dealAccountAlreadyLogined(const qint64 userAccount);
@@ -70,7 +70,7 @@ signals:
     void INTERFACE_dealUserDisconnected(const QString& userName);
     void INTERFACE_dealUserLogined(const QString& userName);
     void INTERFACE_AccountAlreadyLogined(const qint64 userAccount);
-    void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
+    void INTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message, const QString& sendTime);
     void INTERFACE_dealConnnectError(const QString &error);
     void INTERFACE_ServerDisconnected();
     void INTERFACE_LoginAccepted(const qint64 userAccount,const QString& userName);

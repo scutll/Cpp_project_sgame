@@ -89,10 +89,11 @@ void ClientNetworkManager::ReadData() {
         else if (MSG_TYPE == MSGTYPE::SendNormalMesssage) {
             QString senderName;
             QString message;
-            in >> senderName >> message;
+            QString sendTime;
+            in >> senderName >> message >> sendTime;
 
             qDebug() << "from: " << senderName << " " << message;
-            emit this->acceptNormalMessage(senderName, message);
+            emit this->acceptNormalMessage(senderName, message, sendTime);
 
 
         }

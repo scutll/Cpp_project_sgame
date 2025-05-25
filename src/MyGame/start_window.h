@@ -24,10 +24,7 @@ public:
     ~start_window();
 
 public:
-    void add_msg(const QString msg,bool error = false);
     void app_msg(const QString& sender, const QString& message,bool error = false);
-    void msg_server(const QString msg);
-    void msg_os(const QString msg,bool error = false);
     void init_chatclient();
 
     void on_Awake_signal();
@@ -60,7 +57,7 @@ private slots:
 
     void on_RetryConnectionBtn_clicked();
 
-    void dealINTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message);
+    void dealINTERFACE_dealAcceptNormalMessage(const QString& senderName,const QString& message, const QString& sendTime);
 
     void dealINTERFACE_dealUserDisconnected(const QString& userName);
 

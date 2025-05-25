@@ -38,7 +38,7 @@ public:
     void noticeAccountAlreadyLogined(const qint64 userAccount);
     void noticeRejectRepeatedName(const qint64 userAccount);
     void noticeUserNameModified(const qint64 userAccount,const QString& userName,const QString& newName);
-    Q_INVOKABLE void sendUserMessageToReceiver(const QString& senderName, const QString& receiverName,const QString& message);
+    Q_INVOKABLE void sendUserMessageToReceiver(const QString& senderName, const QString& receiverName,const QString& message,const QString& sendTime);
     void noticeRegisterAccepted(const qint64 userAccount,const QString& userName,const QString& extName);
     void noticeAccountOccupied(const qint64 userAccount);
     bool Logined(){return userLogined;}
@@ -64,7 +64,7 @@ signals:
     void updateLocalUserData(const QString& userName,const QString& type);
     void clientDisconnected(int socket_id);
     void newClientLogin(const qint64 userAccount,const QString& userPassword);
-    void acceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message);
+    void acceptUserNormalMessage(const QString& senderName,const QString& receiverName,const QString& message,const QString& sendTime);
     void ModifyUserNameRequest(const qint64 userAccount,const QString& newName);
     void noticeRegisterRequest(const qint64 userAccount,const QString& userPassword,const QString& userName);
 };

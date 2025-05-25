@@ -110,9 +110,9 @@ void Client::setUserName(const QString &userName) {
 }
 
 
-void Client::dealAcceptNormalMessage(const QString &senderName, const QString &message) {
+void Client::dealAcceptNormalMessage(const QString &senderName, const QString &message, const QString& sendTime) {
 
-    emit this->INTERFACE_dealAcceptNormalMessage(senderName,message);
+    emit this->INTERFACE_dealAcceptNormalMessage(senderName,message, sendTime);
 }
 
 
