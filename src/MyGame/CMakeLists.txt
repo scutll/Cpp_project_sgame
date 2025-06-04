@@ -41,6 +41,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Client.cpp Client.h ClientNetworkManager.cpp ClientNetworkManager.h global.cpp global.h
         asklogin.h asklogin.cpp asklogin.ui
         askregister.h askregister.cpp askregister.ui
+        playernetwork.h playernetwork.cpp
+        playerclient.h playerclient.cpp
 
 
     )

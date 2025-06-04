@@ -37,12 +37,25 @@ public:
     // bool saveFile(const QString &filename);
     // bool loadFile(const QString &filename);
 
+    void gameStart(const qint64 playerAccount, const qint64 othPlayer);
+
+    void gameLose(const qint64 loserAccount);
+
+    void gameWin(const qint64 winnerAccount);
+
+    void gameWinQuit(const qint64 playerAccount);
+
+    void GameLoginSuccess(const qint64 playerAccount);
+
+
 signals:
     void Awake_StartWindow();
 
     void GameClosed();
 
-    void finish_online();
+    void finish_online(const qint64 playerAccount);
+
+    void app_msg_Signal(const QString& from, const QString& message, bool warning = false);
 
 private slots:
     void setPoint(QPushButton* btn);
@@ -63,6 +76,8 @@ private:
 
     bool online;
     Ui::MainWindow *ui;
+    qint64 playerAccount = 0;
+    qint64 othPlayer = 0;
 
 
 protected:

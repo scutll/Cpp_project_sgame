@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QInputDialog>
 #include <QDir>
+#include "global.h"
 #include "askregister.h"
 #include "asklogin.h"
 
@@ -43,6 +44,10 @@ start_window::start_window(QWidget *parent)
     QDir dir(QCoreApplication::applicationDirPath());
     if(!dir.exists("archives"))
         dir.mkdir("archives");
+
+
+    this->playerclient = Q_NULLPTR;
+    this->chatclient = Q_NULLPTR;
 }
 
 start_window::~start_window()
@@ -86,24 +91,34 @@ void start_window::on_online_game_clicked()
 
     // GameServer->send_match_request();
 
+    if(!GLOB_IsConnectedToServer){
+        qDebug() << "未登录";
+        app_msg("系统","用户未登录，无法进行在线游戏");
+        return;
+    }
     if (matching)
         return;
 
     matching = true;
     app_msg("game服务器","正在连接游戏服务器......");
 
-    this->GameServer = new PlayerConnector;
+    playerclient = new PlayerClient(GLOB_UserAccount,this);
+    playerclient->INTERFACE_SendLoginRequest(GLOB_UserAccount);
 
+    if(!this->w){
+        w = new MainWindow;
+        w->init();
 
+        connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
+    }
 
-    connect(GameServer, &PlayerConnector::connectionSucceeded, this, &start_window::onConnectionSucceeded);
-    connect(GameServer, &PlayerConnector::connectionFailed, this, &start_window::onConnectionFailed);
-
-    GameServer->connect_to_server();
-
-
-    connect(GameServer,&PlayerConnector::recv_msg_str,this,&start_window::onRecv_msg_str);
-    connect(GameServer,&PlayerConnector::recv_msg_pakcage,this,&start_window::onRecv_msg_package);
+    connect(this->w,&MainWindow::app_msg_Signal,this,&start_window::app_msg);
+    connect(this->playerclient,&PlayerClient::INTERFACE_LoginAccepted,w,&MainWindow::GameLoginSuccess,Qt::QueuedConnection);
+    connect(this->playerclient,&PlayerClient::INTERFACE_StartGame,w,&MainWindow::gameStart,Qt::QueuedConnection);
+    connect(this->playerclient,&PlayerClient::INTERFACE_LoseGame,w,&MainWindow::gameLose,Qt::QueuedConnection);
+    connect(this->playerclient,&PlayerClient::INTERFACE_WinForQuit,w,&MainWindow::gameWinQuit,Qt::QueuedConnection);
+    connect(this->playerclient,&PlayerClient::INTERFACE_WinGame,w,&MainWindow::gameWin,Qt::QueuedConnection);
+    connect(this->w,&MainWindow::finish_online,this->playerclient,&PlayerClient::INTERFACE_userFinished,Qt::QueuedConnection);
 
 
 }
@@ -255,10 +270,15 @@ void start_window::on_LoginBtn_clicked()
 
             this->temp_password = userPassword;
 
-            if(chatclient)
-                delete chatclient;
+            qDebug() << (void*)chatclient;
 
+
+            if(chatclient != nullptr)
+                delete chatclient;   //把这个删掉就不会崩溃了????????????????????????????????????????????????
+
+            qDebug() << "获取用户输入: " << userAccount << userPassword;
             chatclient = new Client(QString::number(userAccount),userAccount);
+            qDebug() << (void*)chatclient;
             this->init_chatclient();
             clientConnected = true;
             chatclient->INTERFACE_LoginRequest(userAccount,userPassword);

@@ -16,6 +16,7 @@ Client::Client(QWidget* parent) {
 
 Client::Client(const QString &userName, const qint64 &userAccount, QWidget *parent)
     :QWidget(parent){
+    qDebug() << "正在创建聊天客户端:";
     GLOB_UserAccount = userAccount;
     GLOB_UserName = userName;
 

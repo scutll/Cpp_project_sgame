@@ -12,4 +12,5 @@
 extern qint64 GLOB_UserAccount;
 extern QString GLOB_UserName;
 extern bool GLOB_IsConnectedToServer;
+extern bool GLOB_IsConnectedToGameServer;
 #endif //GLOBAL_H

@@ -10,6 +10,7 @@
 #include <QStandardItemModel>
 #include "../ChatClient/Client.h"
 #include "expandablemenu.h"
+#include "playerclient.h"
 #include <QMenu>
 namespace Ui {
 class start_window;
@@ -102,6 +103,8 @@ private:
     bool userLoged = false;
     QString userName = Q_NULLPTR;
     QString temp_password;
+
+    PlayerClient* playerclient;
 
 
 };
