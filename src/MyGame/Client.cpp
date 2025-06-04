@@ -19,6 +19,7 @@ Client::Client(const QString &userName, const qint64 &userAccount, QWidget *pare
     GLOB_UserAccount = userAccount;
     GLOB_UserName = userName;
 
+    qDebug() << userAccount << userName;
     this->chat_thread  = new QThread;
     this->client_network_manager = new ClientNetworkManager;
     this->client_network_manager->moveToThread(this->chat_thread);

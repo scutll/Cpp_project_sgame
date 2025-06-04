@@ -18,6 +18,7 @@
 #include <QInputDialog>
 #include <QApplication>
 #include "../../src/TerminalVersion/utility.inl"
+#include "playerclient.h"
 
 Scene game;
 // 使用两个map。一个map_索引对应按钮，即坐标->按钮。另一个_map按钮对应索引，即btn->text().toInt() -> 坐标
@@ -430,7 +431,7 @@ void MainWindow::Victory_Settlement(){
         emit Awake_StartWindow();
     }
     else if(is_online()){
-        emit finish_online();   //待完善
+        emit finish_online(this->playerAccount);   //待完善
     }
 }
 
@@ -447,3 +448,34 @@ void MainWindow::OfflineMode(){
 bool MainWindow::is_online(){
     return online;
 }
+
+void MainWindow::GameLoginSuccess(const qint64 playerAccount){
+    this->playerAccount = playerAccount;
+
+}
+
+void MainWindow::gameStart(const qint64 playerAccount,const qint64 oth_player){
+    if(this->playerAccount != playerAccount){
+        qDebug() << "用户名不一致!" << this->playerAccount << " != " << playerAccount;
+        return;
+    }
+
+    this->othPlayer = oth_player;
+
+    qDebug() << "游戏开始";
+
+
+}
+
+void MainWindow::gameLose(const qint64 loserAccount){
+    qDebug() << "对方先完成，失败";
+}
+
+void MainWindow::gameWin(const qint64 winnerAccount){
+    qDebug() << "率先完成游戏，成功";
+}
+
+void MainWindow::gameWinQuit(const qint64 playerAccount){
+    qDebug() << "对方退出，胜利";
+}
+

@@ -11,6 +11,7 @@
 #include "../ChatClient/Client.h"
 #include "expandablemenu.h"
 #include <QMenu>
+#include "playerclient.h"
 namespace Ui {
 class start_window;
 }
@@ -26,6 +27,7 @@ public:
 public:
     void app_msg(const QString& sender, const QString& message,bool error = false);
     void init_chatclient();
+    void init_GameWindow();
 
     void on_Awake_signal();
     MainWindow* GameWindow(){
@@ -34,7 +36,7 @@ public:
 
     // void dealReceiverSet(const QString& receiverName);
 
-private slots:
+private slots:   
     void on_offline_game_clicked();
 
     void on_online_game_clicked();
@@ -103,6 +105,7 @@ private:
     QString userName = Q_NULLPTR;
     QString temp_password;
 
+    PlayerClient* playerClient;
 
 };
 

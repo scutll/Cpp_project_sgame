@@ -58,33 +58,30 @@ void start_window::on_offline_game_clicked()
     w->generate_map();
 }
 
+void start_window::init_GameWindow(){
+    if(!this->w){
+        w = new MainWindow;
+        w->init();
+
+        connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
+    }
+
+    connect(this->playerClient,&PlayerClient::INTERFACE_StartGame,w,&MainWindow::gameStart,Qt::QueuedConnection);
+    connect(this->playerClient,&PlayerClient::INTERFACE_LoseGame,w,&MainWindow::gameLose,Qt::QueuedConnection);
+    connect(this->playerClient,&PlayerClient::INTERFACE_WinForQuit,w,&MainWindow::gameWinQuit,Qt::QueuedConnection);
+    connect(this->playerClient,&PlayerClient::INTERFACE_WinGame,w,&MainWindow::gameWin,Qt::QueuedConnection);
+    connect(this->w,&MainWindow::finish_online,this->playerClient,&PlayerClient::INTERFACE_userFinished,Qt::QueuedConnection);
+
+}
+
 
 void start_window::on_online_game_clicked()
 {
-    // qDebug()<<"matching: "<<(matching ? "true" : "false");
-    // if(matching)
-    //     return;
 
-    // matching = true;
-    // // QMessageBox msg;
-    // // msg.setText(tr("匹配中......"));
-    // // msg.information(this,nullptr,tr("匹配中......"));
-    // msg_os("匹配中......");
-    // QApplication::processEvents();//强制处理事件队列中的消息，因为conncet函数里的waitfortimeout是阻塞调用，此时msg_os会被阻塞留在事件队列中无法运行
-    // this->GameServer = new PlayerConnector;
-
-    // bool connect_success;
-    // connect_success = GameServer->connect_to_server();
-    // if(!connect_success){
-    //     qDebug()<<"connection failed";
-    //     msg_os("连接服务器失败", true);
-    //     // if(msg.isVisible())
-    //     //     msg.close();
-    //     matching = false;
-    //     return;
-    // }
-
-    // GameServer->send_match_request();
+    if(!this->clientConnected){
+        app_msg("系统","未登录，无法进入多人游戏");
+        return;
+    }
 
     if (matching)
         return;
@@ -92,18 +89,24 @@ void start_window::on_online_game_clicked()
     matching = true;
     app_msg("game服务器","正在连接游戏服务器......");
 
-    this->GameServer = new PlayerConnector;
+
+    this->playerClient = new PlayerClient(GLOB_UserAccount);
+    playerClient->INTERFACE_SendLoginRequest(GLOB_UserAccount);
+
+    this->init_GameWindow();
+
+    connect(this->playerClient,&PlayerClient::INTERFACE_LoginAccepted,this->w,&MainWindow::GameLoginSuccess,Qt::QueuedConnection);
+
+    // this->GameServer = new PlayerConnector;
+
+    // connect(GameServer, &PlayerConnector::connectionSucceeded, this, &start_window::onConnectionSucceeded);
+    // connect(GameServer, &PlayerConnector::connectionFailed, this, &start_window::onConnectionFailed);
+
+    // GameServer->connect_to_server();
 
 
-
-    connect(GameServer, &PlayerConnector::connectionSucceeded, this, &start_window::onConnectionSucceeded);
-    connect(GameServer, &PlayerConnector::connectionFailed, this, &start_window::onConnectionFailed);
-
-    GameServer->connect_to_server();
-
-
-    connect(GameServer,&PlayerConnector::recv_msg_str,this,&start_window::onRecv_msg_str);
-    connect(GameServer,&PlayerConnector::recv_msg_pakcage,this,&start_window::onRecv_msg_package);
+    // connect(GameServer,&PlayerConnector::recv_msg_str,this,&start_window::onRecv_msg_str);
+    // connect(GameServer,&PlayerConnector::recv_msg_pakcage,this,&start_window::onRecv_msg_package);
 
 
 }
@@ -116,21 +119,15 @@ void start_window::on_Awake_signal(){
 }
 
 void start_window::app_msg(const QString& sender,const QString& message,bool error){
-    QString messageLine = message;
-
-    QStandardItem *_Line = new QStandardItem(QString("[" + sender + "] "));
-    model->appendRow(_Line);
-
-    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
-    ui->msg_list_window->scrollTo(lastIndex);
+    QString messageLine = QString("[" + sender + "] ") + message;
 
     QStandardItem *item = new QStandardItem(messageLine);
     if(error)
         item->setForeground(QBrush(QColor("red")));
+
     model->appendRow(item);
 
-
-    lastIndex = model->index(model->rowCount() - 1, 0);
+    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
     ui->msg_list_window->scrollTo(lastIndex);
 }
 
@@ -252,6 +249,7 @@ void start_window::on_LoginBtn_clicked()
         if(loginDialog->exec() == QDialog::Accepted){
             userAccount = loginDialog->getUserAccount();
             userPassword = loginDialog->getUserPassword();
+
 
             this->temp_password = userPassword;
 

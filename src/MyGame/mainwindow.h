@@ -36,15 +36,25 @@ public:
     // bool saveAs();
     // bool saveFile(const QString &filename);
     // bool loadFile(const QString &filename);
+    void gameStart(const qint64 playerAccount, const qint64 othPlayer);
+
+    void gameLose(const qint64 loserAccount);
+
+    void gameWin(const qint64 winnerAccount);
+
+    void gameWinQuit(const qint64 playerAccount);
+
+    void GameLoginSuccess(const qint64 playerAccount);
 
 signals:
     void Awake_StartWindow();
 
     void GameClosed();
 
-    void finish_online();
+    void finish_online(const qint64 userAccount);
 
 private slots:
+
     void setPoint(QPushButton* btn);
 
     void on_save_game_triggered();
@@ -60,6 +70,8 @@ private:
     QString curFile;
     Archives* arc;
     std::tm start_time_;
+    qint64 playerAccount = 0;
+    qint64 othPlayer = 0;
 
     bool online;
     Ui::MainWindow *ui;
