@@ -172,28 +172,36 @@ void GameClientWork::ReadData(){
         if(MSG_TYPE == MSGTYPE::LoginRequest){
             qint64 playerAccount;
             in >> playerAccount;
+            qDebug() << "收到登录请求: " << playerAccount;
             if(battling)
                 return;
             this->playerAccount = playerAccount;
+            qDebug() << playerAccount << " 登录中";
             emit playerLogined(this->playerAccount);
         }
         else if(MSG_TYPE == MSGTYPE::MatchRequest){
             qint64 playerAccount;
             in >> playerAccount;
+            qDebug() << "收到匹配请求: " << playerAccount;
             if(this->playerAccount && this->playerAccount == playerAccount && !this->battling){
+                qDebug() << "向服务器发送匹配请求";
                 emit joinMatching(playerAccount);
             }
         }
         else if(MSG_TYPE == MSGTYPE::PlayerQuited){
+            
             qint64 quiterAccount;
             in >> quiterAccount;
+            qDebug() << "用户退出: " << quiterAccount;
             emit this->noticeOneQuited(quiterAccount);
         }
         else if(MSG_TYPE == MSGTYPE::PlayerFinished){
             qint64 winnerAccount;
             in >> winnerAccount;
+
             if(winnerAccount != this->playerAccount)
                 return;
+            qDebug() << "用户完成: " << winnerAccount;
             emit this->noticeOneFinished(winnerAccount);
         }
 
