@@ -36,6 +36,7 @@ public:
     // void dealReceiverSet(const QString& receiverName);
 
 private slots:
+    void dealGameClosed();
 
     void OnlineGameStart();
 

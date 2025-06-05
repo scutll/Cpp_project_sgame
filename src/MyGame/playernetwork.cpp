@@ -115,7 +115,6 @@ void PlayerNetwork::dealPlayerQuited(const qint64 playerAccount) {
 void PlayerNetwork::ReadData() {
     QDataStream in(this->socket);
     in.setVersion(QDataStream::Qt_6_8);
-    qDebug() << "message received";
 
     forever{
         if (nextBlockSize == 0) {
@@ -132,6 +131,8 @@ void PlayerNetwork::ReadData() {
             break;
 
         in >> MSG_TYPE;
+
+        qDebug() << "message received type: " <<MSG_TYPE;
 
         if (MSG_TYPE == MSGTYPE::LoginAccepted) {
             qint64 account;
@@ -161,8 +162,10 @@ void PlayerNetwork::ReadData() {
         else if (MSG_TYPE == MSGTYPE::WinWinWin) {
             qint64 winnerAccount;
             in >> winnerAccount;
-            if (this->playerAccount != winnerAccount)
+            if (this->playerAccount != winnerAccount){
+                qDebug() << this->playerAccount << " != " << winnerAccount;
                 return;
+            }
 
             qDebug() << "用户胜利";
             emit noticeWinGame((winnerAccount));
@@ -171,9 +174,10 @@ void PlayerNetwork::ReadData() {
         else if (MSG_TYPE == MSGTYPE::WinForQuit) {
             qint64 playerAccount;
             in >> playerAccount;
-            if (this->playerAccount != playerAccount)
+            if (this->playerAccount != playerAccount){
+                qDebug() << this->playerAccount << " != " << playerAccount;
                 return;
-
+            }
             qDebug() << "对方退出";
             emit noticeWinForQuit(playerAccount);
         }
@@ -181,8 +185,10 @@ void PlayerNetwork::ReadData() {
         else if (MSG_TYPE == MSGTYPE::LoseGame) {
             qint64 loserAccount;
             in >> loserAccount;
-            if (this->playerAccount != loserAccount)
+            if (this->playerAccount != loserAccount){
+                qDebug() << this->playerAccount << " != " << loserAccount;
                 return;
+            }
 
             qDebug() << "对方完成，失败";
 
@@ -199,6 +205,9 @@ void PlayerNetwork::ReadData() {
             }
         }
 
+
+        nextBlockSize = 0;
+        MSG_TYPE = -1;
 
 
     }

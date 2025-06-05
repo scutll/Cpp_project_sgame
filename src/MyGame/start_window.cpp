@@ -93,6 +93,7 @@ void start_window::on_online_game_clicked()
         w = new MainWindow;
         w->init();
 
+
         connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
     }
 
@@ -109,6 +110,11 @@ void start_window::on_online_game_clicked()
 
 
 }
+
+void start_window::dealGameClosed() {
+    playerclient->INTERFACE_userQuited(GLOB_UserAccount);
+}
+
 
 void start_window::on_Awake_signal(){
     w->close();
@@ -135,38 +141,6 @@ void start_window::app_msg(const QString& sender,const QString& message,bool err
     lastIndex = model->index(model->rowCount() - 1, 0);
     ui->msg_list_window->scrollTo(lastIndex);
 }
-
-// void start_window::onConnectionSucceeded() {
-//     qDebug() << "Connection succeeded!";
-//     app_msg("game服务器", "连接服务器成功，正在匹配：");
-//     // GameServer->send_match_request();
-//     // GameServer->send_msg("hello");
-// }
-
-// void start_window::onConnectionFailed(const QString &errorMessage) {
-//     qDebug() << "Connection failed:" << errorMessage;
-//     app_msg("game服务器", errorMessage, true);
-//     matching = false;
-// }
-
-// void start_window::onRecv_msg_str(const QString& msg){
-//     app_msg("game服务器",msg);
-// }
-
-// void start_window::onRecv_msg_package(const package& pkg){
-//     app_msg("game服务器","匹配成功,正在进入游戏");
-
-//     for(int i=0;i<36;i++){
-//         app_msg("game服务器", QString::number(pkg.map[i].value));
-//     }
-
-//     this->close();
-
-//     w->show();
-//     w->generate_map();
-
-//     w->load_game_and_generate(pkg);
-// }
 
 void start_window::gameClosed(){
     this->show();
@@ -478,6 +452,7 @@ void start_window::dealINTERFACE_noticeRegisterAccepted(const qint64 userAccount
 
 
 void start_window::init_chatclient(){
+    connect(this->w,&MainWindow::close,this,&start_window::dealGameClosed,Qt::QueuedConnection);
     connect(chatclient,&Client::INTERFACE_dealUserDisconnected,this,&start_window::dealINTERFACE_dealUserDisconnected);
     connect(chatclient,&Client::INTERFACE_dealUserLogined,this,&start_window::dealINTERFACE_dealUserLogined);
     connect(chatclient,&Client::INTERFACE_dealAcceptNormalMessage,this,&start_window::dealINTERFACE_dealAcceptNormalMessage);

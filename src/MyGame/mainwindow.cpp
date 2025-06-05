@@ -451,6 +451,7 @@ bool MainWindow::is_online(){
 
 void MainWindow::GameLoginSuccess(const qint64 playerAccount){
     this->playerAccount = playerAccount;
+    this->setWindowTitle(QString::number(this->playerAccount));
 
     emit this->app_msg_Signal("game服务器", "登录成功");
 }
@@ -464,6 +465,7 @@ void MainWindow::gameStart(const qint64 playerAccount,const qint64 oth_player, c
     this->othPlayer = oth_player;
     load_game_and_generate(newGame);
 
+    emit app_msg_Signal("游戏服务器", "匹配成功，游戏开始，对战玩家: " + QString::number(this->othPlayer),false);
     emit noticeGameStarted();
     qDebug() << "游戏开始";
 
@@ -471,14 +473,17 @@ void MainWindow::gameStart(const qint64 playerAccount,const qint64 oth_player, c
 }
 
 void MainWindow::gameLose(const qint64 loserAccount){
+    emit app_msg_Signal("游戏服务器", QString::number(this->othPlayer) + " 先完成，对战失败!",false);
     qDebug() << "对方先完成，失败";
 }
 
 void MainWindow::gameWin(const qint64 winnerAccount){
+    emit app_msg_Signal("游戏服务器", "完成游戏，胜利! ",false);
     qDebug() << "率先完成游戏，成功";
 }
 
 void MainWindow::gameWinQuit(const qint64 playerAccount){
+    emit app_msg_Signal("游戏服务器", QString::number(this->othPlayer) + " 已退出游戏，您取得胜利",false);
     qDebug() << "对方退出，胜利";
 }
 

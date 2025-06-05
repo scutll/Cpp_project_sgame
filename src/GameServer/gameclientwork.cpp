@@ -64,9 +64,11 @@ void GameClientWork::dealtransferMatchSuccess(const qint64 playerAccount, const 
     out << quint16(0);
     out << qint16(MSGTYPE::MatchSuccess);
     if(this->playerAccount == playerAccount){
+        qDebug() << "匹配成功 " << playerAccount << " vs " << oth_player;
         out << playerAccount << oth_player;
     }
     else if(this->playerAccount == oth_player){
+        qDebug() << "匹配成功 " << oth_player << " vs " << playerAccount;
         out << oth_player << playerAccount;
     }
 
@@ -75,7 +77,6 @@ void GameClientWork::dealtransferMatchSuccess(const qint64 playerAccount, const 
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));
 
-    qDebug() << "匹配成功 " << playerAccount << " vs " << oth_player;
 
     this->socket->write(block);
 }
@@ -92,7 +93,7 @@ void GameClientWork::dealtransferWaitingForMatching(const qint64 playerAccount){
     out << playerAccount;
 
     out.device()->seek(0);
-    out << quint64(block.size() - sizeof(quint16));
+    out << quint16(block.size() - sizeof(quint16));
 
     qDebug() << playerAccount << "正在等待匹配";
     this->socket->write(block);
@@ -111,8 +112,8 @@ void GameClientWork::SendWinMessage_Quit(const qint64 winnerAccount){
     out << winnerAccount;
 
     out.device()->seek(0);
-    out << quint64(block.size() - sizeof(quint16));
-
+    out << quint16(block.size() - sizeof(quint16));
+    qDebug() << "发送信息: " << playerAccount << " 获胜";
     this->socket->write(block);
 
 }
@@ -129,8 +130,8 @@ void GameClientWork::SendWinMessage(const qint64 winnerAccount){
     out << winnerAccount;
 
     out.device()->seek(0);
-    out << quint64(block.size() - sizeof(quint16));
-
+    out << quint16(block.size() - sizeof(quint16));
+    qDebug() << "发送信息: " << winnerAccount << " 获胜";
     this->socket->write(block);
 }
 
@@ -146,8 +147,8 @@ void GameClientWork::SendLoseMessage(const qint64 loserAccount){
     out << loserAccount;
 
     out.device()->seek(0);
-    out << quint64(block.size() - sizeof(quint16));
-
+    out << quint16(block.size() - sizeof(quint16));
+    qDebug() << "发送信息: " << loserAccount << " 失败";
     this->socket->write(block);
 }
 

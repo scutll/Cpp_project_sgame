@@ -77,7 +77,12 @@ void GameServer::dealJoinMatching(const qint64 playerAccount){
         playing_pairs.push_back(QPair<qint64,qint64> (playerAccount,oth_player));
         game.generate();
 
-        emit this->transferMatchSucess(playerAccount,oth_player,game.package_());
+        package pkg = game.package_();
+        for (int i = 0 ; i < 36 ; i++) {
+            pkg.map[i].value = i+1;
+        }
+
+        emit this->transferMatchSucess(playerAccount,oth_player,pkg);
         return;
     }
     else if(this->matching_queue.size() < 1){
