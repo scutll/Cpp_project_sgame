@@ -35,9 +35,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         scene.h
         start_window.h start_window.cpp start_window.ui
         archives.h archives.cpp archives.ui
-        player_connect.cpp
-        player_connect.h
-        player_connect.cpp
+
+
+
         Client.cpp Client.h ClientNetworkManager.cpp ClientNetworkManager.h global.cpp global.h
         asklogin.h asklogin.cpp asklogin.ui
         askregister.h askregister.cpp askregister.ui

@@ -37,7 +37,7 @@ public:
     // bool saveFile(const QString &filename);
     // bool loadFile(const QString &filename);
 
-    void gameStart(const qint64 playerAccount, const qint64 othPlayer);
+    void gameStart(const qint64 playerAccount, const qint64 othPlayer, const package& GamePkg);
 
     void gameLose(const qint64 loserAccount);
 
@@ -49,6 +49,8 @@ public:
 
 
 signals:
+    void noticeGameStarted();
+
     void Awake_StartWindow();
 
     void GameClosed();

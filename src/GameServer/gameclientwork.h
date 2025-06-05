@@ -9,6 +9,8 @@
 #include <QThread>
 #include <QMutex>
 #include <QVector>
+#include "../../src/TerminalVersion/scene.h"
+#include "../../src/TerminalVersion/save_package.h"
 
 class GameClientWork : public QObject
 {
@@ -31,7 +33,7 @@ public:
     int socketId(){return socket_id;}
     void noticePlayerLogined(const qint64 playerAccount);
     void dealtransferWaitingForMatching(const qint64 playerAccount);
-    void dealtransferMatchSuccess(const qint64 playerAccount, const qint64 oth_player);
+    void dealtransferMatchSuccess(const qint64 playerAccount, const qint64 oth_player, const package& Game);
     void SendWinMessage_Quit(const qint64 winnerAccount);
     void SendWinMessage(const qint64 winnerAccount);
     void SendLoseMessage(const qint64 loserAccount);

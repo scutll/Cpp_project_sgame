@@ -50,6 +50,7 @@ void PlayerClient::connect_Init() {
     connect(this->player_network_manager,&PlayerNetwork::LoginAcceptedSignal,this,&PlayerClient::dealLoginAccepted,Qt::QueuedConnection);
 
     //匹配开始游戏
+    connect(this,&PlayerClient::SendMatchRequest,this->player_network_manager,&PlayerNetwork::dealSendMatchRequest,Qt::QueuedConnection);
     connect(this->player_network_manager,&PlayerNetwork::StartGame,this,&PlayerClient::dealStartGame,Qt::QueuedConnection);
     connect(this,&PlayerClient::playerQuited,this->player_network_manager,&PlayerNetwork::dealPlayerQuited,Qt::QueuedConnection);
     connect(this,&PlayerClient::playerFinished,this->player_network_manager,&PlayerNetwork::dealPlayerFinished,Qt::QueuedConnection);
@@ -70,14 +71,14 @@ void PlayerClient::dealLoginAccepted(const qint64 playerAccount) {
 }
 
 
-void PlayerClient::dealStartGame(const qint64 playerAccount, const qint64 oth_player) {
+void PlayerClient::dealStartGame(const qint64 playerAccount, const qint64 oth_player, const package& newGame) {
 
     if (battling) {
         qDebug() << "battling with: " << this->otherPlayer;
         return;
     }
 
-    emit this->INTERFACE_StartGame(playerAccount,oth_player);
+    emit this->INTERFACE_StartGame(playerAccount,oth_player, newGame);
     this->battling = true;
     this->otherPlayer = oth_player;
 }
@@ -117,6 +118,11 @@ void PlayerClient::INTERFACE_userFinished(const qint64 winnerAccount) {
 void PlayerClient::INTERFACE_SendLoginRequest(const qint64 playerAccount) {
     emit this->SendLoginRequest(playerAccount);
 }
+
+void PlayerClient::INTERFACE_SendMatchRequest(const qint64 playerAccount) {
+    emit this->SendMatchRequest(playerAccount);
+}
+
 
 
 

@@ -455,14 +455,16 @@ void MainWindow::GameLoginSuccess(const qint64 playerAccount){
     emit this->app_msg_Signal("game服务器", "登录成功");
 }
 
-void MainWindow::gameStart(const qint64 playerAccount,const qint64 oth_player){
+void MainWindow::gameStart(const qint64 playerAccount,const qint64 oth_player, const package& newGame){
     if(this->playerAccount != playerAccount){
         qDebug() << "用户名不一致!" << this->playerAccount << " != " << playerAccount;
         return;
     }
 
     this->othPlayer = oth_player;
+    load_game_and_generate(newGame);
 
+    emit noticeGameStarted();
     qDebug() << "游戏开始";
 
 

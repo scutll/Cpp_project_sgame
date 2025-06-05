@@ -57,7 +57,7 @@ start_window::~start_window()
 
 void start_window::on_offline_game_clicked()
 {
-    this->close();
+
     w->OfflineMode();
     w->show();
     w->generate_map();
@@ -66,30 +66,14 @@ void start_window::on_offline_game_clicked()
 
 void start_window::on_online_game_clicked()
 {
-    // qDebug()<<"matching: "<<(matching ? "true" : "false");
-    // if(matching)
-    //     return;
+    if (GLOB_IsConnectedToGameServer) {
+        qDebug() << "正在发送匹配请求: ";
+        w->OnlineMode();
+        playerclient->INTERFACE_SendMatchRequest(GLOB_UserAccount);
+        app_msg("游戏服务器", "正在匹配中......");
+        return;
+    }
 
-    // matching = true;
-    // // QMessageBox msg;
-    // // msg.setText(tr("匹配中......"));
-    // // msg.information(this,nullptr,tr("匹配中......"));
-    // msg_os("匹配中......");
-    // QApplication::processEvents();//强制处理事件队列中的消息，因为conncet函数里的waitfortimeout是阻塞调用，此时msg_os会被阻塞留在事件队列中无法运行
-    // this->GameServer = new PlayerConnector;
-
-    // bool connect_success;
-    // connect_success = GameServer->connect_to_server();
-    // if(!connect_success){
-    //     qDebug()<<"connection failed";
-    //     msg_os("连接服务器失败", true);
-    //     // if(msg.isVisible())
-    //     //     msg.close();
-    //     matching = false;
-    //     return;
-    // }
-
-    // GameServer->send_match_request();
 
     if(!GLOB_IsConnectedToServer){
         qDebug() << "未登录";
@@ -113,12 +97,15 @@ void start_window::on_online_game_clicked()
     }
 
     connect(this->w,&MainWindow::app_msg_Signal,this,&start_window::app_msg);
+    connect(this->w,&MainWindow::noticeGameStarted,this,&start_window::OnlineGameStart,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_LoginAccepted,w,&MainWindow::GameLoginSuccess,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_StartGame,w,&MainWindow::gameStart,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_LoseGame,w,&MainWindow::gameLose,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_WinForQuit,w,&MainWindow::gameWinQuit,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_WinGame,w,&MainWindow::gameWin,Qt::QueuedConnection);
     connect(this->w,&MainWindow::finish_online,this->playerclient,&PlayerClient::INTERFACE_userFinished,Qt::QueuedConnection);
+
+
 
 
 }
@@ -149,40 +136,46 @@ void start_window::app_msg(const QString& sender,const QString& message,bool err
     ui->msg_list_window->scrollTo(lastIndex);
 }
 
-void start_window::onConnectionSucceeded() {
-    qDebug() << "Connection succeeded!";
-    app_msg("game服务器", "连接服务器成功，正在匹配：");
-    GameServer->send_match_request();
-    // GameServer->send_msg("hello");
-}
+// void start_window::onConnectionSucceeded() {
+//     qDebug() << "Connection succeeded!";
+//     app_msg("game服务器", "连接服务器成功，正在匹配：");
+//     // GameServer->send_match_request();
+//     // GameServer->send_msg("hello");
+// }
 
-void start_window::onConnectionFailed(const QString &errorMessage) {
-    qDebug() << "Connection failed:" << errorMessage;
-    app_msg("game服务器", errorMessage, true);
-    matching = false;
-}
+// void start_window::onConnectionFailed(const QString &errorMessage) {
+//     qDebug() << "Connection failed:" << errorMessage;
+//     app_msg("game服务器", errorMessage, true);
+//     matching = false;
+// }
 
-void start_window::onRecv_msg_str(const QString& msg){
-    app_msg("game服务器",msg);
-}
+// void start_window::onRecv_msg_str(const QString& msg){
+//     app_msg("game服务器",msg);
+// }
 
-void start_window::onRecv_msg_package(const package& pkg){
-    app_msg("game服务器","匹配成功,正在进入游戏");
+// void start_window::onRecv_msg_package(const package& pkg){
+//     app_msg("game服务器","匹配成功,正在进入游戏");
 
-    for(int i=0;i<36;i++){
-        app_msg("game服务器", QString::number(pkg.map[i].value));
-    }
+//     for(int i=0;i<36;i++){
+//         app_msg("game服务器", QString::number(pkg.map[i].value));
+//     }
 
-    this->close();
+//     this->close();
 
-    w->show();
-    w->generate_map();
+//     w->show();
+//     w->generate_map();
 
-    w->load_game_and_generate(pkg);
-}
+//     w->load_game_and_generate(pkg);
+// }
 
 void start_window::gameClosed(){
     this->show();
+}
+
+void start_window::OnlineGameStart() {
+    // this->close();
+    w->OnlineMode();
+    w->show();
 }
 
 // void start_window::dealReceiverSet(const QString &receiverName) {

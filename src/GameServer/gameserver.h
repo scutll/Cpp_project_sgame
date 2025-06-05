@@ -37,13 +37,14 @@ private:
     QMutex mutex;
     QVector<QPair<qint64,qint64>> playing_pairs;
     TcpServer *tcpserver;
+    Scene game;
 
 
 
 signals:
     void transferPlayerLogined(const qint64 playerAccount);
     void transferWaitingForMatching(const qint64 playerAccount);
-    void transferMatchSucess(const qint64 playerAccount,const qint64 oth_player);
+    void transferMatchSucess(const qint64 playerAccount,const qint64 oth_player, const package& Game);
     void PlayerSucceed_Quit(const qint64 winnerAccount);
     void PlayerSucceed_Win(const qint64 winnerAccount);
     void PlayerLose(const qint64 winnerAccount);

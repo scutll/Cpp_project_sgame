@@ -2,7 +2,7 @@
 
 #include <QThread>
 #include "global.h"
-
+package deserialization_Package(QDataStream& stream);
 PlayerNetwork::PlayerNetwork(QObject *parent)
     : QObject{parent}
 {
@@ -57,6 +57,24 @@ void PlayerNetwork::dealSendLoginRequest(const qint64 playerAccount) {
 
     this->socket->write(block);
 }
+
+void PlayerNetwork::dealSendMatchRequest(const qint64 playerAccount) {
+    this->playerAccount = playerAccount;
+
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    qDebug() << "game connect request: " << playerAccount;
+    out << quint16(0);
+    out << qint16(MSGTYPE::MatchRequest);
+
+    out << playerAccount;
+
+    out.device()->seek(0);
+    out << quint16(block.size() - sizeof(quint16));
+
+    this->socket->write(block);
+}
+
 
 
 void PlayerNetwork::dealPlayerFinished(const qint64 playerAccount) {
@@ -132,7 +150,10 @@ void PlayerNetwork::ReadData() {
                 return;
 
             this->otherPlayer = otherPlayer;
-            emit this->StartGame(player, otherPlayer);
+            package newGame;
+            newGame = deserialization_Package(in);
+
+            emit this->StartGame(player, otherPlayer, newGame);
             qDebug() << "游戏开始: " << player << " vs " << otherPlayer;
 
         }
@@ -184,3 +205,31 @@ void PlayerNetwork::ReadData() {
 
 
 }
+
+
+//地图包反序列化
+package deserialization_Package(QDataStream& stream){
+    package pkg;
+
+    for(int i = 0;i < 20;i++){
+        stream >> pkg.archive_name[i];
+    }
+    // 序列化 tm 结构体
+    stream >> pkg.date.tm_sec;
+    stream >> pkg.date.tm_min;
+    stream >> pkg.date.tm_hour;
+    stream >> pkg.date.tm_mday;
+    stream >> pkg.date.tm_mon;
+    stream >> pkg.date.tm_year;
+    stream >> pkg.date.tm_wday;
+    stream >> pkg.date.tm_yday;
+    stream >> pkg.date.tm_isdst;
+
+    for(int i=0;i<36;i++){
+        stream >> pkg.map[i].value;
+        stream >> pkg.map[i].status;
+    }
+
+    return pkg;
+}
+

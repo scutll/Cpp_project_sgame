@@ -36,17 +36,20 @@ public:
     // void dealReceiverSet(const QString& receiverName);
 
 private slots:
+
+    void OnlineGameStart();
+
     void on_offline_game_clicked();
 
     void on_online_game_clicked();
 
-    void onConnectionFailed(const QString &errorMessage);
+    // void onConnectionFailed(const QString &errorMessage);
 
-    void onConnectionSucceeded();
+    // void onConnectionSucceeded();
 
-    void onRecv_msg_str(const QString& msg);
+    // void onRecv_msg_str(const QString& msg);
 
-    void onRecv_msg_package(const package& pkg);
+    // void onRecv_msg_package(const package& pkg);
 
     void gameClosed();
 

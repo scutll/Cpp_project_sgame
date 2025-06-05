@@ -4,6 +4,8 @@
 #include <QMutex>
 #include <QObject>
 #include <QTcpSocket>
+#include "../../src/TerminalVersion/scene.h"
+#include "../../src/TerminalVersion/save_package.h"
 
 class PlayerNetwork : public QObject
 {
@@ -37,12 +39,13 @@ public:
     void dealPlayerQuited(const qint64 playerAccount);
     void dealPlayerFinished(const qint64 playerAccount);
     void dealServerDisconnected();
+    void dealSendMatchRequest(const qint64 playerAccount);
 
 
 signals:
     void LoginAcceptedSignal(const qint64 playerAccount);
     void joinMatching(const qint64 playerAccount);
-    void StartGame(const qint64 playerAccount, const qint64 oth_player);
+    void StartGame(const qint64 playerAccount, const qint64 oth_player, const package& GamePkg);
     void noticeWaitingForMatching(const qint64 playerAccount);
     void noticeWinForQuit(const qint64 winnerAccount);
     void noticeWinGame(const qint64 winnerAccount);

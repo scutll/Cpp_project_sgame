@@ -26,7 +26,7 @@ private:
 public:
     void deletePlayerThread();
     void connect_Init();    //构建GN和Client之间的沟通
-    void dealStartGame(const qint64 playerAccount,const qint64 oth_player);
+    void dealStartGame(const qint64 playerAccount,const qint64 oth_player, const package& NewGame);
     void dealLoginAccepted(const qint64 playerAccount);
     void dealINTERFACE_userQuited(const qint64 playerAccount);
     void dealINTERFACE_userFinished(const qint64 playerAccount);
@@ -37,6 +37,7 @@ public:
 
 signals:
     void SendLoginRequest(const qint64 playerAccount);
+    void SendMatchRequest(const qint64 playerAccount);
     void playerQuited(const qint64 playerAccount);
     void playerFinished(const qint64 playerAccount);
 
@@ -48,10 +49,11 @@ public:
     void INTERFACE_userQuited(const qint64 playerAccount);
     void INTERFACE_userFinished(const qint64 winnerAccount);
     void INTERFACE_SendLoginRequest(const qint64 playerAccount);
+    void INTERFACE_SendMatchRequest(const qint64 playerAccount);
 
 signals:
     void INTERFACE_LoginAccepted(const qint64 playerAccount);
-    void INTERFACE_StartGame(const qint64 playerAccount,const qint64 oth_player);
+    void INTERFACE_StartGame(const qint64 playerAccount,const qint64 oth_player, const package& NewGame);
     void INTERFACE_WinGame(const qint64 winnerAccount);
     void INTERFACE_WinForQuit(const qint64 playerAccount);
     void INTERFACE_LoseGame(const qint64 loserAccount);

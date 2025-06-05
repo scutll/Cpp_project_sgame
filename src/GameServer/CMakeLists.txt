@@ -19,6 +19,7 @@ add_executable(GameServer
   gameserver.h gameserver.cpp
   gameclientwork.h gameclientwork.cpp
   tcpserver.h tcpserver.cpp
+  block.cpp scene.cpp
 )
 target_link_libraries(GameServer PRIVATE Qt6::Core)
 target_link_libraries(GameServer PRIVATE Qt6::Network)

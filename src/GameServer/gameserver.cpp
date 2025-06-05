@@ -1,5 +1,5 @@
 #include "gameserver.h"
-
+QByteArray serialize_Package(const package& pkg);
 GameServer::GameServer(QObject* parent)
     :QObject(parent){
     this->tcpserver = new TcpServer(this);
@@ -71,13 +71,18 @@ void GameServer::dealPlayerLogined(const qint64 playerAccount){
 void GameServer::dealJoinMatching(const qint64 playerAccount){
     QMutexLocker locker(&this->mutex);
     if(this->matching_queue.size() >= 1){
+        qDebug() << "当前匹配队列长度>=1, " << playerAccount << " 可以进入游戏";
         qint64 oth_player = matching_queue.front();
         matching_queue.pop_front();
         playing_pairs.push_back(QPair<qint64,qint64> (playerAccount,oth_player));
-        emit this->transferMatchSucess(playerAccount,oth_player);
+        game.generate();
+
+        emit this->transferMatchSucess(playerAccount,oth_player,game.package_());
         return;
     }
     else if(this->matching_queue.size() < 1){
+
+        qDebug() << "匹配队列无玩家， " << playerAccount << " 需要等待";
         matching_queue.push_back(playerAccount);
         emit this->transferWaitingForMatching(playerAccount);
         return;
@@ -86,7 +91,14 @@ void GameServer::dealJoinMatching(const qint64 playerAccount){
 
 void GameServer::dealOneQuited(const qint64 playerAccount){
     qint64 winnerAccount = FindOtherBattler(playerAccount);
+    if (winnerAccount == 0) {
+        qDebug() << playerAccount << "未进入游戏 " ;
+        return;
+    }
+
+
     qDebug() << playerAccount << "退出, " << winnerAccount << "获胜";
+    qDebug() << "移除匹配对: " << playerAccount << " " << winnerAccount;
     this->removePlayingPairs(playerAccount);
     emit this->PlayerSucceed_Quit(winnerAccount);
 }
@@ -94,6 +106,10 @@ void GameServer::dealOneQuited(const qint64 playerAccount){
 void GameServer::dealOneFinished(const qint64 playerAccount){
     qint64 winnerAccount = playerAccount;
     qint64 loserAccount = FindOtherBattler(winnerAccount);
+    if (loserAccount == 0) {
+        qDebug() << playerAccount << "未进入游戏 " ;
+        return;
+    }
     qDebug() << winnerAccount << "完成 " << loserAccount << "失败";
     this->removePlayingPairs(winnerAccount);
     emit this->PlayerSucceed_Win(winnerAccount);

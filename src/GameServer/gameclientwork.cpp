@@ -1,6 +1,5 @@
 #include "gameclientwork.h"
-
-
+QByteArray serialize_Package(const package& pkg);
 GameClientWork::GameClientWork(const quintptr &handle, QObject *parent):QObject(parent)
 {
     this->socketDescripter = handle;
@@ -30,8 +29,10 @@ void GameClientWork::initializeSocket(){
 }
 
 void GameClientWork::dealClientDisconnected(){
-    if(this->playerAccount)
+    if(this->playerAccount) {
         emit this->noticeOneQuited(this->playerAccount);
+        qDebug() << this->playerAccount << "离线";
+    }
 }
 
 
@@ -49,10 +50,11 @@ void GameClientWork::noticePlayerLogined(const qint64 playerAccount){
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));
 
+    qDebug() << playerAccount << " 登录成功";
     this->socket->write(block);
 }
 
-void GameClientWork::dealtransferMatchSuccess(const qint64 playerAccount, const qint64 oth_player){
+void GameClientWork::dealtransferMatchSuccess(const qint64 playerAccount, const qint64 oth_player, const package& Game){
     if(this->playerAccount != playerAccount && this->playerAccount != oth_player)
         return;
     QByteArray block;
@@ -68,8 +70,12 @@ void GameClientWork::dealtransferMatchSuccess(const qint64 playerAccount, const 
         out << oth_player << playerAccount;
     }
 
+    block += serialize_Package(Game);
+
     out.device()->seek(0);
     out << quint16(block.size() - sizeof(quint16));
+
+    qDebug() << "匹配成功 " << playerAccount << " vs " << oth_player;
 
     this->socket->write(block);
 }
@@ -88,6 +94,7 @@ void GameClientWork::dealtransferWaitingForMatching(const qint64 playerAccount){
     out.device()->seek(0);
     out << quint64(block.size() - sizeof(quint16));
 
+    qDebug() << playerAccount << "正在等待匹配";
     this->socket->write(block);
 
 }
@@ -208,5 +215,33 @@ void GameClientWork::ReadData(){
         nextBlockSize = 0;
         MSG_TYPE = -1;
     }
+
+}
+
+
+QByteArray serialize_Package(const package& pkg){
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+    for(int i = 0;i < 20;i++){
+        stream << pkg.archive_name[i];
+    }
+    // 序列化 tm 结构体
+    stream << pkg.date.tm_sec;
+    stream << pkg.date.tm_min;
+    stream << pkg.date.tm_hour;
+    stream << pkg.date.tm_mday;
+    stream << pkg.date.tm_mon;
+    stream << pkg.date.tm_year;
+    stream << pkg.date.tm_wday;
+    stream << pkg.date.tm_yday;
+    stream << pkg.date.tm_isdst;
+
+    for(int i=0;i<36;i++){
+        stream << pkg.map[i].value;
+        stream << pkg.map[i].status;
+    }
+
+    return bytes;
 
 }
