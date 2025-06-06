@@ -158,13 +158,8 @@ void start_window::on_Awake_signal(){
 }
 
 void start_window::app_msg(const QString& sender,const QString& message,bool error){
-    QString messageLine = message;
+    QString messageLine = "[" + sender + "]  " + message;
 
-    QStandardItem *_Line = new QStandardItem(QString("[" + sender + "] "));
-    model->appendRow(_Line);
-
-    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
-    ui->msg_list_window->scrollTo(lastIndex);
 
     QStandardItem *item = new QStandardItem(messageLine);
     if(error)
@@ -172,6 +167,7 @@ void start_window::app_msg(const QString& sender,const QString& message,bool err
     model->appendRow(item);
 
 
+    QModelIndex lastIndex = model->index(model->rowCount() - 1, 0);
     lastIndex = model->index(model->rowCount() - 1, 0);
     ui->msg_list_window->scrollTo(lastIndex);
 }

@@ -43,7 +43,7 @@ void AskRegister::on_RegisterBtn_clicked()
         ui->RefuseRegister->setStyleSheet("color: red;");
         return;
     }
-    if(ui->UserPassword != ui->EnsurePassword){
+    if(ui->UserPassword->text() != ui->EnsurePassword->text()){
         ui->RefuseRegister->setText("两次密码不相同,请确认");
         ui->RefuseRegister->setStyleSheet("color: red;");
         return;
