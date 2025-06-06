@@ -6,7 +6,6 @@
 #include "Client.h"
 #include <QPropertyAnimation>
 #include "mainwindow.h"
-#include "player_connect.h"
 #include <QStandardItemModel>
 #include "../ChatClient/Client.h"
 #include "expandablemenu.h"
@@ -36,6 +35,8 @@ public:
     // void dealReceiverSet(const QString& receiverName);
 
 private slots:
+    void dealGameEnded(bool win);
+
     void dealGameClosed();
 
     void OnlineGameStart();
@@ -95,7 +96,6 @@ private:
     Ui::start_window *ui;
     QStandardItemModel *model;
     MainWindow* w;
-    PlayerConnector* GameServer;
     QMenu* menu;
     QString registeredPassword;
 

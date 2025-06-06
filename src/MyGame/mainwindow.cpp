@@ -422,15 +422,25 @@ void MainWindow::Victory_Settlement(){
     int diff_minutes = static_cast<int>(diff_seconds / 60) % 60;
     int diff_hours = static_cast<int>(diff_seconds / 3600) % 60;
     int diff_sec = static_cast<int>(diff_seconds) % 60;
-    QMessageBox::information(this,"Congratulations",QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口").arg(diff_hours)
-                                                          .arg(diff_minutes).arg(diff_sec));
+    // QMessageBox::information(this,"Congratulations",QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口").arg(diff_hours)
+    //                                                       .arg(diff_minutes).arg(diff_sec));
+
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose); // 关闭时自动删除
+    msgBox->setWindowTitle("Congratulations");
+    msgBox->setText(QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口")
+                        .arg(diff_hours).arg(diff_minutes).arg(diff_sec));
+    msgBox->setModal(false); // 关键：设为非模态
+    msgBox->show();
+
+
     if(!is_online()){
 
         qDebug()<<"send awake signal:";
         emit Awake_StartWindow();
     }
     else if(is_online()){
-        emit finish_online(this->playerAccount);   //待完善
+        emit finish_online(this->playerAccount);
     }
 }
 
@@ -475,15 +485,42 @@ void MainWindow::gameStart(const qint64 playerAccount,const qint64 oth_player, c
 void MainWindow::gameLose(const qint64 loserAccount){
     emit app_msg_Signal("游戏服务器", QString::number(this->othPlayer) + " 先完成，对战失败!",false);
     qDebug() << "对方先完成，失败";
+
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose); // 关闭时自动删除
+    msgBox->setWindowTitle("Congratulations");
+    msgBox->setText("对方已完成，你输了!");
+    msgBox->setModal(false); // 关键：设为非模态
+    msgBox->show();
+
+    emit this->GameEnded(false);
 }
 
 void MainWindow::gameWin(const qint64 winnerAccount){
     emit app_msg_Signal("游戏服务器", "完成游戏，胜利! ",false);
     qDebug() << "率先完成游戏，成功";
+
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose); // 关闭时自动删除
+    msgBox->setWindowTitle("Congratulations");
+    msgBox->setText("你赢了!");
+    msgBox->setModal(false); // 关键：设为非模态
+    msgBox->show();
+
+    emit this->GameEnded(true);
 }
 
 void MainWindow::gameWinQuit(const qint64 playerAccount){
     emit app_msg_Signal("游戏服务器", QString::number(this->othPlayer) + " 已退出游戏，您取得胜利",false);
+
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose); // 关闭时自动删除
+    msgBox->setWindowTitle("Congratulations");
+    msgBox->setText("对方退出，你赢了!");
+    msgBox->setModal(false); // 关键：设为非模态
+    msgBox->show();
+
     qDebug() << "对方退出，胜利";
+    emit this->GameEnded(true);
 }
 

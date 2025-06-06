@@ -2,7 +2,6 @@
 #include "ui_start_window.h"
 #include "mainwindow.h"
 #include <QMessageBox>
-#include "player_connect.h"
 #include <QListView>
 #include <QToolButton>
 #include <QLineEdit>
@@ -97,6 +96,7 @@ void start_window::on_online_game_clicked()
         connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
     }
 
+    connect(this->w,&MainWindow::GameEnded,this,&start_window::dealGameEnded,Qt::QueuedConnection);
     connect(this->w,&MainWindow::app_msg_Signal,this,&start_window::app_msg);
     connect(this->w,&MainWindow::noticeGameStarted,this,&start_window::OnlineGameStart,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_LoginAccepted,w,&MainWindow::GameLoginSuccess,Qt::QueuedConnection);
@@ -111,7 +111,21 @@ void start_window::on_online_game_clicked()
 
 }
 
+void start_window::dealGameEnded(bool win) {
+    this->w->close();
+    this->show();
+
+    if (win) {
+        app_msg("游戏服务器", "游戏结束，胜利！");
+    }
+    else {
+        app_msg("游戏服务器" , "游戏结束，失败！");
+    }
+}
+
+
 void start_window::dealGameClosed() {
+    app_msg("系统", "您已退出, 游戏结束");
     playerclient->INTERFACE_userQuited(GLOB_UserAccount);
 }
 
@@ -143,6 +157,7 @@ void start_window::app_msg(const QString& sender,const QString& message,bool err
 }
 
 void start_window::gameClosed(){
+    emit playerclient->INTERFACE_userQuited(GLOB_UserAccount);
     this->show();
 }
 
@@ -151,31 +166,6 @@ void start_window::OnlineGameStart() {
     w->OnlineMode();
     w->show();
 }
-
-// void start_window::dealReceiverSet(const QString &receiverName) {
-//     this->receiverName_temp = receiverName;
-//     // ui->ReceiverMenuBtn->setText(receiverName_temp);
-
-//     qDebug() << "receiverName changed: " << receiverName_temp;
-// }
-
-
-
-// void start_window::on_ReceiverMenuBtn_clicked()
-// {
-
-
-//     if(!menu->isVisible()){
-//         QPoint pos = mapToGlobal(ui->ReceiverMenuBtn->pos() + QPoint(0,646));
-//         menu->popup(pos);
-//         menuON = true;
-//     }
-//     else{
-//         menu->hide();
-//         menuON = false;
-//     }
-// }
-
 
 void start_window::on_SendBtn_clicked()
 {
@@ -317,9 +307,11 @@ void start_window::dealINTERFACE_dealLoginAccepted(const qint64 userAccount,cons
     GLOB_IsConnectedToServer = true;
     GLOB_UserAccount = userAccount;
     GLOB_UserName = userName;
+    this->userName = userName;
 
     ui->LoginBtn->setText("已登录: (" + QString::number(userAccount) + ") " + userName);
-    // ui->LoginBtn->repaint();  // 强制立即重绘，不经过事件队列
+    QString Title = QString(QString::number(GLOB_UserAccount) + "  " + GLOB_UserName);
+    this->setWindowTitle(Title);
 
     app_msg("系统","登录成功: " + userName,false);
 

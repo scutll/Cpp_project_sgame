@@ -55,6 +55,8 @@ signals:
 
     void GameClosed();
 
+    void GameEnded(bool win);
+
     void finish_online(const qint64 playerAccount);
 
     void app_msg_Signal(const QString& from, const QString& message, bool warning = false);
