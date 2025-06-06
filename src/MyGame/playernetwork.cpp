@@ -37,6 +37,7 @@ void PlayerNetwork::initializeSocket() {
 }
 
 void PlayerNetwork::dealServerDisconnected(){
+    emit this->noticeServerDisconnecred();
     qDebug() << "服务器断开连接";
 }
 
@@ -46,7 +47,6 @@ void PlayerNetwork::dealSendLoginRequest(const qint64 playerAccount) {
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    qDebug() << "game connect request: " << playerAccount;
     out << quint16(0);
     out << qint16(MSGTYPE::LoginRequest);
 
@@ -63,7 +63,6 @@ void PlayerNetwork::dealSendMatchRequest(const qint64 playerAccount) {
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    qDebug() << "game connect request: " << playerAccount;
     out << quint16(0);
     out << qint16(MSGTYPE::MatchRequest);
 
@@ -99,7 +98,7 @@ void PlayerNetwork::dealPlayerQuited(const qint64 playerAccount) {
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    qDebug() << "game connect request: " << playerAccount;
+    qDebug() << "game quited: " << playerAccount;
     out << quint16(0);
     out << qint16(MSGTYPE::PlayerQuited);
 

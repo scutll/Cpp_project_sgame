@@ -70,6 +70,7 @@ void start_window::on_online_game_clicked()
         w->OnlineMode();
         playerclient->INTERFACE_SendMatchRequest(GLOB_UserAccount);
         app_msg("游戏服务器", "正在匹配中......");
+        ui->online_game->setText("匹配中");
         return;
     }
 
@@ -96,22 +97,41 @@ void start_window::on_online_game_clicked()
         connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
     }
 
-    connect(this->w,&MainWindow::GameEnded,this,&start_window::dealGameEnded,Qt::QueuedConnection);
     connect(this->w,&MainWindow::app_msg_Signal,this,&start_window::app_msg);
     connect(this->w,&MainWindow::noticeGameStarted,this,&start_window::OnlineGameStart,Qt::QueuedConnection);
+    connect(this->playerclient,&PlayerClient::INTERFACE_WaitingForMatch,this,&start_window::dealWaitingForMatch,Qt::QueuedConnection);
+    connect(this->playerclient,&PlayerClient::INTERFACE_ServerDisconnected,this,&start_window::dealGameServerDisconnected,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_LoginAccepted,w,&MainWindow::GameLoginSuccess,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_StartGame,w,&MainWindow::gameStart,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_LoseGame,w,&MainWindow::gameLose,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_WinForQuit,w,&MainWindow::gameWinQuit,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_WinGame,w,&MainWindow::gameWin,Qt::QueuedConnection);
+    connect(this->w,&MainWindow::GameEnded,this,&start_window::dealGameEnded,Qt::QueuedConnection);
     connect(this->w,&MainWindow::finish_online,this->playerclient,&PlayerClient::INTERFACE_userFinished,Qt::QueuedConnection);
 
 
-
+    ui->online_game->setText("开始匹配");
 
 }
 
+void start_window::dealGameServerDisconnected(){
+    app_msg("系统", "游戏服务器已经断开", true);
+
+    this->w->close();
+
+    //删除游戏线程
+    playerclient->deletePlayerThread();
+    playerclient->deleteLater();
+
+}
+
+void start_window::dealWaitingForMatch(){
+    app_msg("游戏服务器", "正在寻找对手......");
+}
+
 void start_window::dealGameEnded(bool win) {
+    matching = false;
+    ui->online_game->setText("开始匹配");
     this->w->close();
     this->show();
 

@@ -30,6 +30,8 @@ public:
     void dealLoginAccepted(const qint64 playerAccount);
     void dealINTERFACE_userQuited(const qint64 playerAccount);
     void dealINTERFACE_userFinished(const qint64 playerAccount);
+    void dealServerDisconnected();
+    void dealWaitingForMatching(const qint64 playerAccount);
 
     void dealWinForQuit(const qint64 playerAccount);
     void dealWinGame(const qint64 winnerAccount);
@@ -52,6 +54,8 @@ public:
     void INTERFACE_SendMatchRequest(const qint64 playerAccount);
 
 signals:
+    void INTERFACE_WaitingForMatch(const qint64 playerAccount);
+    void INTERFACE_ServerDisconnected();
     void INTERFACE_LoginAccepted(const qint64 playerAccount);
     void INTERFACE_StartGame(const qint64 playerAccount,const qint64 oth_player, const package& NewGame);
     void INTERFACE_WinGame(const qint64 winnerAccount);

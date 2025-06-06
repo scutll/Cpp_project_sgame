@@ -91,6 +91,10 @@ private slots:
 
     void dealAskRegister();
 
+    void dealGameServerDisconnected();
+
+    void dealWaitingForMatch();
+
 private:
     bool matching;
     Ui::start_window *ui;

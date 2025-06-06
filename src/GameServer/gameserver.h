@@ -37,7 +37,6 @@ private:
     QMutex mutex;
     QVector<QPair<qint64,qint64>> playing_pairs;
     TcpServer *tcpserver;
-    Scene game;
 
 
 

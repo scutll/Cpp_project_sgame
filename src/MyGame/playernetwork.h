@@ -43,6 +43,7 @@ public:
 
 
 signals:
+    void noticeServerDisconnecred();
     void LoginAcceptedSignal(const qint64 playerAccount);
     void joinMatching(const qint64 playerAccount);
     void StartGame(const qint64 playerAccount, const qint64 oth_player, const package& GamePkg);

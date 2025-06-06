@@ -42,6 +42,8 @@ void Scene::generate()
     按行、列填入block
     */
 
+
+
     std::vector<int> unit = get_unit(max_count);
     Shuffle(unit);
 

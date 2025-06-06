@@ -55,6 +55,7 @@ void GameServer::removePlayingPairs(const qint64 playerAccount){
     for(int i = 0; i < playing_pairs.size(); i ++){
         if(playing_pairs[i].first == playerAccount || playing_pairs[i].second == playerAccount){
             playing_pairs.remove(i);
+            qDebug() << "当前对战玩家对数: " << playing_pairs.size();
             return;
         }
     }
@@ -72,9 +73,15 @@ void GameServer::dealJoinMatching(const qint64 playerAccount){
     QMutexLocker locker(&this->mutex);
     if(this->matching_queue.size() >= 1){
         qDebug() << "当前匹配队列长度>=1, " << playerAccount << " 可以进入游戏";
+
         qint64 oth_player = matching_queue.front();
         matching_queue.pop_front();
+
         playing_pairs.push_back(QPair<qint64,qint64> (playerAccount,oth_player));
+        qDebug() << playerAccount << " : " << oth_player << " 已经加入对战队列中";
+
+        Scene game;
+        qDebug() << "正在初始化游戏地图";
         game.generate();
 
         package pkg = game.package_();

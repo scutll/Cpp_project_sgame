@@ -44,6 +44,7 @@ void PlayerClient::deletePlayerThread(){
 void PlayerClient::connect_Init() {
 
     //连接失败
+    connect(this->player_network_manager,&PlayerNetwork::noticeServerDisconnecred,this,&PlayerClient::dealServerDisconnected,Qt::QueuedConnection);
 
     //用户登录
     connect(this,&PlayerClient::SendLoginRequest,this->player_network_manager,&PlayerNetwork::dealSendLoginRequest,Qt::QueuedConnection);
@@ -51,6 +52,7 @@ void PlayerClient::connect_Init() {
 
     //匹配开始游戏
     connect(this,&PlayerClient::SendMatchRequest,this->player_network_manager,&PlayerNetwork::dealSendMatchRequest,Qt::QueuedConnection);
+    connect(this->player_network_manager,&PlayerNetwork::noticeWaitingForMatching,this,&PlayerClient::dealWaitingForMatching,Qt::QueuedConnection);
     connect(this->player_network_manager,&PlayerNetwork::StartGame,this,&PlayerClient::dealStartGame,Qt::QueuedConnection);
     connect(this,&PlayerClient::playerQuited,this->player_network_manager,&PlayerNetwork::dealPlayerQuited,Qt::QueuedConnection);
     connect(this,&PlayerClient::playerFinished,this->player_network_manager,&PlayerNetwork::dealPlayerFinished,Qt::QueuedConnection);
@@ -62,6 +64,10 @@ void PlayerClient::connect_Init() {
 
 }
 
+void PlayerClient::dealServerDisconnected() {
+    emit this->INTERFACE_ServerDisconnected();
+}
+
 
 void PlayerClient::dealLoginAccepted(const qint64 playerAccount) {
     if (GLOB_UserAccount != playerAccount)
@@ -69,6 +75,13 @@ void PlayerClient::dealLoginAccepted(const qint64 playerAccount) {
     qDebug() << playerAccount << "登录成功";
     emit this->INTERFACE_LoginAccepted(playerAccount);
 }
+
+void PlayerClient::dealWaitingForMatching(const qint64 playerAccount) {
+    if (this->playerAccount != playerAccount)
+        return;
+    emit this->INTERFACE_WaitingForMatch(playerAccount);
+}
+
 
 
 void PlayerClient::dealStartGame(const qint64 playerAccount, const qint64 oth_player, const package& newGame) {
@@ -90,6 +103,8 @@ void PlayerClient::dealINTERFACE_userFinished(const qint64 playerAccount) {
 }
 
 void PlayerClient::dealINTERFACE_userQuited(const qint64 playerAccount) {
+    if(!battling)
+        return;
     emit this->playerQuited(playerAccount);
     this->battling = false;
 }
@@ -97,17 +112,22 @@ void PlayerClient::dealINTERFACE_userQuited(const qint64 playerAccount) {
 
 void PlayerClient::dealWinForQuit(const qint64 playerAccount) {
     emit INTERFACE_WinForQuit(playerAccount);
+    battling = false;
 }
 
 void PlayerClient::dealWinGame(const qint64 winnerAccount) {
     emit INTERFACE_WinGame(winnerAccount);
+    battling = false;
 }
 
 void PlayerClient::dealLoseGame(const qint64 loserAccount) {
     emit INTERFACE_LoseGame(loserAccount);
+    battling = false;
 }
 
 void PlayerClient::INTERFACE_userQuited(const qint64 playerAccount) {
+    if(!battling)
+        return;
     dealINTERFACE_userQuited(playerAccount);
 }
 
