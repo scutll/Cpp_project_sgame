@@ -425,16 +425,16 @@ void MainWindow::Victory_Settlement(){
     // QMessageBox::information(this,"Congratulations",QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口").arg(diff_hours)
     //                                                       .arg(diff_minutes).arg(diff_sec));
 
-    QMessageBox *msgBox = new QMessageBox(this);
-    msgBox->setAttribute(Qt::WA_DeleteOnClose); // 关闭时自动删除
-    msgBox->setWindowTitle("Congratulations");
-    msgBox->setText(QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口")
-                        .arg(diff_hours).arg(diff_minutes).arg(diff_sec));
-    msgBox->setModal(false); // 关键：设为非模态
-    msgBox->show();
 
 
     if(!is_online()){
+        QMessageBox *msgBox = new QMessageBox(this);
+        msgBox->setAttribute(Qt::WA_DeleteOnClose); // 关闭时自动删除
+        msgBox->setWindowTitle("Congratulations");
+        msgBox->setText(QString("恭喜你！完成了！\n 总时长：%1小时 %2分钟 %3秒 \n 即将退出到开始窗口")
+                            .arg(diff_hours).arg(diff_minutes).arg(diff_sec));
+        msgBox->setModal(false); // 关键：设为非模态
+        msgBox->show();
 
         qDebug()<<"send awake signal:";
         emit Awake_StartWindow();

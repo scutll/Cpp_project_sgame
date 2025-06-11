@@ -59,6 +59,8 @@ void start_window::on_offline_game_clicked()
 
     w->OfflineMode();
     w->show();
+    QPoint pos_st = this->pos();
+    w->move(pos_st);
     w->generate_map();
 }
 
@@ -131,7 +133,8 @@ void start_window::dealGameEnded(bool win) {
     matching = false;
     ui->online_game->setText("开始匹配");
     this->w->close();
-    this->show();
+    if(this->isHidden())
+        this->show();
 
     if (win) {
         app_msg("游戏服务器", "游戏结束，胜利！");
@@ -151,7 +154,8 @@ void start_window::dealGameClosed() {
 void start_window::on_Awake_signal(){
     w->close();
     qDebug()<<"close game window";
-    this->show();
+    if(this->isHidden())
+        this->show();
     qDebug()<<"awake start window";
 }
 
@@ -173,18 +177,22 @@ void start_window::app_msg(const QString& sender,const QString& message,bool err
 void start_window::dealonlineGameClosed(){
     qDebug() << "发送退出消息" << GLOB_UserAccount;
     emit playerclient->INTERFACE_userQuited(GLOB_UserAccount);
-    this->show();
+    if(this->isHidden())
+        this->show();
 }
 
 void start_window::dealofflineGameClosed(){
     app_msg("系统", "您已退出单机游戏");
-    this->show();
+    if(this->isHidden())
+        this->show();
 }
 
 void start_window::OnlineGameStart() {
     // this->close();
     w->OnlineMode();
     w->show();
+    QPoint pos_st = this->pos();
+    w->move(pos_st);
 }
 
 void start_window::on_SendBtn_clicked()
