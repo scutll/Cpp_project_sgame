@@ -53,7 +53,9 @@ signals:
 
     void Awake_StartWindow();
 
-    void GameClosed();
+    void onlineGameClosed();
+
+    void offlineGameClosed();
 
     void GameEnded(bool win);
 
@@ -88,7 +90,15 @@ protected:
     void closeEvent(QCloseEvent* event) override{
         qDebug()<<"main window closed";
 
-        emit GameClosed();
+        if(is_online()){
+            qDebug() << "网络模式退出: ";
+            emit this->onlineGameClosed();
+            return;
+        }
+        else{
+            emit this->offlineGameClosed();
+            return;
+        }
     }
 };
 #endif // MAINWINDOW_H

@@ -26,7 +26,7 @@ start_window::start_window(QWidget *parent)
     w = new MainWindow;
     w->init();
 
-    connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
+    connect(w,SIGNAL(offlineGameClosed()),this,SLOT(dealofflineGameClosed()));
 
 
     ui->SendBtn = new QPushButton;
@@ -92,11 +92,9 @@ void start_window::on_online_game_clicked()
     if(!this->w){
         w = new MainWindow;
         w->init();
-
-
-        connect(w,SIGNAL(GameClosed()),this,SLOT(gameClosed()));
     }
 
+    connect(w,SIGNAL(onlineGameClosed()),this,SLOT(dealonlineGameClosed()));
     connect(this->w,&MainWindow::app_msg_Signal,this,&start_window::app_msg);
     connect(this->w,&MainWindow::noticeGameStarted,this,&start_window::OnlineGameStart,Qt::QueuedConnection);
     connect(this->playerclient,&PlayerClient::INTERFACE_WaitingForMatch,this,&start_window::dealWaitingForMatch,Qt::QueuedConnection);
@@ -172,8 +170,14 @@ void start_window::app_msg(const QString& sender,const QString& message,bool err
     ui->msg_list_window->scrollTo(lastIndex);
 }
 
-void start_window::gameClosed(){
+void start_window::dealonlineGameClosed(){
+    qDebug() << "发送退出消息" << GLOB_UserAccount;
     emit playerclient->INTERFACE_userQuited(GLOB_UserAccount);
+    this->show();
+}
+
+void start_window::dealofflineGameClosed(){
+    app_msg("系统", "您已退出单机游戏");
     this->show();
 }
 

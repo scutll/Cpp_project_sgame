@@ -53,7 +53,9 @@ private slots:
 
     // void onRecv_msg_package(const package& pkg);
 
-    void gameClosed();
+    void dealofflineGameClosed();
+
+    void dealonlineGameClosed();
 
     // void on_ReceiverMenuBtn_clicked();
 
